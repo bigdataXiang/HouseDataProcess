@@ -80,7 +80,14 @@
   运行情况：
   2015年07月-2015年09月数据运行正常
   2015年10月程序溢出
-  2015年11月
+  2015年11月程序溢出
   2015年12月程序溢出
-  2016年01月至09月
+  2016年01月至09月数据运行完毕，但是其中06、07、08、09这几个月有格网的数据有问题
+  问题如下：
+  { "_id" : { "$oid" : "58510c1011a746dd9c899268"} , "url" : "http://bj.5i5j.com/exchange/126002179" , "source" : "woaiwojia" , "region" : "北京市朝阳区常营乡" , "location" : "朝阳-常营" , "community" : "中弘·北京像素北区(在售144套)" , "price" : "210" , "area" : "0" , "unit_price" : "Infinity" , "year" : "2016" , "month" : "06" , "day" : "04" , "time" : "2016/06/0412:56:31" , "lng" : "116.59897" , "lat" : "39.92365" , "code" : "4314006" , "row" : "1079" , "col" : "2006" , "house_type" : "2室1厅1卫" , "rooms" : "2" , "halls" : "1" , "bathrooms" : "1" , "floor" : "下部/17" , "flooron" : "下部" , "floors" : "17" , "title" : "您正在查看王文君发布的北京中弘·北京像素北区房源" , "property_company" : "" , "green_rate" : "" , "direction" : "东" , "heat_supply" : "自供暖" , "property" : "公寓普通住宅" , "property_fee" : "" , "down_payment" : "63万" , "volume_rate" : "" , "households" : "" , "developer" : "" , "totalarea" : "" , "month_payment" : "8485元" , "built_year" : "2008-01-01"}
+
   2016年10月
+
+9.新建【PBSHADE_Spatial_7】类，利用【P-BSHADE】插值方法进行空间插值，
+  
+10.新建【PBSHADE_Time_8】类，利用【P-BSHADE】插值方法进行时间插值，

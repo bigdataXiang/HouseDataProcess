@@ -10,7 +10,7 @@ import com.svail.grid50.util.db;
  */
 public class CompareSource_5 {
     public static void main(String[] args){
-        compare("385568");
+        compare("4314006");
     }
     public static void compare(String code){
         DBCollection coll = db.getDB("paper").getCollection("BasicData_Resold");
@@ -18,7 +18,7 @@ public class CompareSource_5 {
         document.put("code",code);
         //document.put("source","woaiwojia");
         document.put("year","2016");
-        document.put("month","05");
+        document.put("month","06");
         DBCursor cursor = coll.find(document);
         String poi="";
         if(cursor.hasNext()) {

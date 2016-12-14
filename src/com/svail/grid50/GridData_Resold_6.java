@@ -3,10 +3,7 @@ package com.svail.grid50;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
-import com.mongodb.MongoException;
 import com.svail.grid50.util.*;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 import java.util.*;
@@ -34,13 +31,13 @@ public class GridData_Resold_6 {
     }
     public static void initial(){
 
-        for(int i=11;i<=11;i++){
+        for(int i=10;i<=10;i++){
 
             JSONObject condition=new JSONObject();
             condition.put("N",1);
-            condition.put("year","2015");
+            condition.put("year","2016");
             condition.put("month",i);//"0"+i
-            System.out.println("2015年"+i+"月:");
+            System.out.println("2016年"+i+"月:");
             condition.put("export_collName","BasicData_Resold");
             condition.put("import_collName","GridData_Resold");
 
