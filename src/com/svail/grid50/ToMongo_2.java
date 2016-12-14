@@ -1,4 +1,4 @@
-package com.svail.field_standardization;
+package com.svail.grid50;
 
 import com.mongodb.*;
 import com.svail.util.FileTool;
@@ -16,8 +16,8 @@ import static com.svail.util.Tool.isNumeric;
  *
  *
  */
-public class toMongo {
-    public static String sourcepath="/media/bigdataxiang/data/houseprice/temp_woaiwojia/";//temp_woaiwojia
+public class ToMongo_2 {
+    public static String sourcepath="/media/bigdataxiang/data/houseprice/temp_woaiwojia/";
     public static void main(String[] args){
         String filename="";
         Vector<String> pois= FileTool.Load(sourcepath+"filename.txt","utf-8");

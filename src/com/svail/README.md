@@ -38,9 +38,39 @@
 在数据进行去重之前，首先要复制一个备份的数据表，名为【BasicData_Resold_50_backup】
 该表包含冗余数据,之后，再对【BasicData_Resold_50】数据进行去重处理
 
-2016年12月13日
-182.168.6.9上的mongodb数据库中的【temp_houseprice】中的表【BasicData_Resold_50】
++ 2016年12月13日
+【182.168.6.9】上的mongodb数据库中的【temp_houseprice】中的表【BasicData_Resold_50】
 被删除，该表之前存储了2015年10月至2016年5月的二手房去重数据。现在需要将【temp_houseprice】
-作为linux/windows/服务器三者的文件临时中转站。该数据库现在要临时存储linux传送到windows
+作为【linux/windows/182.168.6.9】三者的文件临时中转站。该数据库现在要临时存储linux传送到windows
 上的数据，即linux中的mongodb的【houseprice】中的【BasicData_Resold_50】，该数据是
 未去重的2015年10月到2016年10月的数据，共计6409691条。
+
++ 2016年12月14日
+1.将【182.168.6.9】中的【BasicData_Resold_50】6409691条数据复制到windows的数据库
+【paper】,该数据库存储了论文所需要的所有进程的数据。
+
+2.在项目中设置package【grid50】,该包内包含了数据处理的所有流程；
+
+3.新建【BatchProcess_1】类，该类将存储在本地的原始数据文件存储进行批量的地理编码，
+  其中"1"表示是数据处理的第一步；
+
+4.新建【ToMongo_2】类，该类将批量地理编码的数据导入到数据库中；
+
+5.新建【RemovalDuplicate_3】类，该类的主要作用是去除【paper】中的【BasicData_Resold_50】
+  6409691条数据中的重复数据。
+  进行该一步的程序是用js写的，存储在"D:\ruanjian\MongoDB\bin"中
+  执行命令"mongo 127.0.0.1/paper BasicData_50.js"
+  
+  去重后【BasicData_Resold_50】表中的数据量为3017291条。
+  
+6.新建【BasicData_Clean_4】，该类主要是清除【BasicData_Resold_50】数据库中的噪音数据，
+  将所有的数据都统一成【String】类型，为了避免数据类型的不一致造成的数据处理麻烦。
+  再次清洗后的数据存在【BasicData_Resold】
+  此时每一条数据都会含有【50m*50m】的[row,col,code]的属性
+  
+7.新建【CompareSource_5】类，该类是比较同一格网内的不同房地产网站的房源数据情况
+  通过对比，发现不同网站的数据报价一致，因此所有数据一视同仁
+    
+8.新建【GridData_Resold_6】类，该类用于生成50m*50m的"混合像元"数据。
+  这一步非常重要，这一步不仅要算出格网的平均房价，还要统计出格网的所有房源信息，
+  这需要将房产投资的那一部分内容加进来，融合成数据结构形式
