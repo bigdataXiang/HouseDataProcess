@@ -10,15 +10,15 @@ import com.svail.grid50.util.db;
  */
 public class CompareSource_5 {
     public static void main(String[] args){
-        compare("4141426");
+        compare("385568");
     }
     public static void compare(String code){
         DBCollection coll = db.getDB("paper").getCollection("BasicData_Resold");
         BasicDBObject document = new BasicDBObject();
         document.put("code",code);
         //document.put("source","woaiwojia");
-        document.put("year","2015");
-        document.put("month","10");
+        document.put("year","2016");
+        document.put("month","05");
         DBCursor cursor = coll.find(document);
         String poi="";
         if(cursor.hasNext()) {

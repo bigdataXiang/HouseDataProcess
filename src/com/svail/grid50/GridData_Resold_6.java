@@ -15,6 +15,17 @@ import java.util.*;
  * Created by ZhouXiang on 2016/12/14.
  */
 public class GridData_Resold_6 {
+    //注意，统计不同月份的数据的时候，全局变量要清空！！！
+    public static Map<Integer,Map<String,Integer>> code_houseType_map=new HashMap<>();
+    public static Map<Integer,Map<String,Integer>> code_direction_map=new HashMap<>();
+    public static Map<Integer,Map<String,Integer>> code_floors_map=new HashMap<>();
+    public static Map<Integer,Map<String,Integer>> code_area_map=new HashMap<>();
+    public static Map<Integer,Map<String,Integer>> code_price_map=new HashMap<>();
+    public static Map<Integer,Map<String,Integer>> code_unitprice_map=new HashMap<>();
+    public static Map<Integer,Map<String,Integer>> code_flooron_map=new HashMap<>();
+    public static Map<Integer,Map<String,List<JSONObject>>> code_pois=new HashMap<>();
+    public static TreeSet<Integer> codesSet= new TreeSet<>();
+    public static JSONObject total=new JSONObject();
 
     public static void main(String[] args){
 
@@ -23,350 +34,626 @@ public class GridData_Resold_6 {
     }
     public static void initial(){
 
-        for(int i=7;i<=9;i++){
-            //1.选定要导出的数据的时间（月份）
+        for(int i=11;i<=11;i++){
+
             JSONObject condition=new JSONObject();
+            condition.put("N",1);
             condition.put("year","2015");
-            condition.put("month","0"+i);
+            condition.put("month",i);//"0"+i
+            System.out.println("2015年"+i+"月:");
             condition.put("export_collName","BasicData_Resold");
             condition.put("import_collName","GridData_Resold");
 
-            //2.从数据库中调出满足condition的数据,并且将每个网格的数据存入以key-value形式存入map中
-            Map<String,Code_Price_RowCol> map=getCodePrice(condition);
+            code_houseType_map=new HashMap<>();
+            code_direction_map=new HashMap<>();
+            code_floors_map=new HashMap<>();
+            code_area_map=new HashMap<>();
+            code_price_map=new HashMap<>();
+            code_unitprice_map=new HashMap<>();
+            code_flooron_map=new HashMap<>();
+            code_pois=new HashMap<>();
+            codesSet= new TreeSet<>();
+            total=new JSONObject();
 
-            //3.得到每个网格的均价,并将其存入数据库中
-            getAvenragePrice(map,condition);
+            callDataFromMongo(condition);
+
+            //statisticCode();
+
+            ergodicStatistics(condition);
 
             System.out.println("ok!");
         }
     }
 
 
-    /**
-     * 2.从数据库中调出满足condition的数据,并存于result_array中
-     * @param condition
-     */
-    public static Map getCodePrice(JSONObject condition){
-        String collName=condition.getString("export_collName");
-        DBCollection coll = db.getDB("paper").getCollection(collName);
+    //1：将每个格网的数据（obj）存储在codelists_map中，其中key是格网code，value是装了所有房源数据的list
+    public static void callDataFromMongo(JSONObject condition){
+
+        String collName_export=condition.getString("export_collName");
+        DBCollection coll_export = db.getDB("paper").getCollection(collName_export);
+
 
         BasicDBObject document = new BasicDBObject();
         Iterator<String> it=condition.keys();
         while(it.hasNext()){
             String key = it.next();
             String value=condition.getString(key);
-            if(key.equals("year")||key.equals("month")||key.equals("source")){
+            if(key.equals("year")||key.equals("month")){
                 document.put(key,value);
             }
         }
+        String month=condition.getString("month");
 
-        DBCursor cursor = coll.find(document);
+        DBCursor cursor = coll_export.find(document);
 
-        String poi="";
+        String poi;
         JSONObject obj;
-        double unit_price=0;
-        String code ;
-        int row;
-        int col;
-        List<Double> pricelist;
-        Code_Price_RowCol cpr;
-        Map<String,Code_Price_RowCol> map=new HashMap<>();
-        double lng;
-        double lat;
+        int code;
 
+        String house_type;
+        String area;
+        String floors;
+        String direction;
+        String flooron;
+        String price;
+        String unit_price;
+
+
+        int count=0;
         if(cursor.hasNext()) {
-            while (cursor.hasNext()) {
-                poi=cursor.next().toString();
-                obj=JSONObject.fromObject(poi);
+            while (cursor.hasNext()){
+                BasicDBObject cs = (BasicDBObject)cursor.next();
+                poi=cs.toString();
+                obj= JSONObject.fromObject(poi);
+                obj.remove("_id");
+                code=obj.getInt("code");
+                codesSet.add(code);
 
-                lng=obj.getDouble("lng");
-                lat=obj.getDouble("lat");
-                String[] result= PoiCode.setPoiCode_50(lat,lng).split(",");
-                code = result[0];
-                row=Integer.parseInt(result[1]);
-                col=Integer.parseInt(result[2]);
-                unit_price=getUnitPrice(obj);
+                if(obj.containsKey("house_type")){
+                    house_type=obj.getString("house_type");
+                    setAttributeMap(code,house_type,code_houseType_map);
 
-                if (map.containsKey(code)) {
+                    //以code为key建立一个poi的索引表
+                    //Map<Integer,Map<String,List<JSONObject>>> code_pois
+                    if(month.equals("12")){
 
-                    cpr = map.get(code);
-                    pricelist=cpr.getPricelist();
-                    pricelist.add(unit_price);
-                    cpr.setPricelist(pricelist);
-                    map.put(code,cpr);
-                }else{
-                    pricelist = new ArrayList<Double>();
-                    pricelist.add(unit_price);
+                    }else {
+                        //当月份为12时，这一部分代码暂时不用了，因为12月份的数据太多，导致内存总是溢出要寻求新的办法
+                        if(code_pois.containsKey(code)){
+                            Map<String,List<JSONObject>> hy_pois=code_pois.get(code);
 
-                    cpr=new Code_Price_RowCol();
-                    cpr.setCode(code);
-                    cpr.setCol(col);
-                    cpr.setRow(row);
-                    cpr.setPricelist(pricelist);
-                    map.put(code,cpr);
+                            if(hy_pois.containsKey(house_type)){
+
+                                List<JSONObject> pois=hy_pois.get(house_type);
+                                pois.add(obj);
+                                hy_pois.put(house_type,pois);
+                                code_pois.put(code,hy_pois);
+
+                            }else{
+
+                                List<JSONObject> pois=new ArrayList<>();
+                                pois.add(obj);
+                                hy_pois.put(house_type,pois);
+                                code_pois.put(code,hy_pois);
+                            }
+
+                        }else{
+                            Map<String,List<JSONObject>> hy_pois=new HashMap<>();
+                            List<JSONObject> pois=new ArrayList<>();
+                            pois.add(obj);
+                            hy_pois.put(house_type,pois);
+                            code_pois.put(code,hy_pois);
+                        }
+                    }
                 }
+
+                if(obj.containsKey("direction")){
+                    direction=obj.getString("direction");
+                    setAttributeMap(code,direction,code_direction_map);
+                }
+
+                if(obj.containsKey("floors")){
+                    floors=obj.getString("floors");
+                    setAttributeMap(code,floors,code_floors_map);
+                }
+
+                if(obj.containsKey("flooron")){
+                    flooron=obj.getString("flooron");
+                    setAttributeMap(code,flooron,code_flooron_map);
+                }
+
+                if(obj.containsKey("area")){
+                    area=obj.getString("area");
+                    boolean num= NumJudge.isNum(area);
+                    if(num){
+                        setAttributeMap(code,area,code_area_map);
+                    }else {
+                        System.out.println(code+":"+area);
+                    }
+
+                }
+
+                if(obj.containsKey("price")){
+                    price=obj.getString("price");
+                    boolean num= NumJudge.isNum(price);
+                    if(num){
+                        setAttributeMap(code,price,code_price_map);
+                    }else {
+                        System.out.println(code+":"+price);
+                    }
+                }
+
+                if(obj.containsKey("unit_price")){
+                    unit_price=obj.getString("unit_price");
+                    boolean num= NumJudge.isNum(unit_price);
+                    if(num){
+                        setAttributeMap(code,unit_price,code_unitprice_map);
+                    }else {
+                        System.out.println(code+":"+unit_price);
+                    }
+                }
+                ++count;
             }
         }
-        System.out.println("共有" + map.size() + "个网格有数据");
-        return map;
+        System.out.println("共有" +count+ "条数据");
     }
 
-    /**
-     * 3.求每个网格的房价平均值
-     * @return
-     */
-    public static void getAvenragePrice(Map<String,Code_Price_RowCol> map, JSONObject condition) {
+    //2:遍历整个code_houseType_map，计算每个网格里边的户型的个数，并生成json格式数据
+    public static void statisticCode(){
+        stasticAttributeNum(code_houseType_map);
+        stasticAttributeNum(code_direction_map);
+        stasticAttributeNum(code_floors_map);
+        stasticAttributeNum(code_flooron_map);
+        stasticAttributeNum(code_area_map);
+        stasticAttributeNum(code_price_map);
+        stasticAttributeNum(code_unitprice_map);
+    }
 
-        //遍历codeprice中的元素，求每个网格的价格均值
-        Iterator codekeys = map.keySet().iterator();
-        List<Double> pricelist;
-        BasicDBObject code_averagePrice = new BasicDBObject();
-        Code_Price_RowCol cpr;
-        String code;
+    //3、遍历所有网格，汇总每一个网格的统计信息
+    public static void ergodicStatistics(JSONObject condition){
+
+        JSONObject obj;
+        double weight_area=0;
+        double weight_price=0;
+        double weight_unitprice=0;
         int row;
         int col;
-        int importcount=0;
-
-        String collName=condition.getString("import_collName");
-        DBCollection coll = db.getDB("").getCollection(collName);
-
-
-        try{
-            while (codekeys.hasNext()) {
-                code = (String) codekeys.next();
-
-                cpr=map.get(code);
-                /*String code1=cpr.getCode();
-                System.out.println(code+"  "+code1);*/
-                pricelist = cpr.getPricelist();
-                double totalprice = 0;
-                double average_price = 0;
-
-                if (pricelist.size() != 0) {
-                    int count = 0;//统计pricelist中均价不为0的数目
-                    for (int i = 0; i < pricelist.size(); i++) {
-                        double price = pricelist.get(i);
-                        if (price != 0) {
-                            totalprice += price;
-                            count++;
-                        }
-
-                    }
-                    if(count!=0){
-                        average_price = totalprice / count;
-                    }else{
-                        average_price=0;
-                    }
-
-                }else{
-                    average_price=0;
-                }
-                code_averagePrice.put("code", Integer.parseInt(code));
-                code_averagePrice.put("average_price", average_price);
-                String color= Color.setColorRegion(average_price);
-                code_averagePrice.put("color",color);
-
-                row=cpr.getRow();
-                col=cpr.getCol();
-                code_averagePrice.put("row",row);
-                code_averagePrice.put("col",col);
-
-                String year=condition.getString("year");
-                String month=condition.getString("month");
-                String source=condition.getString("source");
-                code_averagePrice.put("year",Integer.parseInt(year));
-
-                String mon="";
-                if(month.startsWith("0")){
-                    mon=month.substring(1);
-                }else{
-                    mon=month;
-                }
-                code_averagePrice.put("month",Integer.parseInt(mon));
-                code_averagePrice.put("source",source);
-
-                DBCursor rls =coll.find(code_averagePrice);
-                if(rls == null || rls.size() == 0){
-                    coll.insert(code_averagePrice);
-                    System.out.println(code_averagePrice);
-                    importcount++;
-                }else{
-                    System.out.println("该数据已经存在!");
-                }
-                code_averagePrice.clear();
-            }
-
-            coll.createIndex(new BasicDBObject("code", 1));
-            coll.createIndex(new BasicDBObject("row", 1));
-            coll.createIndex(new BasicDBObject("col", 1));
-            coll.createIndex(new BasicDBObject("year", 1));
-            coll.createIndex(new BasicDBObject("month", 1));
-            System.out.println("共导入"+importcount+"条数据");
-        }catch (JSONException e){
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }catch (MongoException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }catch (NullPointerException e) {
-            // TODO Auto-generated catch block
-            System.out.println("发生异常的原因为 :"+e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * 4.给有房价值的每个网格的均价赋予一个颜色值
-     * @param array
-     */
-    public static String  setColor(JSONArray array){
-        JSONObject backdata=new JSONObject();
-        JSONArray finalresult=new JSONArray();
-
-        System.out.println("开始计算每个网格的颜色：");
-        String color="";
-        for (int i=0;i<array.size();i++){
-            JSONObject obj= (JSONObject) array.get(i);
-            double price=obj.getDouble("average_price");
-
-            color= Color.setColorRegion(price);
-            obj.put("color",color);
-
-            finalresult.add(obj);
-        }
-        backdata.put("data",finalresult);
-        return backdata.toString();
-    }
-    public static List<JSONObject> result_array=new ArrayList<JSONObject>();
-    public static ArrayList<Code_Price_RowCol> codes = new ArrayList<Code_Price_RowCol>();
-    public static void addCode(Code_Price_RowCol c) {
-        codes.add(c);
-    }
-    public static void importToMongo(JSONObject condition,List<BasicDBObject> dbList){
-        String collName=condition.getString("import_collName");
-        DBCollection coll = db.getDB("paper").getCollection(collName);
-
-        try {
-            if(dbList.size()!=0){
-                int count=0;
-                for(int i=0;i<dbList.size();i++){
-                    BasicDBObject obj=dbList.get(i);
-
-                    DBCursor rls =coll.find(obj);
-
-                    if(rls == null || rls.size() == 0){
-                        coll.insert(obj);
-                        count++;
-                    }else{
-                        System.out.println("该数据已经存在!");
-                    }
-                }
-                System.out.println("共导入"+count+"条数据");
-            }
-
-        }catch (MongoException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }catch (NullPointerException e) {
-            // TODO Auto-generated catch block
-            System.out.println("发生异常的原因为 :"+e.getMessage());
-            e.printStackTrace();
-        }
-
-    }
-
-    /**
-     * 5.填充房价值为空的网格的颜色，并对所有网格进行排序
-     * @param data
-     * @return
-     */
-    public static void FilledGridData(String data,JSONObject condition){
-        System.out.println("开始填充值为空的网格的颜色：");
-        String str="";
-        JSONObject data_obj=JSONObject.fromObject(data);
-        JSONArray data_array=data_obj.getJSONArray("data");
-
-        List<BasicDBObject> list = new ArrayList<BasicDBObject>(); //对时间进行排序的list
-        BasicDBObject obj=new BasicDBObject();
-        JSONObject codekey=new JSONObject();
-        for(int i=0;i<data_array.size();i++){
-            obj= (BasicDBObject) data_array.get(i);
-            list.add(obj);
-
-            String code=obj.get("code").toString();
-            codekey.put(code,"");
-        }
+        int[] rc=new int[2];
+        int code;
+        Object[] codeslist=codesSet.toArray();
 
 
         String year=condition.getString("year");
         String month=condition.getString("month");
-        String source=condition.getString("source");
-        for(int row=1;row<=2000;row++){
-            for(int col=1;col<=2000;col++){
-                String codeindex=""+(col + 2000 * (row - 1));
-                if(!codekey.containsKey(codeindex)){
-                    obj.clear();
-                    obj.put("code",codeindex);
-                    obj.put("average_price",0);
-                    obj.put("color","#BFBFBF");
-                    obj.put("row",row);
-                    obj.put("col",col);
-                    obj.put("time","");
-                    obj.put("year",year);
-                    obj.put("month",month);
-                    obj.put("source",source);
-                    list.add(obj);
-                    obj.clear();
+
+        String collName_import=condition.getString("import_collName");
+        DBCollection coll_import = db.getDB("paper").getCollection(collName_import);
+        BasicDBObject document;
+        int index=0;
+        int documentcount=0;
+        for(int i=0;i<codeslist.length;i++){
+
+            code=(int)codeslist[i];
+            document = new BasicDBObject();
+            if(code_houseType_map.containsKey(code)){
+                index++;
+                Map<String,Integer> houseType=code_houseType_map.get(code);
+                String type=getAttributeJson(houseType);
+                document.put("houseType_statistics",type);
+            }
+
+            if(code_direction_map.containsKey(code)){
+                index++;
+                Map<String,Integer> direction=code_direction_map.get(code);
+                String dir=getAttributeJson(direction);
+                document.put("direction_statistics",dir);
+            }
+
+            if(code_floors_map.containsKey(code)){
+                index++;
+                Map<String,Integer> floors=code_floors_map.get(code);
+                String floor=getAttributeJson(floors);
+                document.put("floors_statistics",floor);
+            }
+
+            if(code_flooron_map.containsKey(code)){
+                index++;
+                Map<String,Integer> flooron=code_flooron_map.get(code);
+                String fo=getAttributeJson(flooron);
+                document.put("flooron_statistics",fo);
+            }
+
+            if(code_area_map.containsKey(code)){
+                index++;
+                Map<String,Integer> area=code_area_map.get(code);
+                String ar=getAttributeJson(area);
+
+                weight_area=getInvestmentThreshold(area);
+                document.put("area_statistics",ar);
+
+            }
+
+            if(code_price_map.containsKey(code)){
+                index++;
+                Map<String,Integer> price=code_price_map.get(code);
+                String pr=getAttributeJson(price);
+
+                weight_price=getInvestmentThreshold(price);
+                document.put("price_statistics",pr);
+            }
+
+            if(code_unitprice_map.containsKey(code)){
+                index++;
+                Map<String,Integer> unitprice=code_unitprice_map.get(code);
+                String up=getAttributeJson(unitprice);
+
+                weight_unitprice=getInvestmentThreshold(unitprice);
+                document.put("unitprice_statistics",up);
+            }
+
+            //在这里加一个ratio的key，该ley里面存放的value能够确定主打户型的基本情况（面积、朝向、楼层等）
+            //以code为key建立一个poi的索引表:Map<Integer,Map<String,List<JSONObject>>> code_pois
+            Map<String,Map<String,Integer>> hy_area_map=new HashMap<>();
+            Map<String,Map<String,Integer>> hy_price_map=new HashMap<>();
+            Map<String,Map<String,Integer>> hy_unitprice_map=new HashMap<>();
+
+            int count=0;
+            Map<Integer,Map<String,List<JSONObject>>> codepois=new HashMap<>();
+
+            //十二月份的数据比较多，所以用逐个统计的办法，防止堆溢出
+            if(month.equals("12")){
+                codepois=setCode_pois(year,month,code);
+            }else {
+                codepois=code_pois;
+            }
+
+            if(codepois.containsKey(code)){
+
+                Map<String,List<JSONObject>> hy_pois=codepois.get(code);
+                //统计每个户型所占的比率
+                JSONObject hy_ratio=new JSONObject();
+
+                int total_size=0;
+
+                for(Map.Entry<String,List<JSONObject>> entry:hy_pois.entrySet()){
+                    List<JSONObject> pois=entry.getValue();
+                    int size=pois.size();
+                    total_size+=size;
+                }
+
+
+                for(Map.Entry<String,List<JSONObject>> entry:hy_pois.entrySet()){
+                    String houseType=entry.getKey();
+                    List<JSONObject> pois=entry.getValue();
+                    int size=pois.size();
+                    double ratio=(double)size/(double)total_size;
+                    hy_ratio.put(houseType,ratio);
+                }
+
+                //先统计每一个户型都有那些价格、面积特征
+                for(Map.Entry<String,List<JSONObject>> entry:hy_pois.entrySet()){
+                    String houseType=entry.getKey();
+                    List<JSONObject> pois=entry.getValue();
+
+                    for(int m=0;m<pois.size();m++){
+                        JSONObject poi=pois.get(m);
+
+                        String area;
+                        String price;
+                        String unit_price;
+
+                        if(poi.containsKey("area")){
+                            area=poi.getString("area");
+                            boolean num= NumJudge.isNum(area);
+                            if(num){
+                                setAttributeMap(houseType,area,hy_area_map);
+                            }else {
+                                System.out.println(code+":"+area);
+                            }
+
+                        }
+
+                        if(poi.containsKey("price")){
+                            price=poi.getString("price");
+                            boolean num= NumJudge.isNum(price);
+                            if(num){
+                                setAttributeMap(houseType,price,hy_price_map);
+                            }else {
+                                System.out.println(code+":"+price);
+                            }
+                        }
+
+                        if(poi.containsKey("unit_price")){
+                            unit_price=poi.getString("unit_price");
+                            boolean num= NumJudge.isNum(unit_price);
+                            if(num){
+                                setAttributeMap(houseType,unit_price,hy_unitprice_map);
+                            }else {
+                                System.out.println(code+":"+unit_price);
+                            }
+                        }
+                    }
+
+                }
+
+                //对每一个户型的价格、面积特征进行汇总,并且以计算加权值
+                JSONObject hy_obj=new JSONObject();
+                for(Map.Entry<String,List<JSONObject>> entry:hy_pois.entrySet()) {
+                    String houseType = entry.getKey();
+                    JSONObject ht=new JSONObject();
+
+                    if(hy_area_map.containsKey(houseType)){
+                        Map<String,Integer> area_map=hy_area_map.get(houseType);
+                        getweightAttributeJson(area_map,"area",ht);
+                    }
+
+                    if(hy_price_map.containsKey(houseType)){
+                        Map<String,Integer> price_map=hy_price_map.get(houseType);
+                        getweightAttributeJson(price_map,"price",ht);
+                    }
+
+                    if(hy_unitprice_map.containsKey(houseType)){
+                        Map<String,Integer> unitprice_map=hy_unitprice_map.get(houseType);
+                        getweightAttributeJson(unitprice_map,"unitprice",ht);
+                    }
+
+                    double ratio=hy_ratio.getDouble(houseType);
+                    ht.put("ratio",ratio);
+
+                    //System.out.println(ht);
+                    hy_obj.put(houseType,ht);
+                }
+                document.put("type",hy_obj);
+
+            }else{
+                count++;
+            }
+            //System.out.println(count);
+
+
+            if(index!=0){
+                document.put("code",code);
+                rc=RowColCalculation.Code_RowCol(code,1);
+                row=rc[0];
+                col=rc[1];
+                document.put("row",row);
+                document.put("col",col);
+                document.put("price_weightPrice",weight_price);
+                document.put("price_weightUnitprice",weight_area*weight_unitprice);
+                document.put("unitprice_weightUnitprice",weight_unitprice);
+
+                Iterator<String> it=condition.keys();
+                while(it.hasNext()){
+                    String key = it.next();
+                    String value=condition.getString(key);
+                    if(key.equals("year")||key.equals("month")){
+                        document.put(key,value);
+                    }
+                }
+
+                DBCursor rls =coll_import.find(document);
+                if(rls == null || rls.size() == 0){
+                    documentcount++;
+                    coll_import.insert(document);
+                }else{
+                    System.out.println("该数据已经存在!");
+                }
+            }
+        }
+        System.out.println("一共导入"+documentcount+"条数据");
+    }
+
+    //建立一个map，其中key为code，value是一个属性值——个数的一个子map
+    public static void setAttributeMap(int code,String attribute,Map<Integer,Map<String,Integer>> map){
+        if(map.containsKey(code)){
+
+            Map<String,Integer> num_map=map.get(code);
+            if(num_map.containsKey(attribute)){
+                int num=num_map.get(attribute);
+                num_map.put(attribute,++num);
+                map.put(code,num_map);
+
+            }else {
+                num_map.put(attribute,1);
+                map.put(code,num_map);
+            }
+
+        }else {
+            Map<String,Integer> num_map=new HashMap<>();
+            num_map.put(attribute,1);
+            map.put(code,num_map);
+        }
+    }
+    public static void setAttributeMap(String hy,String attribute,Map<String,Map<String,Integer>> map){
+        if(map.containsKey(hy)){
+
+            Map<String,Integer> num_map=map.get(hy);
+            if(num_map.containsKey(attribute)){
+                int num=num_map.get(attribute);
+                num_map.put(attribute,++num);
+                map.put(hy,num_map);
+
+            }else {
+                num_map.put(attribute,1);
+                map.put(hy,num_map);
+            }
+
+        }else {
+            Map<String,Integer> num_map=new HashMap<>();
+            num_map.put(attribute,1);
+            map.put(hy,num_map);
+        }
+
+    }
+
+    //验证所有的统计结果是否与总的数据的相符
+    public static void stasticAttributeNum(Map<Integer,Map<String,Integer>> map){
+        int code;
+        String attribute="";
+        int num;
+        Map<String,Integer> attribute_num;
+
+        int count=0;
+        for(Map.Entry<Integer,Map<String,Integer>> entry:map.entrySet()){
+            code=entry.getKey();
+            attribute_num=entry.getValue();
+
+            JSONObject obj=new JSONObject();
+            obj.put("code",code);
+            for(Map.Entry<String,Integer> entry1:attribute_num.entrySet()){
+                attribute=entry1.getKey();
+                num=entry1.getValue();
+                obj.put(attribute,num);
+                count+=num;
+            }
+            // System.out.println(obj);
+        }
+        System.out.println("共有"+count+"条"+attribute+"信息");
+    }
+
+    //遍历code下的子map，并将所有的值以json形式返回,这里统计的是每个属性所含有的个数
+    public static String getAttributeJson(Map<String,Integer> attribute){
+
+        String attr;
+        int num;
+        String obj="";
+        JSONObject object=new JSONObject();
+        for(Map.Entry<String,Integer> entry:attribute.entrySet()){
+            attr=entry.getKey();
+            num=entry.getValue();
+
+            //object.put(attr,num);
+            obj+=attr+","+num+";";
+        }
+        return obj;
+    }
+    //遍历每个户型下的子map，并且将子map的值进行加权，得到该户型的面积，价格和均价的加权值
+    public static void getweightAttributeJson (Map<String,Integer> attribute,String key,JSONObject ht){
+        JSONObject obj=new JSONObject();
+        String attr;
+        int num;
+
+        int totalnum=0;
+        for(Map.Entry<String,Integer> entry:attribute.entrySet()){
+
+            num=entry.getValue();
+            totalnum+=num;
+        }
+
+        double result=0;
+        for(Map.Entry<String,Integer> entry:attribute.entrySet()){
+            attr=entry.getKey();
+            double data=Double.parseDouble(attr);
+            num=entry.getValue();
+
+            String str_data=""+data;
+            if(obj.containsKey(str_data)){
+                int count=obj.getInt(str_data);
+                count+=num;
+                obj.put(str_data,count);
+            }else {
+                obj.put(str_data,num);
+            }
+
+            result+=data*((double)num/totalnum);
+        }
+
+        JSONObject R=new JSONObject();
+        R.put("average",result);
+        R.put("data",obj);
+        ht.put(key,R);
+    }
+
+    public static double getInvestmentThreshold(Map<String,Integer> attribute){
+
+        String attr;
+        int num;
+        int totalnum=0;
+        double ratio=0;
+        double weightresult=0;
+        for(Map.Entry<String,Integer> entry:attribute.entrySet()){
+            num=entry.getValue();
+            totalnum+=num;
+        }
+
+        for(Map.Entry<String,Integer> entry:attribute.entrySet()){
+            attr=entry.getKey();
+            num=entry.getValue();
+
+            if(totalnum!=0){
+                ratio=(double)num/(double)totalnum;
+            }
+
+            weightresult+=ratio*Double.parseDouble(attr);
+        }
+        return weightresult;
+    }
+
+    //单独建立一个函数setCode_pois来设置每个格网的数据
+    public static Map<Integer,Map<String,List<JSONObject>>> setCode_pois(String year,String month,int code){
+        DBCollection coll_Basic50 = db.getDB("paper").getCollection("BasicData_Resold_50");
+
+        Map<Integer,Map<String,List<JSONObject>>> code_pois=new HashMap<>();
+
+        BasicDBObject document = new BasicDBObject();
+        document.put("year",year);
+        document.put("month",month);
+        document.put("code",code);
+
+
+
+        DBCursor cursor = coll_Basic50.find(document);
+        String poi;
+        JSONObject obj;
+        String house_type;
+        if(cursor.hasNext()) {
+            while (cursor.hasNext()) {
+                BasicDBObject cs = (BasicDBObject)cursor.next();
+                poi=cs.toString();
+                obj= JSONObject.fromObject(poi);
+
+
+                if(obj.containsKey("house_type")){
+                    house_type=obj.getString("house_type");
+
+                    //以code为key建立一个poi的索引表
+                    //Map<Integer,Map<String,List<JSONObject>>> code_pois
+
+                    if(code_pois.containsKey(code)){
+                        Map<String,List<JSONObject>> hy_pois=code_pois.get(code);
+
+                        if(hy_pois.containsKey(house_type)){
+
+                            List<JSONObject> pois=hy_pois.get(house_type);
+                            pois.add(obj);
+                            hy_pois.put(house_type,pois);
+                            code_pois.put(code,hy_pois);
+
+                        }else{
+
+                            List<JSONObject> pois=new ArrayList<>();
+                            pois.add(obj);
+                            hy_pois.put(house_type,pois);
+                            code_pois.put(code,hy_pois);
+                        }
+
+                    }else{
+                        Map<String,List<JSONObject>> hy_pois=new HashMap<>();
+                        List<JSONObject> pois=new ArrayList<>();
+                        pois.add(obj);
+                        hy_pois.put(house_type,pois);
+                        code_pois.put(code,hy_pois);
+
+                    }
                 }
             }
         }
 
-        Collections.sort(list, new Comparation.CodeComparator()); // 根据网格code排序
-        importToMongo(condition,list);
+        return code_pois;
     }
-    /**
-     * 获取obj中的unitprice
-     * @param obj
-     * @return
-     */
-    public static double getUnitPrice(JSONObject obj){
-        double unit_price=0;
-        if(obj.containsKey("unit_price")){
-            String temp=obj.getString("unit_price").replace("元","");
-            if(temp.length()!=0){
-                unit_price=Double.parseDouble(temp);
-            }else {
-                unit_price=0;
-            }
 
-        }else if(obj.containsKey("price")&&obj.containsKey("area")){
-            double area = obj.getDouble("area");
-            double price= obj.getDouble("price");
 
-            if(area!=0){
-                unit_price=price/area;
-            }else{
-                unit_price=0;
-            }
 
-        }
-        return unit_price;
-    }
-    /**
-     * 比较两个poi中对应的两个code的大小，并对这两个poi进行排序
-     */
-    static class CodeComparator implements Comparator {
-        public int compare(Object object1, Object object2) {
 
-            JSONObject obj1=JSONObject.fromObject(object1);
-            JSONObject obj2=JSONObject.fromObject(object2);
-
-            int code1=obj1.getInt("code");
-            int code2=obj2.getInt("code");
-
-            int flag = new Integer(code1).compareTo(new Integer(code2));
-            return flag;
-        }
-    }
 
 }
