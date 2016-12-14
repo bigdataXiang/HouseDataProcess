@@ -31,13 +31,13 @@ public class GridData_Resold_6 {
     }
     public static void initial(){
 
-        for(int i=10;i<=10;i++){
+        for(int i=10;i<=12;i++){
 
             JSONObject condition=new JSONObject();
             condition.put("N",1);
-            condition.put("year","2016");
+            condition.put("year","2015");
             condition.put("month",i);//"0"+i
-            System.out.println("2016年"+i+"月:");
+            System.out.println("2015年"+i+"月:");
             condition.put("export_collName","BasicData_Resold");
             condition.put("import_collName","GridData_Resold");
 
@@ -112,7 +112,7 @@ public class GridData_Resold_6 {
 
                     //以code为key建立一个poi的索引表
                     //Map<Integer,Map<String,List<JSONObject>>> code_pois
-                    if(month.equals("12")){
+                    if(month.equals("10")||month.equals("11")||month.equals("12")){
 
                     }else {
                         //当月份为12时，这一部分代码暂时不用了，因为12月份的数据太多，导致内存总是溢出要寻求新的办法
@@ -298,7 +298,7 @@ public class GridData_Resold_6 {
             Map<Integer,Map<String,List<JSONObject>>> codepois=new HashMap<>();
 
             //十二月份的数据比较多，所以用逐个统计的办法，防止堆溢出
-            if(month.equals("12")){
+            if(month.equals("10")||month.equals("11")||month.equals("12")){
                 codepois=setCode_pois(year,month,code);
             }else {
                 codepois=code_pois;
