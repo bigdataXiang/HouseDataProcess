@@ -87,6 +87,7 @@
   { "_id" : { "$oid" : "58510c1011a746dd9c899268"} , "url" : "http://bj.5i5j.com/exchange/126002179" , "source" : "woaiwojia" , "region" : "北京市朝阳区常营乡" , "location" : "朝阳-常营" , "community" : "中弘·北京像素北区(在售144套)" , "price" : "210" , "area" : "0" , "unit_price" : "Infinity" , "year" : "2016" , "month" : "06" , "day" : "04" , "time" : "2016/06/0412:56:31" , "lng" : "116.59897" , "lat" : "39.92365" , "code" : "4314006" , "row" : "1079" , "col" : "2006" , "house_type" : "2室1厅1卫" , "rooms" : "2" , "halls" : "1" , "bathrooms" : "1" , "floor" : "下部/17" , "flooron" : "下部" , "floors" : "17" , "title" : "您正在查看王文君发布的北京中弘·北京像素北区房源" , "property_company" : "" , "green_rate" : "" , "direction" : "东" , "heat_supply" : "自供暖" , "property" : "公寓普通住宅" , "property_fee" : "" , "down_payment" : "63万" , "volume_rate" : "" , "households" : "" , "developer" : "" , "totalarea" : "" , "month_payment" : "8485元" , "built_year" : "2008-01-01"}
 
   2016年10月程序正常运行
+  2016年11月程序于【2016年12月15日】下午新增，为了检查出今年930新政后的房价情况
   
 + 2016年12月15日
   2015年10月程序跑了一晚上了仍然在跑~~
@@ -96,7 +97,10 @@
   在【linux】上出现了一个问题，即不能用【double】形式的字符串作为BSON数据格式
   的key，在入库的时候会抛出异常，而在windows上可以是因为【.】号被转义了。
   
-  【.】在
+ 【.】在mongodb中有特殊的含义。
+ 
+  目前已经把2015年10月、11月、12月的数据放在linux上面跑。并且先存储与本地，之后
+  再统一导入【paper】的【GridData】中
   
 
 9.新建【PBSHADE_Spatial_7】类，利用【P-BSHADE】插值方法进行空间插值，
