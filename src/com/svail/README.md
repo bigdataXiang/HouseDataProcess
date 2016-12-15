@@ -102,6 +102,14 @@
   目前已经把2015年10月、11月、12月的数据放在linux上面跑。并且先存储与本地，之后
   再统一导入【paper】的【GridData】中
   
+  用程序【SolveDotProblem】类解决了【.】的问题，并且把linux上的10.、11、12月
+  的数据一起融合到本地的【temp】数据库的【temp】集合中
+  此外，在【D】盘中备份了一份，其中：
+  gridNew.txt：表示去除了【.】异常的数据；
+  gridOld.txt：表示没有去除【.】异常的数据；
+  nullException.txt：在运行中有异常的数据；
+  
+  
 
 9.新建【PBSHADE_Spatial_7】类，利用【P-BSHADE】插值方法进行空间插值，
   
