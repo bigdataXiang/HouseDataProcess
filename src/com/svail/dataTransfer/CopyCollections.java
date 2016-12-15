@@ -32,8 +32,8 @@ public class CopyCollections {
         DB db_import=m_import.getDB("paper");
         DB db_export=m_export.getDB("paper");
 
-        DBCollection coll_export=db_export.getCollection("BasicData_Resold");
-        DBCollection coll_import=db_import.getCollection("BasicData_Resold");
+        DBCollection coll_export=db_export.getCollection("GridData_Resold");
+        DBCollection coll_import=db_import.getCollection("GridData_Resold");
 
         DBCursor cs=coll_export.find();
         BasicDBObject document;
@@ -44,6 +44,8 @@ public class CopyCollections {
             try{
                 count++;
                 document=(BasicDBObject)cs.next();
+                System.out.println(document);
+
                 coll_import.insert(document);
                 System.out.println(count);
             }catch( MongoInternalException e){

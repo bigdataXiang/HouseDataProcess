@@ -31,9 +31,10 @@ public class Mongo_Delete {
 
         //delectColl(collection);
 
-        delectDB(db.getDB("just_test"));
+        //delectDB(db.getDB("just_test"));
 
     }
+
     //删除集合中某些特定的文档
     public static void delectDocument(DBCollection coll, BasicDBObject document){
         coll.remove(document);

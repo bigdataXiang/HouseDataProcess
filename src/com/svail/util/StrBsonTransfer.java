@@ -13,14 +13,21 @@ public class StrBsonTransfer {
     public static BasicDBObject strToBson(String str){
         BasicDBObject doc=new BasicDBObject();
         JSONObject obj=JSONObject.fromObject(str);
-        Iterator<String> keys=obj.keys();
-        String key;
-        Object value;
-        while (keys.hasNext()){
-            key=keys.next();
-            value=obj.get(key);
-            doc.put(key,value);
+
+        if(obj.size()>0){
+            Iterator<String> keys=obj.keys();
+            String key;
+            Object value;
+            while (keys.hasNext()){
+                key=keys.next();
+                value=obj.get(key);
+                doc.put(key,value);
+            }
+        }else {
+            //System.out.println(str);
+            return null;
         }
+
         return doc;
     }
 }
