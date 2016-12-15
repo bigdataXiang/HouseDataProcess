@@ -35,7 +35,6 @@ public class Neighbor_Interpolation_9 {
         getInterpolation();
         reNeighborInterpolation();
         pointToSurface();
-
     }
 
     /**21、不能用线性插值的数据：从sparse_data、failed_interpolation_codes和pearson_is_0中找到插值不成功的原始网格，并且将原始数据写于本地文件*/

@@ -40,9 +40,6 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
          **/
         public static Map<Integer, JSONObject> jsonArray_map=new HashMap<>();
         public static Map<String, Map<String, Double>> dataset = new HashMap<>();
-        public Map<String, Map<String, Double>> getDataSet() {
-            return dataset;
-        }
         public static Map<String, String> pearson_is_0=new HashMap<>();
         public static Map<Integer, JSONObject> sparse_data=new HashMap<>();
         public static Map<Integer, JSONObject> full_value_grids=new HashMap<>();
@@ -52,13 +49,12 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
         public static JSONArray failed_interpolation_codes=new JSONArray();
         public static JSONArray qualified_interpolation_codes=new JSONArray();
 
-        public static String path="D:\\github.com\\bigdataXiang\\HousePriceServer\\src\\com\\reprocess\\grid_50\\";
+        public static String path="";
 
         public static void main(String[] args){
 
 
             getInterpolationResult();
-            System.out.println(step_10());
 
         }
 
@@ -66,7 +62,7 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
         /**整个插值的过程汇总，最后求得每一个网格插值前和插值后的值对比*/
         public static void getInterpolationResult(){
 
-            step_1();
+            step_1("GridData_Resold");
 
             JSONArray lack_value_grids=step_2();
 
@@ -78,24 +74,18 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
 
             step_6();
 
-
-            //  step_7(); 打印对比真实值与插值
-
             step_8();
 
             dumpInterpolationResult();
 
-
-            //  step_9(); 将最终结果存于数据库中
         }
 
         /**step_1:先生成整个北京区域内的每个网格的时序数据，存放刚到jsonArray_map中,使得全局变量jsonArray_map有值*/
-        public static void step_1(){
+        public static void step_1(String export_collName){
 
             JSONObject condition=new JSONObject();
             condition.put("N",1);
-            condition.put("source","woaiwojia");
-            condition.put("export_collName","GridData_Resold_50");
+            condition.put("export_collName",export_collName);
             getAllGridSeriesValue(condition);
         }
         /**step_2:返回有缺失值的网格的编码，并且初始化数据集dataset*/
@@ -259,7 +249,7 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
         public static JSONObject step_10(){
 
             /**1、初始化数据集*/
-            step_1();
+            step_1("GridData_Resold");
             JSONArray lack_value_grids=step_2();
             /**2、计算有缺失数据的网格与全部网格的相关系数 r ,并且返回相关性最强的10个*/
             JSONObject code_relatedCode=step_3(lack_value_grids,1);
@@ -305,11 +295,8 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
 
             String collName=condition.getString("export_collName");
             DBCollection coll = db.getDB("paper").getCollection(collName);
-            BasicDBObject document = new BasicDBObject();
 
-            String source=condition.getString("source");
-            document.put("source",source);
-            List code_array=coll.find(document).toArray();
+            List code_array=coll.find().toArray();
 
             BasicDBObject doc;//doc里面存放的是网格编码经过融合的而成的poi数据
             int row_doc;
@@ -924,8 +911,6 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
                     sumY += p2Map.get(name);
                     sumXY += p1Map.get(name) * p2Map.get(name);
                 }
-            /*System.out.println(sumXY);
-            System.out.println(sumX * sumY / N);*/
 
                 avenrageX=sumX/N;
                 avenrageY=sumY/N;
@@ -934,11 +919,9 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
                 cov_temp=(1/(double)N);
                 BigDecimal b = new BigDecimal(cov_temp*(sumXY - sumX * sumY / N));
                 cov = b.setScale(6, BigDecimal.ROUND_HALF_UP).doubleValue();
-                //System.out.println(cov);
 
                 /**用公式 cov(xy)= (1/(N-1))*(sumXY-avenrageX*sumY)  */
                 cov =(1/(double)(N-1))*(sumXY - avenrageX*sumY);
-                //System.out.println(cov);
 
             }else {
                 cov=0;
@@ -1070,23 +1053,6 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
             //System.out.println(ratio);
 
             return ratio;
-        }
-        /**11、打印dataset里面的map值*/
-        public static void printDataSetMap(String dataset_key){
-            Map<String, Double> map=dataset.get(dataset_key);
-            for (Map.Entry<String, Double> p : map.entrySet()) {
-                System.out.print(p.getKey()+" : "+p.getValue()+" ; ");
-            }
-            System.out.println("\n");
-        }
-        /**12、打印二维数组*/
-        public static void print2DArray(double[][] C_y_nn){
-            for(int i=0;i<C_y_nn.length;i++){
-                for(int j=0;j<C_y_nn[i].length;j++){
-                    System.out.print(C_y_nn[i][j]+" , ");
-                }
-                System.out.print("\n");
-            }
         }
         /**13、计算矩阵a与矩阵b的乘积*/
         public static double[][] marixMultiply(double a[][], double b[][]) {

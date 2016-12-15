@@ -18,18 +18,18 @@ public class CompareSource_5 {
         BasicDBObject document = new BasicDBObject();
         //document.put("code",code);
         //document.put("source","woaiwojia");
-        document.put("year","2015");
+        document.put("year","2016");
         document.put("month","10");
         DBCursor cursor = coll.find(document);
         String poi="";
         int count=0;
         if(cursor.hasNext()) {
             while (cursor.hasNext()) {
-                count++;
+                //count++;
                 //System.out.println(count);
-                poi=cursor.next().toString();
+                //poi=cursor.next().toString();
                 //System.out.println(poi);
-                FileTool.Dump(count+"","D:\\test.txt","utf-8");
+                FileTool.Dump(cursor.next().toString(),"D:\\GridData_Resold_month10.txt","utf-8");
             }
         }
     }

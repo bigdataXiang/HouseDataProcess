@@ -24,16 +24,16 @@ public class CopyCollections {
         Mongo m_import=null;
 
         try {
-            m_export=new Mongo("192.168.6.9",27017);
-            m_import=new Mongo("127.0.0.1",27017);
+            m_import=new Mongo("192.168.6.9",27017);
+            m_export=new Mongo("127.0.0.1",27017);
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
         DB db_import=m_import.getDB("paper");
-        DB db_export=m_export.getDB("temp_houseprice");
+        DB db_export=m_export.getDB("paper");
 
-        DBCollection coll_export=db_export.getCollection("BasicData_Resold_50");
-        DBCollection coll_import=db_import.getCollection("BasicData_Resold_50");
+        DBCollection coll_export=db_export.getCollection("BasicData_Resold");
+        DBCollection coll_import=db_import.getCollection("BasicData_Resold");
 
         DBCursor cs=coll_export.find();
         BasicDBObject document;
