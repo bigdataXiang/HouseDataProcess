@@ -15,7 +15,22 @@ import static com.svail.grid50.util.RowColCalculation.Code_RowCol;
 /**
  * 该部分处理“以点代面”的邻近插值部分
  */
-public class Neighbor_Interpolation {
+public class Neighbor_Interpolation_9 {
+    public static Map<Integer, JSONObject> jsonArray_map=new HashMap<>();
+    public static Map<String, Map<String, Double>> dataset = new HashMap<>();
+    public Map<String, Map<String, Double>> getDataSet() {
+        return dataset;
+    }
+    public static Map<String, String> pearson_is_0=new HashMap<>();
+    public static Map<Integer, JSONObject> sparse_data=new HashMap<>();
+    public static Map<Integer, JSONObject> full_value_grids=new HashMap<>();
+    public static Map<Integer, JSONObject> interpolation_value_grids=new HashMap<>();
+    public static Map<Integer, JSONObject> interpolation_grids=new HashMap<>();
+    public static Map<String, Map<String, Double>> interpolation_result= new HashMap<>();
+    public static JSONArray failed_interpolation_codes=new JSONArray();
+    public static JSONArray qualified_interpolation_codes=new JSONArray();
+
+
     public static void main(String[] args){
         getInterpolation();
         reNeighborInterpolation();
