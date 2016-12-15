@@ -32,7 +32,7 @@ public class toMongo {
 
         try {
             m_import=new Mongo("127.0.0.1",27017);
-        } catch (UnknownHostException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
