@@ -113,6 +113,7 @@
   
   
 10.新建【PBSHADE_Time_8】类，利用【P-BSHADE】插值方法进行时间插值，
+   该部分暂时不用
 
 11.新建【Neighbor_Interpolation_9】类，利用【PBSHADE_Spatial_7】中插值成功
    的数据进行邻近插值的源数据
@@ -150,5 +151,13 @@
    上述验证结果在【Interpolation_Precision_Inspection】类中完成。
    这些数据需要找到真实数据验证后再作定夺
    
-13.新建【GridAcceleration_11】程序，生成以房价加速度为值的栅格基元   
+11.【Neighbor_Interpolation_9】中每一步的执行过程都写在了main函数中，
+    现在正在跑最漫长的邻近插值程序，插值完了之后，还需要对插值结果进行融合，
+    生成最后的插值结果
+    
+12.新建【GridInterpolation_11】类，将所有插值后的数据以【格网-月份】的形式存
+   储到数据库【GridData_Resold_Interpolation】中，数据形式如下：
+   【{code(int),row(int),col(int),year(int),month(int),price(double)}】
+   
+13.新建【GridAcceleration_12】程序，生成以房价加速度为值的栅格基元   
    

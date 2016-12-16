@@ -64,7 +64,7 @@ public class Neighbor_Interpolation_9 {
          */
 
         /*
-        用于插值的文件：
+        第六步：用于插值的文件：
         "所有无值融合的code_插值结果_融合.txt"
         "failed_interpolation_codes_插值结果_融合.txt"
         "pearson_is_0_插值结果_融合.txt"
@@ -73,6 +73,11 @@ public class Neighbor_Interpolation_9 {
         "interpolation_value_grids_中没有问题的数据.txt"
          */
         step_5("D:\\小论文\\PBSHADE-邻近插值\\",40);
+
+        /*
+         第七步：将第六步生成的【以点代面_插值结果.txt】插值结果进行融合
+         step_3("D:\\小论文\\PBSHADE-邻近插值\\","以点代面_插值结果.txt");
+         */
 
     }
 

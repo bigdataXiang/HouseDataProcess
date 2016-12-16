@@ -17,7 +17,7 @@ import java.util.Vector;
  * 源数据：{code(int),row(int),col(int),year(int),month(int),price(double)}
  * 结果：{code,row,col,year,month,acceleration}
  */
-public class GridAcceleration_11 {
+public class GridAcceleration_12 {
     public static void main(String[] args){
 
     }
