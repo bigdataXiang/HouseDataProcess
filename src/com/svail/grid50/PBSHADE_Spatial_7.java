@@ -10,11 +10,6 @@ import com.svail.grid50.util.db;
 import com.svail.util.FileTool;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -53,7 +48,7 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
         public static void main(String[] args){
 
 
-            getInterpolationResult("D:\\小论文\\PBSHADE-邻近插值\\",17,2);
+            getInterpolationResult("D:\\小论文\\PBSHADE-邻近插值\\",12,2);
 
         }
 
@@ -61,34 +56,49 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
         /**整个插值的过程汇总，最后求得每一个网格插值前和插值后的值对比*/
         public static void getInterpolationResult(String path,int months,int datesnum){
 
-            step_1("GridData_Resold");
+            step_1("paper","GridData_Resold");
+            System.out.println("完成第一步：生成整个北京区域内的每个网格的时序数据");
 
             JSONArray lack_value_grids=step_2(months);
+            System.out.println("完成第二步：将所有数据初始化数据集dataset，返回有缺失值的网格的编码，");
 
             JSONObject code_relatedCode=step_3(lack_value_grids,datesnum,months);
+            System.out.println("完成第三步：计算有缺失数据的网格与全部网格的相关系数 r ,并且返回相关性最强的10个");
 
             JSONObject spatial=step_4(code_relatedCode,path);
+            System.out.println("完成第四步：计算所有有缺失数据的网格的插值结果");
 
             step_5(spatial,months);
+            System.out.println("完成第五步：统计插值情况，检查是否有遗漏的点");
 
             step_6(path);
+            System.out.println("完成第六步：计算interpolation_result中每个网格插值前后的mse的值");
 
             step_7(path);
+            System.out.println("完成第七步：比较mse、mae的值较大的code的真实值和插值，并且将其写下");
 
             step_8();
+            System.out.println("完成第八步：将插值结果符合的网格进行插值融合操作");
+
+            System.out.println("第九步是将插值的数据入库，暂时先不入库");
+
+            System.out.println("第十步是计算插值数据，暂不计算");
 
             step_11(path);
+            System.out.println("完成第十一步：将full_value_grids和interpolation_value_grids的数据写下来");
 
             step_12(path);
+            System.out.println("完成第十二步：将sparse_data、failed_interpolation_codes和pearson_is_0中的原始数据写于本地文件");
         }
 
         /**step_1:先生成整个北京区域内的每个网格的时序数据，存放刚到jsonArray_map中,
          * 使得全局变量jsonArray_map有值*/
-        public static void step_1(String export_collName){
+        public static void step_1(String dbName,String export_collName){
 
             JSONObject condition=new JSONObject();
             condition.put("N",1);
             condition.put("export_collName",export_collName);
+            condition.put("dbName",dbName);
             getAllGridSeriesValue(condition);
         }
         /**step_2:返回有缺失值的网格的编码，
@@ -102,6 +112,7 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
             int keys_size;
 
             //遍历全局变量jsonArray_map
+            System.out.println("所有有数据的格网数目有"+jsonArray_map.size());
             for (Map.Entry<Integer, JSONObject> entry : jsonArray_map.entrySet()) {
                 code=entry.getKey();
                 date_price=entry.getValue();
@@ -248,7 +259,7 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
         public static JSONObject step_10(int months){
 
             /**1、初始化数据集*/
-            step_1("GridData_Resold");
+            step_1("temp","temp");
             JSONArray lack_value_grids=step_2(months);
             /**2、计算有缺失数据的网格与全部网格的相关系数 r ,并且返回相关性最强的10个*/
             JSONObject code_relatedCode=step_3(lack_value_grids,1,17);
@@ -299,17 +310,13 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
 
         /**1.生成北京区域内N50*N50分辨率时的每个网格的时序数据,并且存放在jsonArray_map中*/
         public static void getAllGridSeriesValue(JSONObject condition){
-            int N=condition.getInt("N");
 
             String collName=condition.getString("export_collName");
-            DBCollection coll = db.getDB("paper").getCollection(collName);
+            String dbName=condition.getString("dbName");
 
-            List code_array=coll.find().toArray();
+            DBCollection coll = db.getDB(dbName).getCollection(collName);
 
             BasicDBObject doc;//doc里面存放的是网格编码经过融合的而成的poi数据
-            int row_doc;
-            int col_doc;
-            int[] result_doc;
             List code_array_after=new ArrayList<>();//存放属于同一编码的doc数据
             Map<Integer,List> gridmap= new HashMap<>();//通过code与codelist的键值关系，建立索引
             List<BasicDBObject> codelist;//存放属于同一编码的doc数据
@@ -317,27 +324,32 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
             int row;
             int col;
 
+            DBCursor cs=coll.find();
+            int c=0;
+
+            BasicDBObject doc_temp;
             JSONObject code_index_rowcol=new JSONObject();
-            for(int i=0;i<code_array.size();i++){
-                doc= (BasicDBObject) code_array.get(i);
-                doc.remove("_id");
-                row_doc=doc.getInt("row");
-                col_doc=doc.getInt("col");
+            while (cs.hasNext()){
+                //c++;
+                //System.out.println(c);
+                doc_temp=(BasicDBObject) cs.next();
 
-
-                //将doc中的row、col、code从50分辨率的转换成N50分辨率的
-                result_doc= codeMapping50toN50(row_doc,col_doc,N);
-                row=result_doc[0];
+                doc=new BasicDBObject();
+                row=doc_temp.getInt("row");
                 doc.put("row",row);
-                col=result_doc[1];
+                col=doc_temp.getInt("col");
                 doc.put("col",col);
-                code=result_doc[2];
+                code=doc_temp.getInt("code");
                 doc.put("code",code);
+                doc.put("unitprice_weightUnitprice",doc_temp.getDouble("unitprice_weightUnitprice"));
+                doc.put("year",doc_temp.getString("year"));
+                doc.put("month",doc_temp.getString("month"));
+                code_array_after.add(doc);
+
                 String row_col=row+"_"+col;
                 code_index_rowcol.put(code,row_col);
 
-                //System.out.println("转换后的N50*N50的网格数据"+doc);
-                code_array_after.add(doc);
+
                 if (gridmap.containsKey(code)) {
                     codelist=gridmap.get(code);
                     codelist.add(doc);
@@ -437,14 +449,15 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
                     key=(String) it_totalgrid.next();
                     value=totalgrid.getJSONObject(key);
                     jsonArray_map.put(Integer.parseInt(key),value);
-                    String rowcol=code_index_rowcol.getString(key);
+
+                    /*String rowcol=code_index_rowcol.getString(key);
                     int rows=Integer.parseInt(rowcol.substring(0,rowcol.indexOf("_")));
                     int cols=Integer.parseInt(rowcol.substring(rowcol.indexOf("_")+"_".length()));
 
                     comparedata.put("code",Integer.parseInt(key));
                     comparedata.put("timeseries",value);
                     comparedata.put("row",rows);
-                    comparedata.put("col",cols);
+                    comparedata.put("col",cols);*/
                 }
             }
         }

@@ -29,7 +29,7 @@ public class SolveDotProblem {
     //!!!将数据库【GridData_Resold】格式修整后的数据临时存在temp中
     public static void removeDot(String gridOld,String gridNew,String nullException){
         DBCollection collection=db.getDB("paper").getCollection("GridData_Resold");
-        DBCollection collection_temp=db.getDB("temp").getCollection("temp");
+        DBCollection collection_temp=db.getDB("paper").getCollection("temp");
 
 
         DBCursor cs=collection.find();
@@ -146,7 +146,7 @@ public class SolveDotProblem {
     //将linux上生成的2015年的11月和12月份的数据也同样处理掉
     public static void removeDot(String sourcefile,String gridOld,String gridNew,String nullException){
         Vector<String> pois=FileTool.Load(sourcefile,"utf-8");
-        DBCollection collection_temp=db.getDB("temp").getCollection("temp");
+        DBCollection collection_temp=db.getDB("paper").getCollection("temp");
 
         JSONObject doc=new JSONObject();
         BasicDBObject doc_new=new BasicDBObject();

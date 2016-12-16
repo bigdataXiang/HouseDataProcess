@@ -102,6 +102,12 @@
   目前已经把2015年10月、11月、12月的数据放在linux上面跑。并且先存储与本地，之后
   再统一导入【paper】的【GridData】中
   
+  用程序【SolveDotProblem】类解决了【.】的问题，并且把linux上的10.、11、12月
+  的数据一起融合到本地的【temp】数据库的【temp】集合中
+  此外，在【D】盘中备份了一份，其中：
+  gridNew.txt：表示去除了【.】异常的数据；
+  gridOld.txt：表示没有去除【.】异常的数据；
+  nullException.txt：在运行中有异常的数据； 
 
 9.新建【PBSHADE_Spatial_7】类，利用【P-BSHADE】插值方法进行空间插值，
   
@@ -112,3 +118,30 @@
    的数据进行邻近插值的源数据
    
 12.新建【ContourLine_10】类，由插值结果生成等值线
+
++ 2016年12月16日
+
+8. 在使用【SolveDotProblem】进行数据收拢的时候，又犯了一次错误，就是关于【db】
+   的问题。一旦用db链接上了一个数据库，由于链接db在类【db】中属于全局变量，所以
+   同一程序中只能开一个数据库。
+   
+   之后2015-07月到2016年-10月的数据还是存储到了【paper】的【temp】集合中。
+
+   【D:\小论文\PBSHADE-邻近插值\1.插值的源数据】中文件说明：
+     gridNew.txt：表示去除了【.】异常的数据；
+     gridOld.txt：表示没有去除【.】异常的数据；
+     nullException.txt：在运行中有异常的数据；
+     
+   使用【CopyCollections】类，将【paper】中【temp】的数据复制到【192.168.6.9】
+   中【paper】的【GridData_Resold】中，共计：140794
+   
+   将本地windows的【paper】的【GridData_Resold】删除，然后将本地【paper】的【temp】
+   赋值成新的【GridData_Resold】
+   
+   将本地windows的【paper】的【BasicData_Resold_50】复制到【192.168.6.9】中【paper】
+   的【BasicData_Resold_50】，然后将本地windows的【BasicData_Resold_50】删除
+   注意：【BasicData_Resold_50】数据是没有经历过类【BasicData_Clean_4】处理的原始
+   数据，共计：3017291
+   
+   
+   
