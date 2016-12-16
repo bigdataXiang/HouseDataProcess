@@ -2,6 +2,7 @@ package com.svail.grid50;
 
 import com.svail.util.FileTool;
 import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -26,6 +27,52 @@ public class Neighbor_Interpolation_9 {
     public static Map<Integer, JSONObject> interpolation_value_grids=new HashMap<>();
 
     public static void main(String[] args){
+
+        /*第一步：生成【pearson_is_0_插值结果.txt】【sparse_data_插值结果.txt】【failed_interpolation_codes_插值结果.txt】
+
+        step_1("D:\\小论文\\PBSHADE-邻近插值\\","full_value_grids.txt","interpolation_value_grids_中没有问题的数据.txt");
+        step_2("D:\\小论文\\PBSHADE-邻近插值\\",20);
+        */
+
+        /*
+        第二步：将第一步生成的结果进行融合，得到【_融合.txt】和【_无值融合.txt】数据
+        其中【_无值融合.txt】是遍历了1km仍然找不到邻近值的格网
+
+        step_3("D:\\小论文\\PBSHADE-邻近插值\\","pearson_is_0_插值结果.txt");
+        step_3("D:\\小论文\\PBSHADE-邻近插值\\","sparse_data_插值结果.txt");
+        step_3("D:\\小论文\\PBSHADE-邻近插值\\","failed_interpolation_codes_插值结果.txt");
+        */
+
+        /*
+        第三步：将第二步生成的【_无值融合.txt】的数据结合所有合格的插值结果进行插值
+                三个"_无值融合.txt"文件的插值结果全部写到【所有无值融合的code_插值结果.txt】
+        step_4("D:\\小论文\\PBSHADE-邻近插值\\",40);
+
+        */
+
+        /*
+        第四步：将第三步生成的【所有无值融合的code_插值结果.txt】中插值成功的数据进行融合
+
+        step_3("D:\\小论文\\PBSHADE-邻近插值\\","所有无值融合的code_插值结果.txt");
+
+         */
+
+        /*
+        第五步：进行全格网区域的插值
+        其中【interpolation_value_grids_中有问题的数据.txt】中的数据暂不做插值处理
+        也参与到邻近插值中去，邻近插值后，对比邻近插值的结果和点最优插值的结果
+         */
+
+        /*
+        用于插值的文件：
+        "所有无值融合的code_插值结果_融合.txt"
+        "failed_interpolation_codes_插值结果_融合.txt"
+        "pearson_is_0_插值结果_融合.txt"
+        "sparse_data_插值结果_融合.txt"
+        "full_value_grids.txt"
+        "interpolation_value_grids_中没有问题的数据.txt"
+         */
+        step_5("D:\\小论文\\PBSHADE-邻近插值\\",40);
 
     }
 
@@ -65,7 +112,8 @@ public class Neighbor_Interpolation_9 {
     /**step_3:将插值结果融合*/
     public static void step_3(String path,String filename){
 
-        String[] dates={"2015-10","2015-11","2015-12","2016-1","2016-2","2016-3","2016-4","2016-5"};
+        String[] dates={"2015-07","2015-08","2015-09","2015-10","2015-11","2015-12","2016-01","2016-02","2016-03",
+                "2016-04","2016-05","2016-06","2016-07","2016-08","2016-09","2016-10","2016-11"};
         getInterpolation(dates,path,filename);
     }
     /**step_4:对【_无值融合.txt】的文件进行插值
@@ -200,7 +248,7 @@ public class Neighbor_Interpolation_9 {
         Vector<String> pearson_is_0=FileTool.Load(path+"pearson_is_0_插值结果_融合.txt","utf-8");
         Vector<String> sparse_data=FileTool.Load(path+"sparse_data_插值结果_融合.txt","utf-8");
         Vector<String> full_value_grids=FileTool.Load(path+"full_value_grids.txt","utf-8");
-        Vector<String> interpolation_value_grids=FileTool.Load(path+"interpolation_value_grids.txt","utf-8");
+        Vector<String> interpolation_value_grids=FileTool.Load(path+"interpolation_value_grids_中没有问题的数据.txt","utf-8");
 
 
         Map<String,JSONObject> map=new HashMap<>();
@@ -268,8 +316,6 @@ public class Neighbor_Interpolation_9 {
             String str=findNeighborCode(code,deepMax,map);
             FileTool.Dump(str,path+"所有无值融合的code_插值结果.txt","utf-8");
         }
-
-
     }
 
     /**4、将所有格网里的没有值的格网用“以点代面的”插值方法对格网进行插值计算
@@ -277,12 +323,12 @@ public class Neighbor_Interpolation_9 {
      * 插值范围：row:[500,2000] col:[180,2200]
      *
      * 用于插值的文件：
-     * "所有无值融合的code_插值结果.txt"
+     * "所有无值融合的code_插值结果_融合.txt"
      * "failed_interpolation_codes_插值结果_融合.txt"
      * "pearson_is_0_插值结果_融合.txt"
      * "sparse_data_插值结果_融合.txt"
      * "full_value_grids.txt"
-     * "interpolation_value_grids.txt"
+     * "interpolation_value_grids_中没有问题的数据.txt"
      *
      * 插值结果：
      * "以点代面_插值结果.txt"：遍历2km深度后插值成功的结果
@@ -292,7 +338,7 @@ public class Neighbor_Interpolation_9 {
     public static void pointToSurface(String path,int deepMax){
         Map<String,JSONObject> code_price=new HashMap<>();
 
-        String file=path+"All_failedcode_插值结果_融合.txt";
+        String file=path+"所有无值融合的code_插值结果_融合.txt";
         listAssignment(file,code_price);
         System.out.println(code_price.size());
 
@@ -312,7 +358,7 @@ public class Neighbor_Interpolation_9 {
         listAssignment(file,code_price);
         System.out.println(code_price.size());
 
-        file=path+"interpolation_value_grids.txt";
+        file=path+"interpolation_value_grids_中没有问题的数据.txt";
         listAssignment(file,code_price);
         System.out.println(code_price.size());
 
@@ -419,11 +465,25 @@ public class Neighbor_Interpolation_9 {
     /**将文件中时序价格数据存到map中*/
     public static void listAssignment(String file,Map<String,JSONObject> code_price){
         Vector<String> pois= FileTool.Load(file,"utf-8");
+        JSONObject obj=new JSONObject();
+        String code;
+        String timeserise;
         for(int i=0;i<pois.size();i++){
+
             String poi=pois.elementAt(i);
-            String code=poi.substring(0,poi.indexOf(","));
-            String timeserise=poi.substring(poi.indexOf(",")+",".length());
-            JSONObject obj=JSONObject.fromObject(timeserise);
+            if(poi.indexOf(";")!=-1){
+                code=poi.substring(0,poi.indexOf(";"));
+                timeserise=poi.substring(poi.indexOf(";")+";".length());
+            }else{
+                code=poi.substring(0,poi.indexOf(","));
+                timeserise=poi.substring(poi.indexOf(",")+",".length());
+            }
+
+            try{
+                obj=JSONObject.fromObject(timeserise);
+            }catch (JSONException e){
+                FileTool.Dump(poi,file.replace(".txt","_JSONException.txt"),"utf-8");
+            }
 
             code_price.put(code,obj);
         }
