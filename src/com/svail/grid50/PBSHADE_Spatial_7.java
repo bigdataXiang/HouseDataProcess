@@ -48,13 +48,13 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
         public static void main(String[] args){
 
 
-            getInterpolationResult("D:\\小论文\\PBSHADE-邻近插值\\",12,2);
+            getInterpolationResult("D:\\小论文\\PBSHADE-邻近插值\\",17,1,0.8);
 
         }
 
 
         /**整个插值的过程汇总，最后求得每一个网格插值前和插值后的值对比*/
-        public static void getInterpolationResult(String path,int months,int datesnum){
+        public static void getInterpolationResult(String path,int months,int datesnum,double R){
 
             step_1("paper","GridData_Resold");
             System.out.println("完成第一步：生成整个北京区域内的每个网格的时序数据");
@@ -62,10 +62,13 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
             JSONArray lack_value_grids=step_2(months);
             System.out.println("完成第二步：将所有数据初始化数据集dataset，返回有缺失值的网格的编码，");
 
-            JSONObject code_relatedCode=step_3(lack_value_grids,datesnum,months);
+            JSONObject code_relatedCode=step_3(lack_value_grids,datesnum,months,R);
+            FileTool.Dump(code_relatedCode.toString(),path+"code_relatedCode.txt","utf-8");
             System.out.println("完成第三步：计算有缺失数据的网格与全部网格的相关系数 r ,并且返回相关性最强的10个");
 
-            JSONObject spatial=step_4(code_relatedCode,path);
+            String[] dates={"2015-07","2015-08","2015-09","2015-10","2015-11","2015-12","2016-01","2016-02","2016-03",
+                            "2016-04","2016-05","2016-06","2016-07","2016-08","2016-09","2016-10","2016-11"};
+            JSONObject spatial=step_4(code_relatedCode,path,dates);
             System.out.println("完成第四步：计算所有有缺失数据的网格的插值结果");
 
             step_5(spatial,months);
@@ -133,7 +136,7 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
             return lack_value_grids;
         }
         /**step_3:计算有缺失数据的网格与全部网格的相关系数 r ,并且返回相关性最强的10个*/
-        public static JSONObject step_3(JSONArray lack_value_grids,int datesnum,int months){
+        public static JSONObject step_3(JSONArray lack_value_grids,int datesnum,int months,double R){
 
             JSONArray to_be_interpolated=new JSONArray();
             int code;
@@ -151,14 +154,16 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
                 }
             }
 
-            code_relatedCode=findRelatedCode(to_be_interpolated,months);
+            code_relatedCode=findRelatedCode(to_be_interpolated,months,R);
+            //System.out.println(code_relatedCode);
             return code_relatedCode;
 
             //findRelatedCode方法中还实现将与所有网格的相关系数为0的网格code存放在pearson_is_0中
         }
         /**step_4:计算所有有缺失数据的网格的插值结果，并且将最终的结果存一份存到interpolation_result中*/
-        public static JSONObject step_4( JSONObject code_relatedCode,String path){
-            JSONObject spatial=codesCovariance(code_relatedCode,path);
+        public static JSONObject step_4( JSONObject code_relatedCode,String path,String[] dates){
+
+            JSONObject spatial=codesCovariance(code_relatedCode,path,dates);
 
             Iterator iterator=spatial.keys();
             String code;
@@ -262,7 +267,7 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
             step_1("temp","temp");
             JSONArray lack_value_grids=step_2(months);
             /**2、计算有缺失数据的网格与全部网格的相关系数 r ,并且返回相关性最强的10个*/
-            JSONObject code_relatedCode=step_3(lack_value_grids,1,17);
+            JSONObject code_relatedCode=step_3(lack_value_grids,1,17,0.8);
 
             Iterator it=code_relatedCode.keys();
             String key_code="";
@@ -844,7 +849,7 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
         }
         /**6、计算lackdata_code与全区域的其他网格的皮尔逊系数 r ，并且返回10个相关系数最高的值，有些code之间的相关系数高是因为本身数据量少，故要做二次筛选
          * 此方法还将网格与其他网格的相关系数为0的code存于pearson_is_0中*/
-        public static JSONObject findRelatedCode(JSONArray lackvalue_grids,int months){
+        public static JSONObject findRelatedCode(JSONArray lackvalue_grids,int months,double R){
 
             double r=0;
             String lackdata_code="";
@@ -864,11 +869,11 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
 
                     if(lackdata_code.equals(related_code)){
 
-                    }else if(size>months){//选取本身时间连续性比较好的网格进行相关性计算
+                    }else if(size>=months){//选取本身时间连续性比较好的网格进行相关性计算
                         r=pearson(lackdata_code,related_code);
 
                         //选取相关性大于0.9的网格
-                        if(r>0.9&&r<1){
+                        if(r>R&&r<1){
                             r_adjacentcode = new JSONObject();
                             r_adjacentcode.put("code", related_code);
                             r_adjacentcode.put("r",r);
@@ -950,7 +955,7 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
             return cov;
         }
         /**8、计算单个缺失数据的网格与其他网格的相关性系数*/
-        public static JSONObject codesCovariance(JSONObject code_relatedCode,String path){
+        public static JSONObject codesCovariance(JSONObject code_relatedCode,String path,String[] dates){
 
             String lackdata_code;
             JSONArray related_list;
@@ -999,7 +1004,6 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
                     /** 求权重w */
                     w=marixMultiply(C_y_nn_inverse,C_y_n0);
 
-                    String[] dates={"2015-11","2015-10","2016-3","2016-2","2016-5","2015-12","2016-4","2016-1"};
                     double y0=0;
 
                     JSONObject obj=new JSONObject();
@@ -1145,10 +1149,10 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
             }
 
 
-            /**5、6、计算有缺失数据的网格与全部网格的相关系数 r ,并且返回相关性最强的20个*/
+            /**5、6、计算有缺失数据的网格与全部网格的相关系数 r ,并且返回相关性最强的10个*/
             Vector<String> grids= FileTool.Load(path+"lackvalue_grid.txt","utf-8");
             JSONArray lackvalue_grids=JSONArray.fromObject(grids.elementAt(0));
-            JSONObject code_relatedCode=findRelatedCode(lackvalue_grids,17);
+            JSONObject code_relatedCode=findRelatedCode(lackvalue_grids,17,0.8);
 
             //System.out.println(code_relatedCode);
 
