@@ -87,8 +87,84 @@
   { "_id" : { "$oid" : "58510c1011a746dd9c899268"} , "url" : "http://bj.5i5j.com/exchange/126002179" , "source" : "woaiwojia" , "region" : "北京市朝阳区常营乡" , "location" : "朝阳-常营" , "community" : "中弘·北京像素北区(在售144套)" , "price" : "210" , "area" : "0" , "unit_price" : "Infinity" , "year" : "2016" , "month" : "06" , "day" : "04" , "time" : "2016/06/0412:56:31" , "lng" : "116.59897" , "lat" : "39.92365" , "code" : "4314006" , "row" : "1079" , "col" : "2006" , "house_type" : "2室1厅1卫" , "rooms" : "2" , "halls" : "1" , "bathrooms" : "1" , "floor" : "下部/17" , "flooron" : "下部" , "floors" : "17" , "title" : "您正在查看王文君发布的北京中弘·北京像素北区房源" , "property_company" : "" , "green_rate" : "" , "direction" : "东" , "heat_supply" : "自供暖" , "property" : "公寓普通住宅" , "property_fee" : "" , "down_payment" : "63万" , "volume_rate" : "" , "households" : "" , "developer" : "" , "totalarea" : "" , "month_payment" : "8485元" , "built_year" : "2008-01-01"}
 
   2016年10月程序正常运行
+  2016年11月程序于【2016年12月15日】下午新增，为了检查出今年930新政后的房价情况
+  
++ 2016年12月15日
+  2015年10月程序跑了一晚上了仍然在跑~~
+  同时把2015年11月和2015年12月的程序也在linux上跑起来吧！
+  将window上的【paper】数据库复制一份到【服务器】和【linux】上
+  
+  在【linux】上出现了一个问题，即不能用【double】形式的字符串作为BSON数据格式
+  的key，在入库的时候会抛出异常，而在windows上可以是因为【.】号被转义了。
+  
+ 【.】在mongodb中有特殊的含义。
+ 
+  目前已经把2015年10月、11月、12月的数据放在linux上面跑。并且先存储与本地，之后
+  再统一导入【paper】的【GridData】中
+  
+  用程序【SolveDotProblem】类解决了【.】的问题，并且把linux上的10.、11、12月
+  的数据一起融合到本地的【temp】数据库的【temp】集合中
+  此外，在【D】盘中备份了一份，其中：
+  gridNew.txt：表示去除了【.】异常的数据；
+  gridOld.txt：表示没有去除【.】异常的数据；
+  nullException.txt：在运行中有异常的数据； 
 
 9.新建【PBSHADE_Spatial_7】类，利用【P-BSHADE】插值方法进行空间插值，
   
   
 10.新建【PBSHADE_Time_8】类，利用【P-BSHADE】插值方法进行时间插值，
+   该部分暂时不用
+
+11.新建【Neighbor_Interpolation_9】类，利用【PBSHADE_Spatial_7】中插值成功
+   的数据进行邻近插值的源数据
+   
+12.新建【ContourLine_10】类，由插值结果生成等值线
+
++ 2016年12月16日
+
+8. 在使用【SolveDotProblem】进行数据收拢的时候，又犯了一次错误，就是关于【db】
+   的问题。一旦用db链接上了一个数据库，由于链接db在类【db】中属于全局变量，所以
+   同一程序中只能开一个数据库。
+   
+   之后2015-07月到2016年-10月的数据还是存储到了【paper】的【temp】集合中。
+
+   【D:\小论文\PBSHADE-邻近插值\1.插值的源数据】中文件说明：
+     gridNew.txt：表示去除了【.】异常的数据；
+     gridOld.txt：表示没有去除【.】异常的数据；
+     nullException.txt：在运行中有异常的数据；
+     
+   使用【CopyCollections】类，将【paper】中【temp】的数据复制到【192.168.6.9】
+   中【paper】的【GridData_Resold】中，共计：140794
+   
+   将本地windows的【paper】的【GridData_Resold】删除，然后将本地【paper】的【temp】
+   赋值成新的【GridData_Resold】
+   
+   将本地windows的【paper】的【BasicData_Resold_50】复制到【192.168.6.9】中【paper】
+   的【BasicData_Resold_50】，然后将本地windows的【BasicData_Resold_50】删除
+   注意：【BasicData_Resold_50】数据是没有经历过类【BasicData_Clean_4】处理的原始
+   数据，共计：3017291
+ 
+9.新建【PBSHADE_Spatial_7】类，利用【P-BSHADE】插值方法进行空间插值， 
+   插值的过程中没有处理好月份的问题，一共是17个月，其中个位数的月份前面是需要加“0”的
+   此外，插值过程中的精度验证问题也不是百分之百靠谱，生成的15445条【interpolation_value_grids.txt】
+   插值结果中，有84条数据是月份之间差绝对值超过3万或者价格为负的情况。
+   上述验证结果在【Interpolation_Precision_Inspection】类中完成。
+   这些数据需要找到真实数据验证后再作定夺
+
++ 2016年12月17日
+11.【Neighbor_Interpolation_9】中每一步的执行过程都写在了main函数中，
+    现在正在跑最漫长的邻近插值程序，插值完了之后，还需要对插值结果进行融合，
+    生成最后的插值结果
+    
+    【Neighbor_Interpolation_9】第六步的执行时间为5h。生成两个文件：
+    【以点代面_插值结果.txt】
+    【以点代面_插值插值不成功结果.txt】
+    
+    之后再执行【step_3】生成融合数据
+    
+12.新建【GridInterpolation_11】类，将所有插值后的数据以【格网-月份】的形式存
+   储到数据库【GridData_Resold_Interpolation】中，数据形式如下：
+   【{code(int),row(int),col(int),year(int),month(int),price(double)}】
+   
+13.新建【GridAcceleration_12】程序，生成以房价加速度为值的栅格基元   
+   

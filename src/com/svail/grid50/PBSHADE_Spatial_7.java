@@ -10,11 +10,6 @@ import com.svail.grid50.util.db;
 import com.svail.util.FileTool;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -40,9 +35,6 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
          **/
         public static Map<Integer, JSONObject> jsonArray_map=new HashMap<>();
         public static Map<String, Map<String, Double>> dataset = new HashMap<>();
-        public Map<String, Map<String, Double>> getDataSet() {
-            return dataset;
-        }
         public static Map<String, String> pearson_is_0=new HashMap<>();
         public static Map<Integer, JSONObject> sparse_data=new HashMap<>();
         public static Map<Integer, JSONObject> full_value_grids=new HashMap<>();
@@ -52,54 +44,70 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
         public static JSONArray failed_interpolation_codes=new JSONArray();
         public static JSONArray qualified_interpolation_codes=new JSONArray();
 
-        public static String path="D:\\github.com\\bigdataXiang\\HousePriceServer\\src\\com\\reprocess\\grid_50\\";
 
         public static void main(String[] args){
 
 
-            getInterpolationResult();
-            System.out.println(step_10());
+            getInterpolationResult("D:\\小论文\\PBSHADE-邻近插值\\",17,1,0.8);
 
         }
 
 
         /**整个插值的过程汇总，最后求得每一个网格插值前和插值后的值对比*/
-        public static void getInterpolationResult(){
+        public static void getInterpolationResult(String path,int months,int datesnum,double R){
 
-            step_1();
+            step_1("paper","GridData_Resold");
+            System.out.println("完成第一步：生成整个北京区域内的每个网格的时序数据");
 
-            JSONArray lack_value_grids=step_2();
+            JSONArray lack_value_grids=step_2(months);
+            System.out.println("完成第二步：将所有数据初始化数据集dataset，返回有缺失值的网格的编码，");
 
-            JSONObject code_relatedCode=step_3(lack_value_grids,1);
+            JSONObject code_relatedCode=step_3(lack_value_grids,datesnum,months,R);
+            FileTool.Dump(code_relatedCode.toString(),path+"code_relatedCode.txt","utf-8");
+            System.out.println("完成第三步：计算有缺失数据的网格与全部网格的相关系数 r ,并且返回相关性最强的10个");
 
-            JSONObject spatial=step_4(code_relatedCode);
+            String[] dates={"2015-07","2015-08","2015-09","2015-10","2015-11","2015-12","2016-01","2016-02","2016-03",
+                            "2016-04","2016-05","2016-06","2016-07","2016-08","2016-09","2016-10","2016-11"};
+            JSONObject spatial=step_4(code_relatedCode,path,dates);
+            System.out.println("完成第四步：计算所有有缺失数据的网格的插值结果");
 
-            step_5(spatial);
+            step_5(spatial,months);
+            System.out.println("完成第五步：统计插值情况，检查是否有遗漏的点");
 
-            step_6();
+            step_6(path);
+            System.out.println("完成第六步：计算interpolation_result中每个网格插值前后的mse的值");
 
-
-            //  step_7(); 打印对比真实值与插值
+            step_7(path);
+            System.out.println("完成第七步：比较mse、mae的值较大的code的真实值和插值，并且将其写下");
 
             step_8();
+            System.out.println("完成第八步：将插值结果符合的网格进行插值融合操作");
 
-            dumpInterpolationResult();
+            System.out.println("第九步是将插值的数据入库，暂时先不入库");
 
+            System.out.println("第十步是计算插值数据，暂不计算");
 
-            //  step_9(); 将最终结果存于数据库中
+            step_11(path);
+            System.out.println("完成第十一步：将full_value_grids和interpolation_value_grids的数据写下来");
+
+            step_12(path);
+            System.out.println("完成第十二步：将sparse_data、failed_interpolation_codes和pearson_is_0中的原始数据写于本地文件");
         }
 
-        /**step_1:先生成整个北京区域内的每个网格的时序数据，存放刚到jsonArray_map中,使得全局变量jsonArray_map有值*/
-        public static void step_1(){
+        /**step_1:先生成整个北京区域内的每个网格的时序数据，存放刚到jsonArray_map中,
+         * 使得全局变量jsonArray_map有值*/
+        public static void step_1(String dbName,String export_collName){
 
             JSONObject condition=new JSONObject();
             condition.put("N",1);
-            condition.put("source","woaiwojia");
-            condition.put("export_collName","GridData_Resold_50");
+            condition.put("export_collName",export_collName);
+            condition.put("dbName",dbName);
             getAllGridSeriesValue(condition);
         }
-        /**step_2:返回有缺失值的网格的编码，并且初始化数据集dataset*/
-        public static JSONArray step_2(){
+        /**step_2:返回有缺失值的网格的编码，
+         * 初始化数据集dataset
+         * 如果不足17（2015.07-2016.11）个月的数据，就要在后面进行插值*/
+        public static JSONArray step_2(int months){
 
             JSONArray lack_value_grids=new JSONArray();
             int code;
@@ -107,14 +115,15 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
             int keys_size;
 
             //遍历全局变量jsonArray_map
+            System.out.println("所有有数据的格网数目有"+jsonArray_map.size());
             for (Map.Entry<Integer, JSONObject> entry : jsonArray_map.entrySet()) {
                 code=entry.getKey();
                 date_price=entry.getValue();
                 keys_size=date_price.size();
                 //System.out.println(date_price);
 
-                //(1)返回有缺失的网格编码：如果不足八个月的数据，就要在后面进行插值
-                if(keys_size!=8){
+                //(1)返回有缺失的网格编码：如果不足17个月的数据，就要在后面进行插值
+                if(keys_size!=months){
                     lack_value_grids.add(code);
                 }else {
                     full_value_grids.put(code,date_price);
@@ -123,11 +132,11 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
                 //(2)初始化数据集dataset
                 initDataSet(""+code,date_price,dataset);
             }
-            System.out.println("所有不足八个月的数据lack_value_grids的网格数目有"+lack_value_grids.size());
+            System.out.println("所有不足"+months+"个月的数据lack_value_grids的网格数目有"+lack_value_grids.size());
             return lack_value_grids;
         }
-        /**step_3:计算有缺失数据的网格与全部网格的相关系数 r ,并且返回相关性最强的20个*/
-        public static JSONObject step_3(JSONArray lack_value_grids,int datesnum){
+        /**step_3:计算有缺失数据的网格与全部网格的相关系数 r ,并且返回相关性最强的10个*/
+        public static JSONObject step_3(JSONArray lack_value_grids,int datesnum,int months,double R){
 
             JSONArray to_be_interpolated=new JSONArray();
             int code;
@@ -145,15 +154,16 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
                 }
             }
 
-            code_relatedCode=findRelatedCode(to_be_interpolated);
+            code_relatedCode=findRelatedCode(to_be_interpolated,months,R);
+            //System.out.println(code_relatedCode);
             return code_relatedCode;
 
             //findRelatedCode方法中还实现将与所有网格的相关系数为0的网格code存放在pearson_is_0中
         }
         /**step_4:计算所有有缺失数据的网格的插值结果，并且将最终的结果存一份存到interpolation_result中*/
-        //FileTool.Dump
-        public static JSONObject step_4( JSONObject code_relatedCode){
-            JSONObject spatial=codesCovariance(code_relatedCode);
+        public static JSONObject step_4( JSONObject code_relatedCode,String path,String[] dates){
+
+            JSONObject spatial=codesCovariance(code_relatedCode,path,dates);
 
             Iterator iterator=spatial.keys();
             String code;
@@ -168,7 +178,7 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
             return spatial;
         }
         /**step_5:统计插值情况，检查是否有遗漏的点*/
-        public static void step_5(JSONObject spatial){
+        public static void step_5(JSONObject spatial,int months){
             int jsonArray_map_size=jsonArray_map.size();
             int spatial_size=spatial.size();
             int sparse_data_size=sparse_data.size();
@@ -180,7 +190,7 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
 
             System.out.println("\n其中：");
             System.out.println("  数据有缺失的网格有：");
-            System.out.println("  lack_value_grids:"+step_2().size());
+            System.out.println("  lack_value_grids:"+step_2(months).size());
             System.out.println("  插值成功的网格有：");
             System.out.println("  spatial_size:"+spatial_size);
             System.out.println("  相关系数为0的网格有：");
@@ -194,8 +204,7 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
 
         }
         /**step_6:计算interpolation_result中每个网格插值前后的mse的值，并且将mse的值较大的挑选出来,存在failed_interpolation_codes中*/
-        //FileTool.Dump
-        public static void step_6(){
+        public static void step_6(String path){
 
             String code;
             double mse;
@@ -211,28 +220,24 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
                 if(mae>1){
                     failed_interpolation_codes.add(code);
 
-                    //FileTool.Dump(code,"D:\\小论文\\插值完善\\mae大于1.txt","utf-8");
-                    //String str=code+","+mse+","+rmse+","+mae;
-                    //FileTool.Dump(str,"D:\\小论文\\插值完善\\插值误差.txt","utf-8");
+                    FileTool.Dump(code,path+"mae大于1的code.txt","utf-8");
+                    String str=code+","+mse+","+rmse+","+mae;
+                    FileTool.Dump(str,path+"mae大于1的code_插值误差.txt","utf-8");
                 }else {
                     qualified_interpolation_codes.add(code);
                 }
-            /*String str=code+","+mse+","+rmse+","+mae;
-            FileTool.Dump(str,"D:\\中期考核\\grid50\\插值误差.txt","utf-8");
-            */
             }
 
             System.out.println("mae>1："+failed_interpolation_codes.size());
             System.out.println("mae<1："+qualified_interpolation_codes.size());
         }
         /**step_7:比较mse、mae的值较大的code的真实值和插值，并且将其打印出来*/
-        //FileTool.Dump
-        public static void step_7(){
+        public static void step_7(String path){
             int size=failed_interpolation_codes.size();
             String code;
             for(int i=0;i<size;i++){
                 code=failed_interpolation_codes.getString(i);
-                compareFailedCode(code);
+                compareFailedCode(code,path);
             }
         }
 
@@ -252,17 +257,17 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
          * 三种是排除以上两种情况的数据，存储其本身的真实值
          * */
         public static void step_9(){
-            toMongoDB("GridData_Resold_Interpolation",1);
+            toMongoDB("paper","GridData_Resold_Interpolation",1);
         }
 
         /**step_10:计算空间插值的权重A*/
-        public static JSONObject step_10(){
+        public static JSONObject step_10(int months){
 
             /**1、初始化数据集*/
-            step_1();
-            JSONArray lack_value_grids=step_2();
+            step_1("temp","temp");
+            JSONArray lack_value_grids=step_2(months);
             /**2、计算有缺失数据的网格与全部网格的相关系数 r ,并且返回相关性最强的10个*/
-            JSONObject code_relatedCode=step_3(lack_value_grids,1);
+            JSONObject code_relatedCode=step_3(lack_value_grids,1,17,0.8);
 
             Iterator it=code_relatedCode.keys();
             String key_code="";
@@ -296,25 +301,27 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
             return A;
         }
 
+        /**step_11:将full_value_grids和interpolation_value_grids的数据写下来*/
+        public static void step_11(String path){
+            dumpInterpolationResult(path);
+        }
+        /**将sparse_data、failed_interpolation_codes和pearson_is_0中的原始数据写于本地文件*/
+        public static void step_12(String path){
+            reInterpolationCode(path);
+        }
+
 
 
 
         /**1.生成北京区域内N50*N50分辨率时的每个网格的时序数据,并且存放在jsonArray_map中*/
         public static void getAllGridSeriesValue(JSONObject condition){
-            int N=condition.getInt("N");
 
             String collName=condition.getString("export_collName");
-            DBCollection coll = db.getDB("paper").getCollection(collName);
-            BasicDBObject document = new BasicDBObject();
+            String dbName=condition.getString("dbName");
 
-            String source=condition.getString("source");
-            document.put("source",source);
-            List code_array=coll.find(document).toArray();
+            DBCollection coll = db.getDB(dbName).getCollection(collName);
 
             BasicDBObject doc;//doc里面存放的是网格编码经过融合的而成的poi数据
-            int row_doc;
-            int col_doc;
-            int[] result_doc;
             List code_array_after=new ArrayList<>();//存放属于同一编码的doc数据
             Map<Integer,List> gridmap= new HashMap<>();//通过code与codelist的键值关系，建立索引
             List<BasicDBObject> codelist;//存放属于同一编码的doc数据
@@ -322,27 +329,32 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
             int row;
             int col;
 
+            DBCursor cs=coll.find();
+            int c=0;
+
+            BasicDBObject doc_temp;
             JSONObject code_index_rowcol=new JSONObject();
-            for(int i=0;i<code_array.size();i++){
-                doc= (BasicDBObject) code_array.get(i);
-                doc.remove("_id");
-                row_doc=doc.getInt("row");
-                col_doc=doc.getInt("col");
+            while (cs.hasNext()){
+                //c++;
+                //System.out.println(c);
+                doc_temp=(BasicDBObject) cs.next();
 
-
-                //将doc中的row、col、code从50分辨率的转换成N50分辨率的
-                result_doc= codeMapping50toN50(row_doc,col_doc,N);
-                row=result_doc[0];
+                doc=new BasicDBObject();
+                row=doc_temp.getInt("row");
                 doc.put("row",row);
-                col=result_doc[1];
+                col=doc_temp.getInt("col");
                 doc.put("col",col);
-                code=result_doc[2];
+                code=doc_temp.getInt("code");
                 doc.put("code",code);
+                doc.put("unitprice_weightUnitprice",doc_temp.getDouble("unitprice_weightUnitprice"));
+                doc.put("year",doc_temp.getString("year"));
+                doc.put("month",doc_temp.getString("month"));
+                code_array_after.add(doc);
+
                 String row_col=row+"_"+col;
                 code_index_rowcol.put(code,row_col);
 
-                //System.out.println("转换后的N50*N50的网格数据"+doc);
-                code_array_after.add(doc);
+
                 if (gridmap.containsKey(code)) {
                     codelist=gridmap.get(code);
                     codelist.add(doc);
@@ -380,19 +392,17 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
                     for(int i=0;i<codelist.size();i++){
                         obj=JSONObject.fromObject(codelist.get(i));
                         date=obj.getString("year")+"-"+obj.getString("month");
-                        average_price=obj.getDouble("average_price");
+                        average_price=obj.getDouble("unitprice_weightUnitprice");
 
                         if(timeprice_map.containsKey(date)){
                             average_price_list=timeprice_map.get(date);
                             average_price_list.add(average_price);
                             timeprice_map.put(date,average_price_list);
-                            // System.out.println(average_price_list);
 
                         }else{
                             average_price_list=new ArrayList<>();
                             average_price_list.add(average_price);
                             timeprice_map.put(date,average_price_list);
-                            // System.out.println(average_price_list);
                         }
                     }
 
@@ -444,17 +454,19 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
                     key=(String) it_totalgrid.next();
                     value=totalgrid.getJSONObject(key);
                     jsonArray_map.put(Integer.parseInt(key),value);
-                    String rowcol=code_index_rowcol.getString(key);
+
+                    /*String rowcol=code_index_rowcol.getString(key);
                     int rows=Integer.parseInt(rowcol.substring(0,rowcol.indexOf("_")));
                     int cols=Integer.parseInt(rowcol.substring(rowcol.indexOf("_")+"_".length()));
 
                     comparedata.put("code",Integer.parseInt(key));
                     comparedata.put("timeseries",value);
                     comparedata.put("row",rows);
-                    comparedata.put("col",cols);
+                    comparedata.put("col",cols);*/
                 }
             }
         }
+
         /**2、设置好调用数据库的参数*/
         public static JSONObject condition(double west,double east,double south,double north){
             double width=0.0011785999999997187;//每100m的经度差
@@ -837,7 +849,7 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
         }
         /**6、计算lackdata_code与全区域的其他网格的皮尔逊系数 r ，并且返回10个相关系数最高的值，有些code之间的相关系数高是因为本身数据量少，故要做二次筛选
          * 此方法还将网格与其他网格的相关系数为0的code存于pearson_is_0中*/
-        public static JSONObject findRelatedCode(JSONArray lackvalue_grids){
+        public static JSONObject findRelatedCode(JSONArray lackvalue_grids,int months,double R){
 
             double r=0;
             String lackdata_code="";
@@ -857,11 +869,11 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
 
                     if(lackdata_code.equals(related_code)){
 
-                    }else if(size>7){//选取本身时间连续性比较好的网格进行相关性计算
+                    }else if(size>=months){//选取本身时间连续性比较好的网格进行相关性计算
                         r=pearson(lackdata_code,related_code);
 
                         //选取相关性大于0.9的网格
-                        if(r>0.9&&r<1){
+                        if(r>R&&r<1){
                             r_adjacentcode = new JSONObject();
                             r_adjacentcode.put("code", related_code);
                             r_adjacentcode.put("r",r);
@@ -924,8 +936,6 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
                     sumY += p2Map.get(name);
                     sumXY += p1Map.get(name) * p2Map.get(name);
                 }
-            /*System.out.println(sumXY);
-            System.out.println(sumX * sumY / N);*/
 
                 avenrageX=sumX/N;
                 avenrageY=sumY/N;
@@ -934,11 +944,9 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
                 cov_temp=(1/(double)N);
                 BigDecimal b = new BigDecimal(cov_temp*(sumXY - sumX * sumY / N));
                 cov = b.setScale(6, BigDecimal.ROUND_HALF_UP).doubleValue();
-                //System.out.println(cov);
 
                 /**用公式 cov(xy)= (1/(N-1))*(sumXY-avenrageX*sumY)  */
                 cov =(1/(double)(N-1))*(sumXY - avenrageX*sumY);
-                //System.out.println(cov);
 
             }else {
                 cov=0;
@@ -947,7 +955,7 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
             return cov;
         }
         /**8、计算单个缺失数据的网格与其他网格的相关性系数*/
-        public static JSONObject codesCovariance(JSONObject code_relatedCode){
+        public static JSONObject codesCovariance(JSONObject code_relatedCode,String path,String[] dates){
 
             String lackdata_code;
             JSONArray related_list;
@@ -996,7 +1004,6 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
                     /** 求权重w */
                     w=marixMultiply(C_y_nn_inverse,C_y_n0);
 
-                    String[] dates={"2015-11","2015-10","2016-3","2016-2","2016-5","2015-12","2016-4","2016-1"};
                     double y0=0;
 
                     JSONObject obj=new JSONObject();
@@ -1009,7 +1016,7 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
                     interpolation.put(lackdata_code,obj);
                     interpolation_grids.put(Integer.parseInt(lackdata_code),obj);
 
-                    FileTool.Dump(lackdata_code+":"+obj.toString(),"D:\\中期考核\\grid50\\所有网格的插值结果.txt","utf-8");
+                    FileTool.Dump(lackdata_code+":"+obj.toString(),path+"所有网格的插值结果.txt","utf-8");
                 }
             }
 
@@ -1071,23 +1078,6 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
 
             return ratio;
         }
-        /**11、打印dataset里面的map值*/
-        public static void printDataSetMap(String dataset_key){
-            Map<String, Double> map=dataset.get(dataset_key);
-            for (Map.Entry<String, Double> p : map.entrySet()) {
-                System.out.print(p.getKey()+" : "+p.getValue()+" ; ");
-            }
-            System.out.println("\n");
-        }
-        /**12、打印二维数组*/
-        public static void print2DArray(double[][] C_y_nn){
-            for(int i=0;i<C_y_nn.length;i++){
-                for(int j=0;j<C_y_nn[i].length;j++){
-                    System.out.print(C_y_nn[i][j]+" , ");
-                }
-                System.out.print("\n");
-            }
-        }
         /**13、计算矩阵a与矩阵b的乘积*/
         public static double[][] marixMultiply(double a[][], double b[][]) {
             if (a == null || b == null || a[0].length != b.length) {
@@ -1145,9 +1135,9 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
             return y0;
         }
         /**16、计算出时空插值中空间插值的权重 A */
-        public static JSONObject getA(){
+        public static JSONObject getA(String path){
 
-            String path="D:\\github.com\\bigdataXiang\\HousePriceServer\\src\\com\\reprocess\\grid_100\\interpolation\\";
+            // path="D:\\github.com\\bigdataXiang\\HousePriceServer\\src\\com\\reprocess\\grid_100\\interpolation\\";
             /**4、初始化数据集*/
             Vector<String> gridmap=FileTool.Load(path+"gridmap.txt","utf-8");
             JSONObject code_timevalue;
@@ -1159,10 +1149,10 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
             }
 
 
-            /**5、6、计算有缺失数据的网格与全部网格的相关系数 r ,并且返回相关性最强的20个*/
+            /**5、6、计算有缺失数据的网格与全部网格的相关系数 r ,并且返回相关性最强的10个*/
             Vector<String> grids= FileTool.Load(path+"lackvalue_grid.txt","utf-8");
             JSONArray lackvalue_grids=JSONArray.fromObject(grids.elementAt(0));
-            JSONObject code_relatedCode=findRelatedCode(lackvalue_grids);
+            JSONObject code_relatedCode=findRelatedCode(lackvalue_grids,17,0.8);
 
             //System.out.println(code_relatedCode);
 
@@ -1251,8 +1241,9 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
 
             return error_test;
         }
-        /**18、比较mse的值较大的code的真实值和插值，并且将其打印出来*/
-        public static void compareFailedCode(String code){
+        /**18、比较mse的值较大的code的真实值和插值，
+         * 并且将其打印和写到本地*/
+        public static void compareFailedCode(String code,String path){
             Map<String, Double> real_value_map=new HashMap<>();
             Map<String, Double> interpolation_value_map=new HashMap<>();
             if(dataset.containsKey(code)&&interpolation_result.containsKey(code)){
@@ -1263,7 +1254,6 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
                 double real_price;
                 double interpolation_price;
 
-                //System.out.println(code+":");
                 if(interpolation_value_map.size()!=0){
                     for (Map.Entry<String, Double> p : real_value_map.entrySet()) {
                         date=p.getKey();
@@ -1271,13 +1261,10 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
                             real_price=real_value_map.get(date);
                             interpolation_price=interpolation_value_map.get(date);
                             String str=code+","+date+":"+real_price+" , "+interpolation_price;
-                            //System.out.println(str);
-                            //FileTool.Dump(str,"D:\\小论文\\插值完善\\mse的值较大的code的真实值和插值对比.txt","utf-8");
+                            FileTool.Dump(str,path+"mae大于1的code的真实值和插值对比.txt","utf-8");
                         }
                     }
                 }
-                //System.out.print("\n");
-                //printSeparator(40);//打印分隔符
             }
         }
         /**19、将插值结果符合(即mse小于0.1)的网格进行插值操作:插值规则是如果该时间点的真实值缺乏，则用插值代替，否则采用真实值*/
@@ -1317,11 +1304,11 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
             }
         }
         /**20、将数据导入mongodb中*/
-        public static void toMongoDB(String collName,int N){
+        public static void toMongoDB(String dbName,String collName,int N){
 
             try {
                 System.out.println("运行开始:");
-                DBCollection coll = db.getDB("paper").getCollection(collName);
+                DBCollection coll = db.getDB(dbName).getCollection(collName);
                 BasicDBObject document;
 
                 int code;
@@ -1449,21 +1436,48 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
         }
 
         /**26、将full_value_grids和interpolation_value_grids的数据写下来*/
-        public static void dumpInterpolationResult(){
+        public static void dumpInterpolationResult(String path){
             int code;
             JSONObject date_price;
             for (Map.Entry<Integer, JSONObject> entry : full_value_grids.entrySet()) {
                 code = entry.getKey();
                 date_price = entry.getValue();
 
-                FileTool.Dump(code+";"+date_price,"D:\\小论文\\插值完善\\full_value_grids.txt","utf-8");
+                FileTool.Dump(code+";"+date_price,path+"full_value_grids.txt","utf-8");
             }
 
             for (Map.Entry<Integer, JSONObject> entry : interpolation_value_grids.entrySet()) {
                 code = entry.getKey();
                 date_price = entry.getValue();
 
-                FileTool.Dump(code+";"+date_price,"D:\\小论文\\插值完善\\interpolation_value_grids.txt","utf-8");
+                FileTool.Dump(code+";"+date_price,path+"interpolation_value_grids.txt","utf-8");
             }
         }
+
+    /**21、将不能用线性插值的格网及其时序数据拿下来：
+     * 从sparse_data、failed_interpolation_codes和pearson_is_0中找到插值不成功的原始网格，并且将原始数据写于本地文件*/
+    public static void reInterpolationCode(String path){
+        //sparse_data:稀疏数据
+        int code;
+        JSONObject obj;
+        for(Map.Entry<Integer, JSONObject>entry: sparse_data.entrySet()){
+            code=entry.getKey();
+            obj=entry.getValue();
+            FileTool.Dump(code+","+obj,path+"sparse_data.txt","utf-8");
+        }
+
+        //failed_interpolation_codes：mae>1的网格
+        for(int i=0;i<failed_interpolation_codes.size();i++){
+            code=failed_interpolation_codes.getInt(i);
+            obj=jsonArray_map.get(code);
+            FileTool.Dump(code+","+obj,path+"failed_interpolation_codes.txt","utf-8");
+        }
+
+        //pearson_is_0_size:与其他网格相关系数为0网格
+        for(Map.Entry<String,String>entry:pearson_is_0.entrySet()){
+            code=Integer.parseInt(entry.getKey());
+            obj=jsonArray_map.get(code);
+            FileTool.Dump(code+","+obj,path+"pearson_is_0.txt","utf-8");
+        }
+    }
 }
