@@ -18,7 +18,13 @@ public class ContourLine_10 {
 
     public static void main(String[] args){
 
-        priceMatrix("D:\\小论文\\PBSHADE-邻近插值\\","2015-07");
+        /*
+         * 第一步：生成每个月的价格矩阵，此步在linux上完成
+         * priceMatrix("D:\\小论文\\PBSHADE-邻近插值\\","2015-07");
+         */
+
+
+
 
     }
 
