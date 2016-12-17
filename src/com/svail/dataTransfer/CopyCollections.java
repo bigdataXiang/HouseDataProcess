@@ -24,21 +24,20 @@ public class CopyCollections {
         Mongo m_import=null;
 
         try {
-            m_export=new Mongo("127.0.0.1",27017);
-            m_import=new Mongo("192.168.6.9",27017);
-            //m_import=m_export;
 
-            //m_export=new Mongo("192.168.6.9",27017);
-            //m_import=new Mongo("127.0.0.1",27017);
-        } catch (UnknownHostException e) {
+            m_export=new Mongo("192.168.6.9",27017);
+            m_import=new Mongo("127.0.0.1",27017);
+        } catch (Exception e) {
             e.printStackTrace();
         }
+
 
         DB db_export=m_export.getDB("paper");
         DBCollection coll_export=db_export.getCollection("BasicData_Resold_50");
 
         DB db_import=m_import.getDB("paper");
         DBCollection coll_import=db_import.getCollection("BasicData_Resold_50");
+
 
         DBCursor cs=coll_export.find();
         BasicDBObject document;
@@ -59,3 +58,6 @@ public class CopyCollections {
         System.out.println(count);
     }
 }
+
+
+

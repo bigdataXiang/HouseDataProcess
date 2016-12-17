@@ -1,3 +1,9 @@
 /.idea
 /out
 DataProcess20160928.iml
+将删除 .gitignore
+将删除 .idea/
+将删除 DataProcess20160928.iml
+将删除 lib/
+将删除 out/
+将删除 src/
