@@ -71,13 +71,14 @@ public class Neighbor_Interpolation_9 {
         "sparse_data_插值结果_融合.txt"
         "full_value_grids.txt"
         "interpolation_value_grids_中没有问题的数据.txt"
-         */
+
         step_5("D:\\小论文\\PBSHADE-邻近插值\\",40);
+        */
 
         /*
-         第七步：将第六步生成的【以点代面_插值结果.txt】插值结果进行融合
+         第七步：将第六步生成的【以点代面_插值结果.txt】插值结果进行融合*/
          step_3("D:\\小论文\\PBSHADE-邻近插值\\","以点代面_插值结果.txt");
-         */
+
 
     }
 

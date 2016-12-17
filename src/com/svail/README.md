@@ -150,10 +150,17 @@
    插值结果中，有84条数据是月份之间差绝对值超过3万或者价格为负的情况。
    上述验证结果在【Interpolation_Precision_Inspection】类中完成。
    这些数据需要找到真实数据验证后再作定夺
-   
+
++ 2016年12月17日
 11.【Neighbor_Interpolation_9】中每一步的执行过程都写在了main函数中，
     现在正在跑最漫长的邻近插值程序，插值完了之后，还需要对插值结果进行融合，
     生成最后的插值结果
+    
+    【Neighbor_Interpolation_9】第六步的执行时间为5h。生成两个文件：
+    【以点代面_插值结果.txt】
+    【以点代面_插值插值不成功结果.txt】
+    
+    之后再执行【step_3】生成融合数据
     
 12.新建【GridInterpolation_11】类，将所有插值后的数据以【格网-月份】的形式存
    储到数据库【GridData_Resold_Interpolation】中，数据形式如下：

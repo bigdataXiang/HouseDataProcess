@@ -18,6 +18,7 @@ public class ContourLine_10 {
 
     public static void main(String[] args){
 
+        priceMatrix("D:\\小论文\\PBSHADE-邻近插值\\","2015-07");
 
     }
 
@@ -36,7 +37,7 @@ public class ContourLine_10 {
      * */
     public static void priceMatrix(String path,String date){
 
-        String file=path+"All_failedcode_插值结果_融合.txt";
+        String file=path+"所有无值融合的code_插值结果_融合.txt";
         Map<Integer,Double> code_price=new HashMap<>();
         listAssignment(file,code_price,date);
         System.out.println(code_price.size());
@@ -49,7 +50,7 @@ public class ContourLine_10 {
         listAssignment(file,code_price,date);
         System.out.println(code_price.size());
 
-        file=path+"interpolation_value_grids.txt";
+        file=path+"interpolation_value_grids_中没有问题的数据.txt";
         listAssignment(file,code_price,date);
         System.out.println(code_price.size());
 
@@ -89,9 +90,11 @@ public class ContourLine_10 {
         //row、col指的是编码系统里的行列号
         //array_row、array_col指的是二维矩阵中的行列号
         for(int row=4000;row>=1;row--){
+            System.out.println(4000-row+1);
             String str="";
             int array_col=0;//其中array_col=col-1;
             for(int col=1;col<=4000;col++){
+
                 code=col+(row-1)*4000;
 
                 if(code_price.containsKey(code)){
@@ -103,7 +106,7 @@ public class ContourLine_10 {
                 str+=gridmatrix[array_row][array_col]+",";
                 array_col++;
             }
-            FileTool.Dump(str,"ContourLine-"+date+".txt","utf-8");
+            FileTool.Dump(str,path+"ContourLine-"+date+".txt","utf-8");
             array_row++;
         }
     }
@@ -225,10 +228,18 @@ public class ContourLine_10 {
     /**提取文件中指定月份的价格和code数据*/
     public static void listAssignment(String file,Map<Integer,Double> code_price,String month){
         Vector<String> pois= FileTool.Load(file,"utf-8");
+        String code;
+        String timeserise;
         for(int i=0;i<pois.size();i++){
             String poi=pois.elementAt(i);
-            String code=poi.substring(0,poi.indexOf(","));
-            String timeserise=poi.substring(poi.indexOf(",")+",".length());
+
+            if(poi.indexOf(";")!=-1){
+                code=poi.substring(0,poi.indexOf(";"));
+                timeserise=poi.substring(poi.indexOf(";")+";".length());
+            }else{
+                code=poi.substring(0,poi.indexOf(","));
+                timeserise=poi.substring(poi.indexOf(",")+",".length());
+            }
             JSONObject obj=JSONObject.fromObject(timeserise);
 
             double price=obj.getDouble(month);
