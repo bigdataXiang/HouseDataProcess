@@ -166,5 +166,18 @@
    储到数据库【GridData_Resold_Interpolation】中，数据形式如下：
    【{code(int),row(int),col(int),year(int),month(int),price(double)}】
    
-13.新建【GridAcceleration_12】程序，生成以房价加速度为值的栅格基元   
-   
+13.新建【GridAcceleration_12】程序，生成以房价加速度为值的栅格基元  
+ 
+14.【ContourLine_10】类运行情况：
+    linux有16g的运行内存，在linux上执行此程序能非常快，很快就能将这17个月的数据跑完。
+    
+    【pb】系列程序运行情况：
+    linux上部署了2015-07至2015-10月份的数据区块分类
+    服务器【192.168.6.168】部署了2015-11至2016-02月份的数据区块分类
+    服务器【192.168.137.178】部署了2016-03至2016-07月份的数据区块分类
+
++ 2016年12月19日
+14. 【ContourLine_10】类运行情况：
+     【pb.py】运行除了大bug，每一个程序运行到2895行的时候就出现了bug，bug
+     出现在
+     【self.gArray[y][x] =self.gArray_ori[y][x]*100000+dic_label_p[str(self.gArray_ori[y][x])]  】
