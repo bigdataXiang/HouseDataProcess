@@ -61,6 +61,7 @@
  【BasicData_Resold_50】6409691条数据中的重复数据。
   进行该一步的程序是用js写的，存储在"D:\ruanjian\MongoDB\bin"中
   执行命令【mongo 127.0.0.1/paper BasicData_50.js】
+  【mongo 127.0.0.1/pois poi.js】
   
   去重后【BasicData_Resold_50】表中的数据量为3017291条。
   
@@ -181,3 +182,12 @@
      【pb.py】运行除了大bug，每一个程序运行到2895行的时候就出现了bug，bug
      出现在
      【self.gArray[y][x] =self.gArray_ori[y][x]*100000+dic_label_p[str(self.gArray_ori[y][x])]  】
+     原因是：python的range(a,b)函数的原因，只能从a取到b-1。而新的数据中出现了20的值，所以出现了
+     越界异常。
+     
+     现在对数据进行重新运行：
+     【linux】是2015-07到2015-09的数据
+     【192.168.6.168】是2015-10到2015-12的数据
+     【192.168.137.179】是2016-01到2016-04的数据
+     
+  
