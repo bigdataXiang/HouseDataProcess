@@ -14,7 +14,7 @@ public class Hospital {
     public static void main(String[] args){
         //makeLine("D:\\小论文\\poi资料\\医院\\北京医院大全.txt");
         //toJson("D:\\小论文\\poi资料\\医院\\北京医院大全_line.txt");
-        toJson_("D:\\小论文\\poi资料\\医院\\北京医院代码.txt");
+        toJson_("D:\\小论文\\poi资料\\医院\\北京所有医院名单.txt");
     }
     public static void makeLine(String file){
         Vector<String> pois= FileTool.Load(file,"utf-8");
@@ -84,8 +84,13 @@ public class Hospital {
         String poi="";
         String name="";
         String temp;
-        String[] rest;
+        String location;
         String code;
+        String type;
+        String[] rest;
+        String qualify;
+        String postCode;
+
         JSONObject obj;
         String first;
         for(int i=0;i<pois.size();i++){
@@ -97,11 +102,11 @@ public class Hospital {
                 obj.put("code",code);
                 name=poi.substring(8);
                 obj.put("name",name);
+                FileTool.Dump(obj.toString(),file.replace(".txt","_json.txt"),"utf-8");
             }else {
-                obj.put("name",poi);
+                FileTool.Dump(poi,file.replace(".txt","_json.txt"),"utf-8");
             }
-            System.out.println(i+":"+obj);
-            FileTool.Dump(obj.toString(),file.replace(".txt","_json.txt"),"utf-8");
+            //System.out.println(i+":"+obj);
         }
     }
 }
