@@ -1,4 +1,4 @@
-package com.svail.grid50.util;
+package com.svail.grid50.util.pois;
 
 import com.svail.util.FileTool;
 import net.sf.json.JSONObject;
@@ -14,7 +14,7 @@ public class Hospital {
     public static void main(String[] args){
         //makeLine("D:\\小论文\\poi资料\\医院\\北京医院大全.txt");
         //toJson("D:\\小论文\\poi资料\\医院\\北京医院大全_line.txt");
-        toJson_("D:\\小论文\\poi资料\\医院\\北京所有医院名单.txt");
+        toJson_("D:\\小论文\\poi资料\\医院\\卫生服务中心.txt");
     }
     public static void makeLine(String file){
         Vector<String> pois= FileTool.Load(file,"utf-8");
@@ -83,11 +83,10 @@ public class Hospital {
         Vector<String> pois= FileTool.Load(file,"utf-8");
         String poi="";
         String name="";
-        String temp;
         String location;
         String code;
         String type;
-        String[] rest;
+        String[] temp;
         String qualify;
         String postCode;
 
@@ -96,17 +95,16 @@ public class Hospital {
         for(int i=0;i<pois.size();i++){
             obj=new JSONObject();
             poi=pois.elementAt(i);
-            first=poi.substring(0,1);
-            if(isNum(first)){
-                code=poi.substring(0,8);
-                obj.put("code",code);
-                name=poi.substring(8);
-                obj.put("name",name);
-                FileTool.Dump(obj.toString(),file.replace(".txt","_json.txt"),"utf-8");
-            }else {
-                FileTool.Dump(poi,file.replace(".txt","_json.txt"),"utf-8");
+            temp=poi.split(",");
+            if(temp.length>=4){
+                obj.put("name",temp[1]);
+                obj.put("management",temp[2]);
+                obj.put("approval",temp[3]);
+
             }
-            //System.out.println(i+":"+obj);
+            System.out.println(obj);
+            FileTool.Dump(obj.toString(),file.replace(".txt","_json.txt"),"utf-8");
+
         }
     }
 }
