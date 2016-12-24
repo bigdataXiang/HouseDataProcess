@@ -28,23 +28,24 @@ import com.google.gson.JsonSyntaxException;
 
 
 public class BatchProcess_1 {
-    public static String sourcepath="D:\\小论文\\poi资料\\小区\\";
     public static String resultpath="D:\\小论文\\poi资料\\小区\\";
 
-
+    public static String sourcepath="D:\\小论文\\poi资料\\学校\\各区中学\\";
     public static void main(String argv[]) throws Exception{
-        String filename="所有小区名称_去除冗余_匹配不成功_原始_地址匹配失败_高德地址匹配失败.txt";
-        addressMatch_GaoDe(1,sourcepath,resultpath,filename);
+        String filename="城八区中学名录_json.txt";
+        String[] keys={"address","name"};
+        batchProcess(2,sourcepath,filename,keys);
     }
     public static void match(){
         String filename="";
         Vector<String> pois=FileTool.Load("/media/bigdataxiang/data/houseprice/woaiwojia_nocoor.txt","utf-8");
+        String[] keys={""};
         for(int i=0;i<pois.size();i++){
             filename=pois.elementAt(i);
 
             System.out.println(sourcepath+filename);
             try {
-                batchProcess(1000,sourcepath+filename,resultpath,filename);
+                batchProcess(1000,sourcepath+filename,filename,keys);
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
@@ -54,61 +55,42 @@ public class BatchProcess_1 {
     }
 
     /**
-     *
      * @param amount 批量处理的个数
      * @param sourcepath 需要处理的源数据的路径
-     * @param storepath  存储的数据路径
      * @param filename 需要处理的文件名称
      * @throws UnsupportedEncodingException
      */
-    public static void batchProcess(int amount,String sourcepath,String storepath,String filename) throws UnsupportedEncodingException {
+    public static void batchProcess(int amount,String sourcepath,String filename,String[] keys) throws UnsupportedEncodingException {
 
         //http://geocode.svail.com:8080/
         //http://192.168.6.9:8080/
-        String request ="http://geocode.svail.com:8080/p41?f=json";
+        String request ="http://192.168.6.9:8080/p41?f=json";
         String parameters ="&within="+ java.net.URLEncoder.encode("北京市", "UTF-8")+"&key=327D6A095A8111E5BFE0B8CA3AF38727&queryStr=";
-        //"&within="+ java.net.URLEncoder.encode("", "UTF-8")+
 
 
-            Vector<String> rain_file=FileTool.Load(sourcepath+filename,"utf-8");
+            Vector<String> pois=FileTool.Load(sourcepath+filename,"utf-8");
 
-            boolean batch = false;
+            boolean batch = true;
             Gson gson = new Gson();
             if (batch)
                 request = "http://192.168.6.9:8080/p4b?";
             StringBuffer sb = new StringBuffer();
-            int offset = 0;
             String poi="";
             int count = 0;
             Vector<String> validpois = new Vector<String>();
-
-
-            String location="";
-            String community="";
-            String addr="";
             String address="";
+            for(int j=0;j<pois.size();j++){
 
-            for(int j=0;j<rain_file.size();j++){
-
-                String info=rain_file.elementAt(j);
+                String info=pois.elementAt(j);
                 if(info.endsWith("},")){
                     info=info.replace("},","}");
                 }
-                /*JSONObject obj=JSONObject.fromObject(info);
-                if(obj.containsKey("location")){
-                    location=obj.getString("location").replace("-","");
+                JSONObject obj=JSONObject.fromObject(info);
+                for(int i=0;i<keys.length;i++){
+                    if(obj.containsKey(keys[i])){
+                        address+=Tool.delect_content_inBrackets(obj.getString(keys[i]),"(",")");
+                    }
                 }
-                if(obj.containsKey("community")){
-                    community=obj.getString("community");
-                    community= Tool.delect_content_inBrackets(community,"(",")");
-                }
-                if(obj.containsKey("address")){
-                    addr=obj.getString("address");
-                    addr=Tool.delect_content_inBrackets(addr,"(",")");
-                }
-                address=location+community+addr;*/
-
-                address=info;
                 if(address.length()==0){
                     address="暂无";
                 }
@@ -117,11 +99,12 @@ public class BatchProcess_1 {
                 count ++;
                 if(amount!=1){
                     sb.append(address).append("\n");
+                    address="";//这里一定要记得置0，要不然所有的地址就都叠加起来了
                 }else {
                     sb.append(address);
                 }
 
-                if (((count == amount) ||  j == rain_file.size() - 1)) {
+                if (((count == amount) ||  j == pois.size() - 1)) {
 
                     String urlParameters = sb.toString();
                     count = 0;
@@ -176,19 +159,12 @@ public class BatchProcess_1 {
                                     if (txt == null) {
                                         System.out.println("txt为null！");
                                         for(int m=0;m<validpois.size();m++){
-                                            FileTool.Dump(validpois.get(m), storepath+filename.replace(".json", "") + "_txtnull.txt", "UTF-8");
+                                            FileTool.Dump(validpois.get(m), sourcepath+filename.replace(".json", "") + "_txtnull.txt", "UTF-8");
 
                                         }
                                     }
                                     else {
-                                        int index1=txt .indexOf("chinesename");
-                                        String index3=",}";
-                                        if(index1!=-1&&index3!=null)
-                                            txt =txt .replace(",}", "}");
                                         JsonElement el = parser.parse(txt);
-
-                                        //System.out.println(el.toString());
-
                                         if(amount==1){
                                             JSONObject request_result=JSONObject.fromObject(el.toString());
                                             if(request_result.containsKey("result")){
@@ -219,21 +195,23 @@ public class BatchProcess_1 {
                                                     }
 
                                                 }
-
-                                                System.out.println(match);
-                                                FileTool.Dump(match.toString(),storepath+filename.replace(".txt","_解析信息"),"utf-8");
+                                                System.out.println("目前只存储了地址："+match);
+                                                FileTool.Dump(match.toString(),sourcepath+filename.replace(".txt","_解析信息"),"utf-8");
                                             }
                                         }else {
                                             JsonObject jsonObj = null;
+                                            System.out.println(el);
                                             if(el.isJsonObject())
                                             {
                                                 jsonObj = el.getAsJsonObject();
                                                 GeoQuery gq = gson.fromJson(jsonObj, GeoQuery.class);
-                                                String lnglat = "";
                                                 String Admin="";
                                                 if (gq != null && gq.getResult() != null && gq.getResult().size() > 0) {
                                                     for (int m = 0; m < gq.getResult().size(); m ++) {
                                                         if (gq.getResult().get(m) != null && gq.getResult().get(m).getLocation() != null) {
+
+                                                            System.out.println(gq.getResult().get(m));
+
                                                             if(gq.getResult().get(m).getLocation().getRegion()!=null){
                                                                 System.out.println("这批数据没有问题！");
                                                                 try {
@@ -257,14 +235,13 @@ public class BatchProcess_1 {
                                                             String poitemp= validpois.elementAt(m);
                                                             JSONObject jobj=JSONObject.fromObject(poitemp);
                                                             jobj.put("region",Admin);
-                                                            jobj.put("longitude",longitude);
-                                                            jobj.put("latitude", latitude);
-                                                            //System.out.println(jobj.toString());
-                                                            FileTool.Dump(jobj.toString().replace(" ", ""), storepath+filename.replace(".txt", "")+ "_result.txt", "UTF-8");
+                                                            jobj.put("lng",longitude);
+                                                            jobj.put("lat", latitude);
+                                                            FileTool.Dump(jobj.toString().replace(" ", ""), sourcepath+filename.replace(".txt", "_result.txt"), "UTF-8");
 
                                                         }else {
                                                             System.out.println("没有坐标信息");
-                                                            FileTool.Dump(validpois.elementAt(m).replace(" ", ""), storepath+"nonPostalCoor/"+filename.replace(".txt", "")  + "_nonPostalCoor.txt", "UTF-8");
+                                                            FileTool.Dump(validpois.elementAt(m).replace(" ", ""), sourcepath+filename.replace(".txt", "_nonPostalCoor.txt"), "UTF-8");
                                                         }
                                                     }
                                                 }
@@ -278,14 +255,14 @@ public class BatchProcess_1 {
                                     System.out.println("JsonSyntaxException:"+e.getMessage());
                                     System.out.println("存在JsonSyntaxException异常！");
                                     for(int m=0;m<validpois.size();m++){
-                                        FileTool.Dump(validpois.get(m).replace(" ", ""), storepath+filename.replace(".txt", "") + "_JsonSyntax.txt", "UTF-8");
+                                        FileTool.Dump(validpois.get(m).replace(" ", ""), sourcepath+filename.replace(".txt", "_JsonSyntax.txt"), "UTF-8");
 
                                     }
-                                    FileTool.Dump(txt, storepath+filename.replace(".txt", "") + "_JsonSyntaxException.txt", "UTF-8");
+                                    FileTool.Dump(txt, sourcepath+filename.replace(".txt", "_JsonSyntaxException.txt"), "UTF-8");
                                 }catch(NullPointerException e){
                                     System.out.println("NullPointerException:"+e.getMessage());
                                     for(int m=0;m<validpois.size();m++){
-                                        FileTool.Dump(validpois.get(m).replace(" ", ""), storepath+"NullException/"+filename.replace(".txt", "") + "_NullException.txt", "UTF-8");
+                                        FileTool.Dump(validpois.get(m).replace(" ", ""), sourcepath+filename.replace(".txt", "_NullException.txt"), "UTF-8");
 
                                     }
                                 }
@@ -304,7 +281,7 @@ public class BatchProcess_1 {
                         e.printStackTrace();
                     }catch(NullPointerException e){
                         e.printStackTrace();
-                        FileTool.Dump(poi,storepath+"NullException/"+filename.replace(".txt", "")  + "_NullException.txt", "UTF-8");
+                        FileTool.Dump(poi,sourcepath+filename.replace(".txt", "_NullException.txt"), "UTF-8");
                     }
 
                     validpois.clear();
@@ -313,7 +290,6 @@ public class BatchProcess_1 {
                 }
 
             }
-        //}
     }
 
     public static void addressMatch_GaoDe(int amount,String sourcepath,String storepath,String filename) throws UnsupportedEncodingException {
