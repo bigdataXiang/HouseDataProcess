@@ -165,42 +165,44 @@ public class BatchProcess_1 {
                                     }
                                     else {
                                         JsonElement el = parser.parse(txt);
-                                        if(amount==1){
-                                            JSONObject request_result=JSONObject.fromObject(el.toString());
+                                        JSONObject request_result=JSONObject.fromObject(el.toString());
+                                        if(amount<3){
                                             if(request_result.containsKey("result")){
                                                 JSONArray array=request_result.getJSONArray("result");
-                                                JSONObject array_obj=array.getJSONObject(0);
+                                                for(int i=0;i<array.size();i++){
+                                                    JSONObject array_obj=array.getJSONObject(i);
 
-                                                JSONObject match=new JSONObject();
-                                                if(array_obj.containsKey("nlp_status")){
-                                                    match.put("nlp_status",array_obj.getString("nlp_status"));
+                                                    String poitemp= validpois.elementAt(i);
+                                                    JSONObject match=JSONObject.fromObject(poitemp);
+                                                    if(array_obj.containsKey("nlp_status")){
+                                                        match.put("nlp_status",array_obj.getString("nlp_status"));
+                                                    }
+                                                    if(array_obj.containsKey("location")){
+                                                        JSONObject loca=array_obj.getJSONObject("location");
+
+                                                        if(loca.containsKey("matched")){
+                                                            match.put("matched",loca.getString("matched"));
+                                                        }
+                                                        if(loca.containsKey("source")){
+                                                            match.put("source",loca.getString("source"));
+                                                        }
+                                                        if(loca.containsKey("lng")){
+                                                            match.put("lng",loca.getString("lng"));
+                                                        }
+                                                        if(loca.containsKey("lat")){
+                                                            match.put("lat",loca.getString("lat"));
+                                                        }
+                                                        if(loca.containsKey("region")){
+                                                            match.put("region",loca.getString("region"));
+                                                        }
+
+                                                    }
+                                                    FileTool.Dump(match.toString(),sourcepath+filename.replace(".txt","_地理编码.txt"),"utf-8");
                                                 }
-                                                if(array_obj.containsKey("location")){
-                                                    JSONObject loca=array_obj.getJSONObject("location");
-
-                                                    if(loca.containsKey("matched")){
-                                                        match.put("matched",loca.getString("matched"));
-                                                    }
-                                                    if(loca.containsKey("source")){
-                                                        match.put("source",loca.getString("source"));
-                                                    }
-                                                    if(loca.containsKey("lng")){
-                                                        match.put("lng",loca.getString("lng"));
-                                                    }
-                                                    if(loca.containsKey("lat")){
-                                                        match.put("lat",loca.getString("lat"));
-                                                    }
-                                                    if(loca.containsKey("region")){
-                                                        match.put("region",loca.getString("region"));
-                                                    }
-
-                                                }
-                                                System.out.println("目前只存储了地址："+match);
-                                                FileTool.Dump(match.toString(),sourcepath+filename.replace(".txt","_解析信息"),"utf-8");
                                             }
                                         }else {
                                             JsonObject jsonObj = null;
-                                            System.out.println(el);
+                                            //System.out.println(el);
                                             if(el.isJsonObject())
                                             {
                                                 jsonObj = el.getAsJsonObject();
