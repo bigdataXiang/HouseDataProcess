@@ -34,7 +34,7 @@ public class BatchProcess_1 {
     public static void main(String argv[]) throws Exception{
         String filename="城八区中学名录_json.txt";
         String[] keys={"address","name"};
-        batchProcess(2,sourcepath,filename,keys);
+        batchProcess(500,sourcepath,filename,keys);
     }
     public static void match(){
         String filename="";
@@ -71,7 +71,6 @@ public class BatchProcess_1 {
             Vector<String> pois=FileTool.Load(sourcepath+filename,"utf-8");
 
             boolean batch = true;
-            Gson gson = new Gson();
             if (batch)
                 request = "http://192.168.6.9:8080/p4b?";
             StringBuffer sb = new StringBuffer();
@@ -166,87 +165,38 @@ public class BatchProcess_1 {
                                     else {
                                         JsonElement el = parser.parse(txt);
                                         JSONObject request_result=JSONObject.fromObject(el.toString());
-                                        if(amount<3){
-                                            if(request_result.containsKey("result")){
-                                                JSONArray array=request_result.getJSONArray("result");
-                                                for(int i=0;i<array.size();i++){
-                                                    JSONObject array_obj=array.getJSONObject(i);
 
-                                                    String poitemp= validpois.elementAt(i);
-                                                    JSONObject match=JSONObject.fromObject(poitemp);
-                                                    if(array_obj.containsKey("nlp_status")){
-                                                        match.put("nlp_status",array_obj.getString("nlp_status"));
-                                                    }
-                                                    if(array_obj.containsKey("location")){
-                                                        JSONObject loca=array_obj.getJSONObject("location");
+                                        if(request_result.containsKey("result")){
+                                            JSONArray array=request_result.getJSONArray("result");
+                                            for(int i=0;i<array.size();i++){
+                                                JSONObject array_obj=array.getJSONObject(i);
 
-                                                        if(loca.containsKey("matched")){
-                                                            match.put("matched",loca.getString("matched"));
-                                                        }
-                                                        if(loca.containsKey("source")){
-                                                            match.put("source",loca.getString("source"));
-                                                        }
-                                                        if(loca.containsKey("lng")){
-                                                            match.put("lng",loca.getString("lng"));
-                                                        }
-                                                        if(loca.containsKey("lat")){
-                                                            match.put("lat",loca.getString("lat"));
-                                                        }
-                                                        if(loca.containsKey("region")){
-                                                            match.put("region",loca.getString("region"));
-                                                        }
-
-                                                    }
-                                                    FileTool.Dump(match.toString(),sourcepath+filename.replace(".txt","_地理编码.txt"),"utf-8");
+                                                String poitemp= validpois.elementAt(i);
+                                                JSONObject match=JSONObject.fromObject(poitemp);
+                                                if(array_obj.containsKey("nlp_status")){
+                                                    match.put("nlp_status",array_obj.getString("nlp_status"));
                                                 }
-                                            }
-                                        }else {
-                                            JsonObject jsonObj = null;
-                                            //System.out.println(el);
-                                            if(el.isJsonObject())
-                                            {
-                                                jsonObj = el.getAsJsonObject();
-                                                GeoQuery gq = gson.fromJson(jsonObj, GeoQuery.class);
-                                                String Admin="";
-                                                if (gq != null && gq.getResult() != null && gq.getResult().size() > 0) {
-                                                    for (int m = 0; m < gq.getResult().size(); m ++) {
-                                                        if (gq.getResult().get(m) != null && gq.getResult().get(m).getLocation() != null) {
+                                                if(array_obj.containsKey("location")){
+                                                    JSONObject loca=array_obj.getJSONObject("location");
 
-                                                            System.out.println(gq.getResult().get(m));
-
-                                                            if(gq.getResult().get(m).getLocation().getRegion()!=null){
-                                                                System.out.println("这批数据没有问题！");
-                                                                try {
-                                                                    String province=gq.getResult().get(m).getLocation().getRegion().getProvince();
-                                                                    String city=gq.getResult().get(m).getLocation().getRegion().getCity();
-                                                                    String county=gq.getResult().get(m).getLocation().getRegion().getCounty();
-                                                                    String town=gq.getResult().get(m).getLocation().getRegion().getTown();
-
-                                                                    Admin=(province+","+city+","+county+","+town).replace("null","").replace(",","");
-
-                                                                }catch (NullPointerException e){
-                                                                    System.out.println("admin这里出了问题？");
-                                                                }
-                                                            }else{
-                                                                Admin="暂无";
-                                                            }
-
-                                                            double longitude=gq.getResult().get(m).getLocation().getLng();
-                                                            double latitude=gq.getResult().get(m).getLocation().getLat();
-
-                                                            String poitemp= validpois.elementAt(m);
-                                                            JSONObject jobj=JSONObject.fromObject(poitemp);
-                                                            jobj.put("region",Admin);
-                                                            jobj.put("lng",longitude);
-                                                            jobj.put("lat", latitude);
-                                                            FileTool.Dump(jobj.toString().replace(" ", ""), sourcepath+filename.replace(".txt", "_result.txt"), "UTF-8");
-
-                                                        }else {
-                                                            System.out.println("没有坐标信息");
-                                                            FileTool.Dump(validpois.elementAt(m).replace(" ", ""), sourcepath+filename.replace(".txt", "_nonPostalCoor.txt"), "UTF-8");
-                                                        }
+                                                    if(loca.containsKey("matched")){
+                                                        match.put("matched",loca.getString("matched"));
                                                     }
+                                                    if(loca.containsKey("source")){
+                                                        match.put("source",loca.getString("source"));
+                                                    }
+                                                    if(loca.containsKey("lng")){
+                                                        match.put("lng",loca.getString("lng"));
+                                                    }
+                                                    if(loca.containsKey("lat")){
+                                                        match.put("lat",loca.getString("lat"));
+                                                    }
+                                                    if(loca.containsKey("region")){
+                                                        match.put("region",loca.getString("region"));
+                                                    }
+
                                                 }
+                                                FileTool.Dump(match.toString(),sourcepath+filename.replace(".txt","_地理编码.txt"),"utf-8");
                                             }
                                         }
                                     }
