@@ -3,6 +3,7 @@ package com.svail.grid50;
 import com.svail.geotext.GeoQuery;
 import com.svail.util.FileTool;
 import com.svail.util.Tool;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import java.net.HttpURLConnection;
@@ -27,34 +28,51 @@ import com.google.gson.JsonSyntaxException;
 
 
 public class BatchProcess_1 {
-    public static String sourcepath="/media/bigdataxiang/data/houseprice/temp_woaiwojia/nonPostalCoor/";
-    public static String resultpath="/media/bigdataxiang/data/houseprice/temp_woaiwojia/nonPostalCoor/";
+    public static String sourcepath="D:\\小论文\\poi资料\\小区\\";
+    public static String resultpath="D:\\小论文\\poi资料\\小区\\";
 
 
     public static void main(String argv[]) throws Exception{
-
+        String filename="所有小区名称_去除冗余_匹配不成功_原始_地址匹配失败_高德地址匹配失败.txt";
+        addressMatch_GaoDe(1,sourcepath,resultpath,filename);
+    }
+    public static void match(){
         String filename="";
         Vector<String> pois=FileTool.Load("/media/bigdataxiang/data/houseprice/woaiwojia_nocoor.txt","utf-8");
         for(int i=0;i<pois.size();i++){
             filename=pois.elementAt(i);
 
             System.out.println(sourcepath+filename);
-            batchProcess(sourcepath+filename,resultpath,filename);
+            try {
+                batchProcess(1000,sourcepath+filename,resultpath,filename);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
         }
 
         System.out.println("OK!");
     }
 
-    public static void batchProcess(String filenames,String storepath,String filename) throws UnsupportedEncodingException {
+    /**
+     *
+     * @param amount 批量处理的个数
+     * @param sourcepath 需要处理的源数据的路径
+     * @param storepath  存储的数据路径
+     * @param filename 需要处理的文件名称
+     * @throws UnsupportedEncodingException
+     */
+    public static void batchProcess(int amount,String sourcepath,String storepath,String filename) throws UnsupportedEncodingException {
 
-        String request ="http://192.168.6.9:8080/p41?f=json";
+        //http://geocode.svail.com:8080/
+        //http://192.168.6.9:8080/
+        String request ="http://geocode.svail.com:8080/p41?f=json";
         String parameters ="&within="+ java.net.URLEncoder.encode("北京市", "UTF-8")+"&key=327D6A095A8111E5BFE0B8CA3AF38727&queryStr=";
         //"&within="+ java.net.URLEncoder.encode("", "UTF-8")+
 
 
-            Vector<String> rain_file=FileTool.Load(filenames,"utf-8");
+            Vector<String> rain_file=FileTool.Load(sourcepath+filename,"utf-8");
 
-            boolean batch = true;
+            boolean batch = false;
             Gson gson = new Gson();
             if (batch)
                 request = "http://192.168.6.9:8080/p4b?";
@@ -73,12 +91,10 @@ public class BatchProcess_1 {
             for(int j=0;j<rain_file.size();j++){
 
                 String info=rain_file.elementAt(j);
-                //System.out.println(info);
                 if(info.endsWith("},")){
                     info=info.replace("},","}");
                 }
-                JSONObject obj=JSONObject.fromObject(info);
-
+                /*JSONObject obj=JSONObject.fromObject(info);
                 if(obj.containsKey("location")){
                     location=obj.getString("location").replace("-","");
                 }
@@ -90,19 +106,24 @@ public class BatchProcess_1 {
                     addr=obj.getString("address");
                     addr=Tool.delect_content_inBrackets(addr,"(",")");
                 }
-                address=location+community+addr;
+                address=location+community+addr;*/
+
+                address=info;
                 if(address.length()==0){
                     address="暂无";
                 }
 
                 validpois.add(info);
                 count ++;
-                sb.append(address).append("\n");
+                if(amount!=1){
+                    sb.append(address).append("\n");
+                }else {
+                    sb.append(address);
+                }
 
-                if (((count == 1000) ||  j == rain_file.size() - 1)) {
+                if (((count == amount) ||  j == rain_file.size() - 1)) {
 
                     String urlParameters = sb.toString();
-                    //System.out.print("批量处理"+filename+"开始：");
                     count = 0;
                     byte[] postData;
                     try {
@@ -110,14 +131,12 @@ public class BatchProcess_1 {
                         int postDataLength = postData.length;
 
                         URL url = new URL(request);
-                        //System.out.println(request + urlParameters);
                         HttpURLConnection cox = (HttpURLConnection) url.openConnection();
                         cox.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET4.0C; .NET4.0E; rv:11.0) like Gecko");
                         cox.setDoOutput(true);
                         cox.setDoInput(true);
                         cox.setInstanceFollowRedirects(false);
                         cox.setRequestMethod("POST");
-                        // cox.setRequestProperty("Accept-Encoding", "gzip");
                         cox.setRequestProperty("Content-Type",
                                 "application/x-www-form-urlencoded");
                         cox.setRequestProperty("charset", "utf-8");
@@ -166,50 +185,87 @@ public class BatchProcess_1 {
                                         String index3=",}";
                                         if(index1!=-1&&index3!=null)
                                             txt =txt .replace(",}", "}");
-                                        //System.out.println(txt);
                                         JsonElement el = parser.parse(txt);
-                                        JsonObject jsonObj = null;
-                                        if(el.isJsonObject())
-                                        {
-                                            jsonObj = el.getAsJsonObject();
-                                            GeoQuery gq = gson.fromJson(jsonObj, GeoQuery.class);
-                                            //System.out.println(gq.getResult().size());
-                                            String lnglat = "";
-                                            String Admin="";
-                                            if (gq != null && gq.getResult() != null && gq.getResult().size() > 0) {
-                                                for (int m = 0; m < gq.getResult().size(); m ++) {
-                                                    if (gq.getResult().get(m) != null && gq.getResult().get(m).getLocation() != null) {
-                                                        if(gq.getResult().get(m).getLocation().getRegion()!=null){
-                                                            System.out.println("这批数据没有问题！");
-                                                            try {
-                                                                String province=gq.getResult().get(m).getLocation().getRegion().getProvince();
-                                                                String city=gq.getResult().get(m).getLocation().getRegion().getCity();
-                                                                String county=gq.getResult().get(m).getLocation().getRegion().getCounty();
-                                                                String town=gq.getResult().get(m).getLocation().getRegion().getTown();
 
-                                                                Admin=(province+","+city+","+county+","+town).replace("null","").replace(",","");
+                                        //System.out.println(el.toString());
 
-                                                            }catch (NullPointerException e){
-                                                                System.out.println("admin这里出了问题？");
+                                        if(amount==1){
+                                            JSONObject request_result=JSONObject.fromObject(el.toString());
+                                            if(request_result.containsKey("result")){
+                                                JSONArray array=request_result.getJSONArray("result");
+                                                JSONObject array_obj=array.getJSONObject(0);
+
+                                                JSONObject match=new JSONObject();
+                                                if(array_obj.containsKey("nlp_status")){
+                                                    match.put("nlp_status",array_obj.getString("nlp_status"));
+                                                }
+                                                if(array_obj.containsKey("location")){
+                                                    JSONObject loca=array_obj.getJSONObject("location");
+
+                                                    if(loca.containsKey("matched")){
+                                                        match.put("matched",loca.getString("matched"));
+                                                    }
+                                                    if(loca.containsKey("source")){
+                                                        match.put("source",loca.getString("source"));
+                                                    }
+                                                    if(loca.containsKey("lng")){
+                                                        match.put("lng",loca.getString("lng"));
+                                                    }
+                                                    if(loca.containsKey("lat")){
+                                                        match.put("lat",loca.getString("lat"));
+                                                    }
+                                                    if(loca.containsKey("region")){
+                                                        match.put("region",loca.getString("region"));
+                                                    }
+
+                                                }
+
+                                                System.out.println(match);
+                                                FileTool.Dump(match.toString(),storepath+filename.replace(".txt","_解析信息"),"utf-8");
+                                            }
+                                        }else {
+                                            JsonObject jsonObj = null;
+                                            if(el.isJsonObject())
+                                            {
+                                                jsonObj = el.getAsJsonObject();
+                                                GeoQuery gq = gson.fromJson(jsonObj, GeoQuery.class);
+                                                String lnglat = "";
+                                                String Admin="";
+                                                if (gq != null && gq.getResult() != null && gq.getResult().size() > 0) {
+                                                    for (int m = 0; m < gq.getResult().size(); m ++) {
+                                                        if (gq.getResult().get(m) != null && gq.getResult().get(m).getLocation() != null) {
+                                                            if(gq.getResult().get(m).getLocation().getRegion()!=null){
+                                                                System.out.println("这批数据没有问题！");
+                                                                try {
+                                                                    String province=gq.getResult().get(m).getLocation().getRegion().getProvince();
+                                                                    String city=gq.getResult().get(m).getLocation().getRegion().getCity();
+                                                                    String county=gq.getResult().get(m).getLocation().getRegion().getCounty();
+                                                                    String town=gq.getResult().get(m).getLocation().getRegion().getTown();
+
+                                                                    Admin=(province+","+city+","+county+","+town).replace("null","").replace(",","");
+
+                                                                }catch (NullPointerException e){
+                                                                    System.out.println("admin这里出了问题？");
+                                                                }
+                                                            }else{
+                                                                Admin="暂无";
                                                             }
-                                                           }else{
-                                                            Admin="暂无";
+
+                                                            double longitude=gq.getResult().get(m).getLocation().getLng();
+                                                            double latitude=gq.getResult().get(m).getLocation().getLat();
+
+                                                            String poitemp= validpois.elementAt(m);
+                                                            JSONObject jobj=JSONObject.fromObject(poitemp);
+                                                            jobj.put("region",Admin);
+                                                            jobj.put("longitude",longitude);
+                                                            jobj.put("latitude", latitude);
+                                                            //System.out.println(jobj.toString());
+                                                            FileTool.Dump(jobj.toString().replace(" ", ""), storepath+filename.replace(".txt", "")+ "_result.txt", "UTF-8");
+
+                                                        }else {
+                                                            System.out.println("没有坐标信息");
+                                                            FileTool.Dump(validpois.elementAt(m).replace(" ", ""), storepath+"nonPostalCoor/"+filename.replace(".txt", "")  + "_nonPostalCoor.txt", "UTF-8");
                                                         }
-
-                                                        double longitude=gq.getResult().get(m).getLocation().getLng();
-                                                        double latitude=gq.getResult().get(m).getLocation().getLat();
-
-                                                        String poitemp= validpois.elementAt(m);
-                                                        JSONObject jobj=JSONObject.fromObject(poitemp);
-                                                        jobj.put("region",Admin);
-                                                        jobj.put("longitude",longitude);
-                                                        jobj.put("latitude", latitude);
-                                                        //System.out.println(jobj.toString());
-                                                        FileTool.Dump(jobj.toString().replace(" ", ""), storepath+filename.replace(".txt", "")+ "_result.txt", "UTF-8");
-
-                                                    }else {
-                                                        System.out.println("没有坐标信息");
-                                                        FileTool.Dump(validpois.elementAt(m).replace(" ", ""), storepath+"nonPostalCoor/"+filename.replace(".txt", "")  + "_nonPostalCoor.txt", "UTF-8");
                                                     }
                                                 }
                                             }
@@ -259,4 +315,202 @@ public class BatchProcess_1 {
             }
         //}
     }
+
+    public static void addressMatch_GaoDe(int amount,String sourcepath,String storepath,String filename) throws UnsupportedEncodingException {
+
+        String request ="http://restapi.amap.com/v3/geocode/geo?";
+        //两个高德的key,22285537f6573ffaeeba1c74bc82787d
+        //34f263592a3eeb72412a825fa11b49ea
+        String parameters ="output=JSON&key=34f263592a3eeb72412a825fa11b49ea&city=河北&address=";
+
+
+        Vector<String> rain_file=FileTool.Load(sourcepath+filename,"utf-8");
+
+        boolean batch = false;
+        Gson gson = new Gson();
+        if (batch)
+            request = "http://192.168.6.9:8080/p4b?";
+        StringBuffer sb = new StringBuffer();
+        String poi="";
+        int count = 0;
+        Vector<String> validpois = new Vector<String>();
+
+        String address="";
+
+        for(int j=0;j<rain_file.size();j++){
+
+            String info=rain_file.elementAt(j);
+
+            address=info;
+            if(address.length()==0){
+                address="暂无";
+            }
+
+            validpois.add(info);
+            count ++;
+            if(amount!=1){
+                sb.append(address).append("\n");
+            }else {
+                sb.append(address);
+            }
+
+            if (((count == amount) ||  j == rain_file.size() - 1)) {
+
+                String urlParameters = sb.toString();
+                count = 0;
+                byte[] postData;
+                try {
+                    postData = (parameters + java.net.URLEncoder.encode(urlParameters,"UTF-8")).getBytes(Charset.forName("UTF-8"));
+                    int postDataLength = postData.length;
+
+                    URL url = new URL(request);
+                    HttpURLConnection cox = (HttpURLConnection) url.openConnection();
+                    cox.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET4.0C; .NET4.0E; rv:11.0) like Gecko");
+                    cox.setDoOutput(true);
+                    cox.setDoInput(true);
+                    cox.setInstanceFollowRedirects(false);
+                    cox.setRequestMethod("POST");
+                    cox.setRequestProperty("Content-Type",
+                            "application/x-www-form-urlencoded");
+                    cox.setRequestProperty("charset", "utf-8");
+                    cox.setRequestProperty("Content-Length",
+                            Integer.toString(postDataLength));
+                    cox.setUseCaches(false);
+
+                    try (DataOutputStream wr = new DataOutputStream(
+                            cox.getOutputStream())) {
+
+                        wr.write(postData);
+
+                        InputStream is = cox.getInputStream();
+                        if (is != null) {
+                            byte[] header = new byte[2];
+                            BufferedInputStream bis = new BufferedInputStream(is);
+                            bis.mark(2);
+                            int result = bis.read(header);
+                            bis.reset();
+                            BufferedReader reader = null;
+                            // 判断是否是GZIP格式
+                            int ss = (header[0] & 0xff) | ((header[1] & 0xff) << 8);
+                            if (result != -1 && ss == GZIPInputStream.GZIP_MAGIC) {
+
+                                reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(bis), "utf-8"));
+                            } else {
+
+                                reader = new BufferedReader(new InputStreamReader(bis, "utf-8"));
+                            }
+
+
+                            JsonParser parser = new JsonParser();
+                            String txt ="";
+                            try {
+
+                                txt = reader.readLine();
+                                if (txt == null) {
+                                    System.out.println("txt为null！");
+                                    for(int m=0;m<validpois.size();m++){
+                                        FileTool.Dump(validpois.get(m), storepath+filename.replace(".json", "") + "_txtnull.txt", "UTF-8");
+
+                                    }
+                                }
+                                else {
+                                    JsonElement el = parser.parse(txt);
+
+                                    System.out.println(el.toString());
+
+                                    if(amount==1){
+                                        FileTool.Dump(el.toString(),storepath+filename.replace(".txt","_高德解析信息.txt"),"utf-8");
+                                    }else {
+                                        JsonObject jsonObj = null;
+                                        if(el.isJsonObject())
+                                        {
+                                            jsonObj = el.getAsJsonObject();
+                                            GeoQuery gq = gson.fromJson(jsonObj, GeoQuery.class);
+                                            String lnglat = "";
+                                            String Admin="";
+                                            if (gq != null && gq.getResult() != null && gq.getResult().size() > 0) {
+                                                for (int m = 0; m < gq.getResult().size(); m ++) {
+                                                    if (gq.getResult().get(m) != null && gq.getResult().get(m).getLocation() != null) {
+                                                        if(gq.getResult().get(m).getLocation().getRegion()!=null){
+                                                            System.out.println("这批数据没有问题！");
+                                                            try {
+                                                                String province=gq.getResult().get(m).getLocation().getRegion().getProvince();
+                                                                String city=gq.getResult().get(m).getLocation().getRegion().getCity();
+                                                                String county=gq.getResult().get(m).getLocation().getRegion().getCounty();
+                                                                String town=gq.getResult().get(m).getLocation().getRegion().getTown();
+
+                                                                Admin=(province+","+city+","+county+","+town).replace("null","").replace(",","");
+
+                                                            }catch (NullPointerException e){
+                                                                System.out.println("admin这里出了问题？");
+                                                            }
+                                                        }else{
+                                                            Admin="暂无";
+                                                        }
+
+                                                        double longitude=gq.getResult().get(m).getLocation().getLng();
+                                                        double latitude=gq.getResult().get(m).getLocation().getLat();
+
+                                                        String poitemp= validpois.elementAt(m);
+                                                        JSONObject jobj=JSONObject.fromObject(poitemp);
+                                                        jobj.put("region",Admin);
+                                                        jobj.put("longitude",longitude);
+                                                        jobj.put("latitude", latitude);
+                                                        //System.out.println(jobj.toString());
+                                                        FileTool.Dump(jobj.toString().replace(" ", ""), storepath+filename.replace(".txt", "")+ "_result.txt", "UTF-8");
+
+                                                    }else {
+                                                        System.out.println("没有坐标信息");
+                                                        FileTool.Dump(validpois.elementAt(m).replace(" ", ""), storepath+"nonPostalCoor/"+filename.replace(".txt", "")  + "_nonPostalCoor.txt", "UTF-8");
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                            }catch (JsonSyntaxException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                                System.out.println("JsonSyntaxException:"+e.getMessage());
+                                System.out.println("存在JsonSyntaxException异常！");
+                                for(int m=0;m<validpois.size();m++){
+                                    FileTool.Dump(validpois.get(m).replace(" ", ""), storepath+filename.replace(".txt", "") + "_JsonSyntax.txt", "UTF-8");
+
+                                }
+                                FileTool.Dump(txt, storepath+filename.replace(".txt", "") + "_JsonSyntaxException.txt", "UTF-8");
+                            }catch(NullPointerException e){
+                                System.out.println("NullPointerException:"+e.getMessage());
+                                for(int m=0;m<validpois.size();m++){
+                                    FileTool.Dump(validpois.get(m).replace(" ", ""), storepath+"NullException/"+filename.replace(".txt", "") + "_NullException.txt", "UTF-8");
+
+                                }
+                            }
+
+                        }
+                    }
+
+                } catch (UnsupportedEncodingException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (MalformedURLException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }catch(NullPointerException e){
+                    e.printStackTrace();
+                    FileTool.Dump(poi,storepath+"NullException/"+filename.replace(".txt", "")  + "_NullException.txt", "UTF-8");
+                }
+
+                validpois.clear();
+                sb.setLength(0);
+
+            }
+
+        }
+        //}
+    }
+
 }
