@@ -8,9 +8,9 @@ import java.io.File;
 public class getNamesInFolder {
     public static void main(String[] args) {
 
-        String path = "D:\\小论文\\poi资料\\shpPoi\\";
-        //getFileName(path);
-        getFilePath(path);
+        String path = "D:\\小论文\\poi资料\\学校\\奥数网\\";
+        getFileName(path);
+        //getFilePath(path);
     }
 
     private static void getFileName(String path){
