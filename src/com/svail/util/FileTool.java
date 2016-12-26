@@ -12,16 +12,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
 
-import org.json.JSONObject;
 
 public class FileTool {
 
-	 public static void copyFile(File sourceFile, File targetFile) throws IOException {
+	public static void copyFile(File sourceFile, File targetFile) throws IOException {
 		 BufferedInputStream inBuff = null;
 		 BufferedOutputStream outBuff = null;
 		 try {
@@ -66,46 +64,6 @@ public class FileTool {
 				oldFile.delete();
 			}
 		}
-	}
-	public static void Dump(JSONObject strs, String fileName, String format)
-	{
-		if (strs == null || ((List<String>) strs).size() == 0)
-			return;
-		
-		OutputStreamWriter newFileWrite = null;
-		
-		try {
-			File file= new File(fileName);	
-			
-			newFileWrite = new OutputStreamWriter(new FileOutputStream(file, true), format);
-			Iterator<String> itr = ((List<String>) strs).iterator();
-	        while (itr.hasNext())
-	        {
-	        	String sr = itr.next();
-	        	try {
-					newFileWrite.write(sr + "\r\n");
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}	
-	        }
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}catch(ClassCastException e){
-			e.printStackTrace();
-		}
-		
-		try {
-			if (newFileWrite != null)
-				newFileWrite.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}		
 	}
 	
 	public static void Dump(Vector<String> strs, String fileName, String format)
@@ -301,8 +259,7 @@ public class FileTool {
 		}		
 	}
 	
-	/**
-	 *  找出filea文件相对于fileb的增量 */
+	/* 找出filea文件相对于fileb的增量 */
 	public static Vector<String> CompareFile(String filea, String fileb)
 	{
 		Vector<String> rdsa = Load(filea, "UTF-8");
@@ -393,55 +350,46 @@ public class FileTool {
 			e.printStackTrace();
 		}		
 	}
-	
 	public static Vector<String> Load(String fileName, String fileFormat)
 	{
 		File file = new File(fileName);
-		if (!(fileName.endsWith(".json") ||fileName.endsWith(".txt") || fileName.endsWith(".TXT") ||  fileName.endsWith(".csv")  ||  fileName.endsWith(".log")||  fileName.endsWith(".kw") || fileName.endsWith(".XML")||  fileName.endsWith(".xml")))
+		if (!(fileName.endsWith(".txt") 
+				|| fileName.endsWith(".TXT") 
+				|| fileName.endsWith(".csv")
+				|| fileName.endsWith(".log")
+				|| fileName.endsWith(".kw")
+				|| fileName.endsWith(".kwn")
+				|| fileName.endsWith(".XML")
+				|| fileName.endsWith(".xml")
+				|| fileName.endsWith(".suffix")
+				|| fileName.endsWith(".json")))
 			return null;
 		
 		// System.out.print(fileName + "\n");
 		if (!file.exists() || file.isDirectory())
 			return null;
 		
-		Vector<String> strs = new Vector<String>();
-		
-		InputStreamReader read = null;
-		
+		FileInputStream in = null;
 		try {
-			if (fileFormat == null)
-				fileFormat = new String("gbk");
-			
-			read = new InputStreamReader(new FileInputStream(file), fileFormat);//"GBK"
-			BufferedReader bufferedReader = new BufferedReader(read);
-			
-			String lineTXT = null;
-
-			try {
-				while ((lineTXT = bufferedReader.readLine()) != null) {
-					if (lineTXT.length() > 0)
-						strs.add(new String(lineTXT));
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			if (read != null)
-				try {
-					read.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			
-		} catch (UnsupportedEncodingException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			in = new FileInputStream(file);
 		} catch (FileNotFoundException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
+        
+		Vector<String> strs = new Vector<String>();
+		BufferedReader reader = new BufferedReader(new UTFReader(in, fileFormat));
+        String line = null;
+        
+        try {
+			while((line = reader.readLine()) != null){
+				strs.add(line);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+				
 		return strs;
 	}
 	
@@ -510,7 +458,4 @@ public class FileTool {
 		
 		return strs;
 	}
-
-
-	
 }

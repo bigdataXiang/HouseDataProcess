@@ -26,12 +26,14 @@ import java.util.Vector;
  */
 public class ReadExcel {
     public static void main(String[] args){
-        Vector<String> files=FileTool.Load("D:\\小论文\\poi资料\\shpPoi\\filename.txt","utf-8");
+        /*Vector<String> files=FileTool.Load("D:\\小论文\\poi资料\\shpPoi\\filename.txt","utf-8");
         for(int i=0;i<files.size();i++){
             System.out.println(i+":"+files.elementAt(i));
             readExcel(files.elementAt(i));
-        }
-        //readExcel("D:\\小论文\\poi资料\\北京poi\\北京市.xlsx");
+        }*/
+
+
+         readExcel("D:\\小论文\\poi资料\\企业\\北京写字楼名录(500家).xls");
         //D:\小论文\poi资料\北京poi
         //D:\小论文\poi资料\shpPoi数据\
 

@@ -17,11 +17,16 @@ public class StrBsonTransfer {
         if(obj.size()>0){
             Iterator<String> keys=obj.keys();
             String key;
-            Object value;
+            String value;
             while (keys.hasNext()){
                 key=keys.next();
-                value=obj.get(key);
-                doc.put(key,value);
+                value=obj.get(key).toString();
+                if(value.length()>0){
+                    doc.put(key,value);
+                }else {
+                    //System.out.println(value);
+                }
+
             }
         }else {
             //System.out.println(str);
