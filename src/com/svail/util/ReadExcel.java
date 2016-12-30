@@ -33,7 +33,7 @@ public class ReadExcel {
         }*/
 
 
-         readExcel("D:\\小论文\\poi资料\\企业\\北京写字楼名录(500家).xls");
+         readExcel("D:\\小论文\\poi资料\\企业\\北京企业名录大全.xls");
         //D:\小论文\poi资料\北京poi
         //D:\小论文\poi资料\shpPoi数据\
 

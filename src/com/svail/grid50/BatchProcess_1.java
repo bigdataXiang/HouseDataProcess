@@ -31,13 +31,13 @@ import static java.lang.StrictMath.random;
 
 public class BatchProcess_1 {
 
-    public static String sourcepath="D:\\小论文\\poi资料\\小区\\";
+    public static String sourcepath="D:\\小论文\\poi资料\\公交\\";
     public static void main(String argv[]) throws Exception{
-        String filename="小区—地址匹配数据.txt";
-        String[] keys={"community"};//"address","name","community"
+        String filename="公交车站.txt";
+        String[] keys={"name"};//"address","name","community"
         boolean gaode=true;
         if(gaode){
-            addressMatch_GaoDe(1161,keys,sourcepath,filename,"北京","8ca252e49863ab4f4d9fee62b14c5c18");
+            addressMatch_GaoDe(0,keys,sourcepath,filename,"北京","8ca252e49863ab4f4d9fee62b14c5c18");
         }else {
             batchProcess(500,sourcepath,filename,keys);
         }
@@ -463,7 +463,7 @@ public class BatchProcess_1 {
             if(address.length()==0){
                 address="暂无";
             }
-            sb.append(address);
+            sb.append(address+"公交站");
             address="";
 
             String urlParameters = sb.toString();
@@ -478,7 +478,7 @@ public class BatchProcess_1 {
                 cox.setDoOutput(true);
                 cox.setDoInput(true);
                 cox.setInstanceFollowRedirects(false);
-                cox.setRequestMethod("POST");
+                cox.setRequestMethod("GET");
                 cox.setRequestProperty("Content-Type",
                         "application/x-www-form-urlencoded");
                 cox.setRequestProperty("charset", "utf-8");
@@ -508,7 +508,13 @@ public class BatchProcess_1 {
 
                             reader = new BufferedReader(new InputStreamReader(bis, "utf-8"));
                         }
+                        /*try{
 
+                            Thread.sleep(100*((int)(Math.max(1,random()*3))));
+
+                        }catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }*/
 
                         JsonParser parser = new JsonParser();
                         String txt ="";
@@ -542,8 +548,8 @@ public class BatchProcess_1 {
 
                                         source.put("formatted_address",formatted_address);
                                         source.put("district",district);
-                                        source.put("lng",lng);
-                                        source.put("lat",lat);
+                                        source.put("lng_gd",lng);
+                                        source.put("lat_gd",lat);
                                         source.put("level",level);
                                     }
                                 }
@@ -551,13 +557,13 @@ public class BatchProcess_1 {
                                 FileTool.Dump(source.toString(),storepath+filename.replace(".txt","_高德解析信息.txt"),"utf-8");
                                 sb.setLength(0);
 
-                                try{
+                                /*try{
 
                                     Thread.sleep(500*((int)(Math.max(1,random()*3))));
 
                                 }catch (InterruptedException e) {
                                     e.printStackTrace();
-                                }
+                                }*/
                             }
                         }catch (JsonSyntaxException e) {
                             // TODO Auto-generated catch block
