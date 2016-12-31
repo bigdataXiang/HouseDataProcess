@@ -5,6 +5,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.svail.grid50.util.*;
 import com.svail.util.FileTool;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import java.util.*;
@@ -27,26 +28,23 @@ public class GridData_Resold_6 {
 
     public static void main(String[] args){
 
-        initial();
+        String path="D:\\小论文\\poi资料\\小区\\小区地理编码原始数据\\最后结果\\校对结果";
+
+        initial("2015","07",path+"GridData_Resold_gd.txt");
 
     }
-    public static void initial(){
+    public static void initial(String year,String month,String file){
 
-        for(int i=11;i<=11;i++){
 
             JSONObject condition=new JSONObject();
             condition.put("N",1);
 
-            condition.put("year","2015");
-            condition.put("month",""+i);//"0"+i
-            System.out.println("2015年"+i+"月:");
+            condition.put("year",year);
+            condition.put("month",month);
+            System.out.println("2015年"+month+"月:");
 
-            condition.put("year","2016");
-            condition.put("month",i);//"0"+i
-            System.out.println("2016年"+i+"月:");
-
-            condition.put("export_collName","BasicData_Resold");
-            condition.put("import_collName","GridData_Resold");
+            condition.put("export_collName","BasicData_Resold_gd");
+            condition.put("import_collName","GridData_Resold_gd");
 
             code_houseType_map=new HashMap<>();
             code_direction_map=new HashMap<>();
@@ -63,10 +61,9 @@ public class GridData_Resold_6 {
 
             //statisticCode();
 
-            ergodicStatistics(condition);
+            ergodicStatistics(condition,file);
 
             System.out.println("ok!");
-        }
     }
 
 
@@ -122,7 +119,7 @@ public class GridData_Resold_6 {
 
                     if (month.equals("10") || month.equals("11") || month.equals("12")) {//
 
-                        if (month.equals("10") || month.equals("12")) {
+                        if (month.equals("10") || month.equals("11")|| month.equals("12")) {
 
 
                         } else {
@@ -219,7 +216,7 @@ public class GridData_Resold_6 {
     }
 
     //3、遍历所有网格，汇总每一个网格的统计信息
-    public static void ergodicStatistics(JSONObject condition) {
+    public static void ergodicStatistics(JSONObject condition,String file) {
 
         JSONObject obj;
         double weight_area = 0;
@@ -315,7 +312,7 @@ public class GridData_Resold_6 {
             //System.out.println(month.substring(1));
             if (month.equals("10") || month.equals("11") || month.equals("12")) {//month.equals("11")||
 
-                if (month.equals("10") || month.equals("12")) {
+                if (month.equals("10") || month.equals("11")|| month.equals("12")) {
 
                     codepois = setCode_pois(year, month, code);
                 } else {
@@ -423,7 +420,7 @@ public class GridData_Resold_6 {
                 } else {
                     count++;
                 }
-                //System.out.println(count);
+                System.out.println(document);
 
 
                 if (index != 0) {
@@ -450,7 +447,8 @@ public class GridData_Resold_6 {
 
                     if (rls == null || rls.size() == 0) {
                         documentcount++;
-                        FileTool.Dump(document.toString(), "/media/bigdataxiang/data/GridData_Resold.txt", "utf-8");
+                        System.out.println(document);
+                        FileTool.Dump(document.toString(), file, "utf-8");
                         try {
                             coll_import.insert(document);
                         } catch (IllegalArgumentException e) {
@@ -583,7 +581,19 @@ public class GridData_Resold_6 {
 
         JSONObject R=new JSONObject();
         R.put("average",result);
-        R.put("data",obj);
+
+        Iterator<String> it=obj.keySet().iterator();
+        JSONArray array=new JSONArray();
+        while (it.hasNext()){
+            String k=it.next();
+            int v=obj.getInt(k);
+
+            JSONObject o=new JSONObject();
+            o.put("vaule",k);
+            o.put("amount",v);
+            array.add(o);
+        }
+        R.put("data",array);
         ht.put(key,R);
     }
 
