@@ -48,7 +48,7 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
         public static void main(String[] args){
 
 
-            getInterpolationResult("D:\\小论文\\PBSHADE-邻近插值\\",17,1,0.8);
+            getInterpolationResult("D:\\小论文\\poi资料\\小区\\小区地理编码原始数据\\最后结果\\校对结果\\插值\\",17,1,0.8);
 
         }
 
@@ -56,7 +56,7 @@ public class PBSHADE_Spatial_7 extends NiMatrix {
         /**整个插值的过程汇总，最后求得每一个网格插值前和插值后的值对比*/
         public static void getInterpolationResult(String path,int months,int datesnum,double R){
 
-            step_1("paper","GridData_Resold");
+            step_1("paper","GridData_Resold_gd");
             System.out.println("完成第一步：生成整个北京区域内的每个网格的时序数据");
 
             JSONArray lack_value_grids=step_2(months);

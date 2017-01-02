@@ -28,9 +28,21 @@ public class GridData_Resold_6 {
 
     public static void main(String[] args){
 
-        String path="D:\\小论文\\poi资料\\小区\\小区地理编码原始数据\\最后结果\\校对结果";
+        String path="D:\\小论文\\poi资料\\小区\\小区地理编码原始数据\\最后结果\\校对结果\\";
 
-        initial("2015","07",path+"GridData_Resold_gd.txt");
+        initial("2016","01",path+"GridData_Resold_gd.txt");
+        initial("2016","02",path+"GridData_Resold_gd.txt");
+        initial("2016","03",path+"GridData_Resold_gd.txt");
+        initial("2016","04",path+"GridData_Resold_gd.txt");
+        initial("2016","05",path+"GridData_Resold_gd.txt");
+        initial("2016","06",path+"GridData_Resold_gd.txt");
+        initial("2016","07",path+"GridData_Resold_gd.txt");
+        initial("2016","08",path+"GridData_Resold_gd.txt");
+        initial("2016","09",path+"GridData_Resold_gd.txt");
+        initial("2016","10",path+"GridData_Resold_gd.txt");
+        initial("2016","11",path+"GridData_Resold_gd.txt");
+
+
 
     }
     public static void initial(String year,String month,String file){
@@ -83,6 +95,7 @@ public class GridData_Resold_6 {
                 document.put(key, value);
             }
         }
+        String year=condition.getString("year");
         String month = condition.getString("month");
 
         DBCursor cursor = coll_export.find(document);
@@ -117,40 +130,39 @@ public class GridData_Resold_6 {
                     //以code为key建立一个poi的索引表
                     //Map<Integer,Map<String,List<JSONObject>>> code_pois
 
-                    if (month.equals("10") || month.equals("11") || month.equals("12")) {//
-
-                        if (month.equals("10") || month.equals("11")|| month.equals("12")) {
+                    if ((year.endsWith("2015")&&month.equals("10")) ||(year.endsWith("2015")&&month.equals("11"))|| (year.endsWith("2015")&&month.equals("12"))) {//
 
 
-                        } else {
-                            //当月份为12时，这一部分代码暂时不用了，因为12月份的数据太多，导致内存总是溢出要寻求新的办法
-                            if (code_pois.containsKey(code)) {
-                                Map<String, List<JSONObject>> hy_pois = code_pois.get(code);
+                    } else {
+                        //当月份为12时，这一部分代码暂时不用了，因为12月份的数据太多，导致内存总是溢出要寻求新的办法
+                        if (code_pois.containsKey(code)) {
+                            Map<String, List<JSONObject>> hy_pois = code_pois.get(code);
 
-                                if (hy_pois.containsKey(house_type)) {
+                            if (hy_pois.containsKey(house_type)) {
 
-                                    List<JSONObject> pois = hy_pois.get(house_type);
-                                    pois.add(obj);
-                                    hy_pois.put(house_type, pois);
-                                    code_pois.put(code, hy_pois);
-
-                                } else {
-
-                                    List<JSONObject> pois = new ArrayList<>();
-                                    pois.add(obj);
-                                    hy_pois.put(house_type, pois);
-                                    code_pois.put(code, hy_pois);
-                                }
+                                List<JSONObject> pois = hy_pois.get(house_type);
+                                pois.add(obj);
+                                hy_pois.put(house_type, pois);
+                                code_pois.put(code, hy_pois);
 
                             } else {
-                                Map<String, List<JSONObject>> hy_pois = new HashMap<>();
+
                                 List<JSONObject> pois = new ArrayList<>();
                                 pois.add(obj);
                                 hy_pois.put(house_type, pois);
                                 code_pois.put(code, hy_pois);
                             }
+
+                        } else {
+                            Map<String, List<JSONObject>> hy_pois = new HashMap<>();
+                            List<JSONObject> pois = new ArrayList<>();
+                            pois.add(obj);
+                            hy_pois.put(house_type, pois);
+                            code_pois.put(code, hy_pois);
                         }
                     }
+
+
 
                     if (obj.containsKey("direction")) {
                         direction = obj.getString("direction");
@@ -233,6 +245,7 @@ public class GridData_Resold_6 {
         String month = condition.getString("month");
 
         String collName_import = condition.getString("import_collName");
+        String collName_export=condition.getString("export_collName");
         DBCollection coll_import = db.getDB("paper").getCollection(collName_import);
         BasicDBObject document;
         int index = 0;
@@ -310,11 +323,11 @@ public class GridData_Resold_6 {
 
             //System.out.println(month);
             //System.out.println(month.substring(1));
-            if (month.equals("10") || month.equals("11") || month.equals("12")) {//month.equals("11")||
+            //if (month.equals("10") || month.equals("11") || month.equals("12")) {//month.equals("11")||
 
-                if (month.equals("10") || month.equals("11")|| month.equals("12")) {
+                if ((year.endsWith("2015")&&month.equals("10")) ||(year.endsWith("2015")&&month.equals("11"))|| (year.endsWith("2015")&&month.equals("12"))) {//
 
-                    codepois = setCode_pois(year, month, code);
+                    codepois = setCode_pois(year, month, code,collName_export);
                 } else {
                     codepois = code_pois;
                 }
@@ -420,7 +433,7 @@ public class GridData_Resold_6 {
                 } else {
                     count++;
                 }
-                System.out.println(document);
+                //System.out.println(document);
 
 
                 if (index != 0) {
@@ -447,7 +460,7 @@ public class GridData_Resold_6 {
 
                     if (rls == null || rls.size() == 0) {
                         documentcount++;
-                        System.out.println(document);
+                        //System.out.println(document);
                         FileTool.Dump(document.toString(), file, "utf-8");
                         try {
                             coll_import.insert(document);
@@ -459,9 +472,10 @@ public class GridData_Resold_6 {
                         System.out.println("该数据已经存在!");
                     }
                 }
-            }
-            System.out.println("一共导入" + documentcount + "条数据");
+            //}
+
         }
+        System.out.println("一共导入" + documentcount + "条数据");
     }
 
     //建立一个map，其中key为code，value是一个属性值——个数的一个子map
@@ -623,8 +637,8 @@ public class GridData_Resold_6 {
     }
 
     //单独建立一个函数setCode_pois来设置每个格网的数据
-    public static Map<Integer,Map<String,List<JSONObject>>> setCode_pois(String year,String month,int code){
-        DBCollection coll_Basic50 = db.getDB("paper").getCollection("BasicData_Resold");
+    public static Map<Integer,Map<String,List<JSONObject>>> setCode_pois(String year,String month,int code,String coll){
+        DBCollection coll_Basic50 = db.getDB("paper").getCollection(coll);
 
         Map<Integer,Map<String,List<JSONObject>>> code_pois=new HashMap<>();
 

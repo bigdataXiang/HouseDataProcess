@@ -7,6 +7,7 @@ import java.util.Vector;
 
 import static com.svail.grid50.BatchProcess_1.addressMatch_GaoDe;
 import static com.svail.grid50.BatchProcess_1.batchProcess;
+import static com.svail.grid50.GridData_Resold_6.initial;
 import static com.svail.grid50.util.GetAllCommunity.screen;
 import static com.svail.grid50.util.GetAllCommunity.tidy_gaode;
 
@@ -19,7 +20,9 @@ public class Main {
         String[] keys={"地址"};//"address","name","community"
         batchProcess(1,sourcepath,filename,keys);*/
 
-        gaode();
+        //gaode();
+        String path="D:\\小论文\\poi资料\\小区\\小区地理编码原始数据\\最后结果\\校对结果\\";
+        initial("2015","10",path+"GridData_Resold_gd.txt");
 
     }
 
