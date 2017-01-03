@@ -27,35 +27,36 @@ public class Neighbor_Interpolation_9 {
     public static Map<Integer, JSONObject> interpolation_value_grids=new HashMap<>();
 
     public static void main(String[] args){
+        String path="D:\\小论文\\poi资料\\小区\\小区地理编码原始数据\\最后结果\\校对结果\\插值\\";
 
-        /*第一步：生成【pearson_is_0_插值结果.txt】【sparse_data_插值结果.txt】【failed_interpolation_codes_插值结果.txt】
+        //在进行第一步之前要用【Interpolation_Precision_Inspection】程序生成【interpolation_value_grids_中没有问题的数据.txt】文件
+        //第一步：生成【pearson_is_0_插值结果.txt】【sparse_data_插值结果.txt】【failed_interpolation_codes_插值结果.txt】
 
-        step_1("D:\\小论文\\PBSHADE-邻近插值\\","full_value_grids.txt","interpolation_value_grids_中没有问题的数据.txt");
-        step_2("D:\\小论文\\PBSHADE-邻近插值\\",20);
-        */
+        /*step_1(path,"full_value_grids.txt","interpolation_value_grids_中没有问题的数据.txt");
+        step_2(path,20);*/
 
         /*
         第二步：将第一步生成的结果进行融合，得到【_融合.txt】和【_无值融合.txt】数据
-        其中【_无值融合.txt】是遍历了1km仍然找不到邻近值的格网
+        其中【_无值融合.txt】是遍历了1km仍然找不到邻近值的格网*/
 
-        step_3("D:\\小论文\\PBSHADE-邻近插值\\","pearson_is_0_插值结果.txt");
-        step_3("D:\\小论文\\PBSHADE-邻近插值\\","sparse_data_插值结果.txt");
-        step_3("D:\\小论文\\PBSHADE-邻近插值\\","failed_interpolation_codes_插值结果.txt");
-        */
+        /*step_3(path,"pearson_is_0_插值结果.txt");
+        step_3(path,"sparse_data_插值结果.txt");
+        step_3(path,"failed_interpolation_codes_插值结果.txt");*/
+
 
         /*
         第三步：将第二步生成的【_无值融合.txt】的数据结合所有合格的插值结果进行插值
-                三个"_无值融合.txt"文件的插值结果全部写到【所有无值融合的code_插值结果.txt】
-        step_4("D:\\小论文\\PBSHADE-邻近插值\\",40);
+                三个"_无值融合.txt"文件的插值结果全部写到【所有无值融合的code_插值结果.txt】*/
+        /*step_4(path,40);*/
 
-        */
+
 
         /*
-        第四步：将第三步生成的【所有无值融合的code_插值结果.txt】中插值成功的数据进行融合
+        第四步：将第三步生成的【所有无值融合的code_插值结果.txt】中插值成功的数据进行融合*/
 
-        step_3("D:\\小论文\\PBSHADE-邻近插值\\","所有无值融合的code_插值结果.txt");
+       /* step_3(path,"所有无值融合的code_插值结果.txt");*/
 
-         */
+
 
         /*
         第五步：进行全格网区域的插值
@@ -70,14 +71,14 @@ public class Neighbor_Interpolation_9 {
         "pearson_is_0_插值结果_融合.txt"
         "sparse_data_插值结果_融合.txt"
         "full_value_grids.txt"
-        "interpolation_value_grids_中没有问题的数据.txt"
+        "interpolation_value_grids_中没有问题的数据.txt"*/
 
-        step_5("D:\\小论文\\PBSHADE-邻近插值\\",40);
-        */
+        //step_5(path,40);
+
 
         /*
          第七步：将第六步生成的【以点代面_插值结果.txt】插值结果进行融合*/
-         step_3("D:\\小论文\\PBSHADE-邻近插值\\","以点代面_插值结果.txt");
+         step_3(path,"以点代面_插值结果.txt");
 
 
     }
@@ -494,9 +495,4 @@ public class Neighbor_Interpolation_9 {
             code_price.put(code,obj);
         }
     }
-
-
-
-
-
 }

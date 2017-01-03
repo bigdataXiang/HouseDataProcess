@@ -18,10 +18,13 @@ public class ContourLine_10 {
 
     public static void main(String[] args){
 
+        String path="D:\\小论文\\poi资料\\小区\\小区地理编码原始数据\\最后结果\\校对结果\\插值\\";
+
         /*
          * 第一步：生成每个月的价格矩阵，此步在linux上完成
-         * priceMatrix("D:\\小论文\\PBSHADE-邻近插值\\","2015-07");
          */
+        priceMatrix(path,"2015-07");
+
 
 
 

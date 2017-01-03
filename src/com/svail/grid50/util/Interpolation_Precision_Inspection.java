@@ -14,10 +14,11 @@ import java.util.Vector;
  */
 public class Interpolation_Precision_Inspection {
     public static void main(String[] args){
-        precision_Inspection("D:\\小论文\\PBSHADE-邻近插值\\4-17个月时序大于1的插值数据\\interpolation_value_grids.txt",
-                "2015-07",3,
-                "D:\\小论文\\PBSHADE-邻近插值\\4-17个月时序大于1的插值数据\\interpolation_value_grids_中有问题的数据.txt",
-                "D:\\小论文\\PBSHADE-邻近插值\\4-17个月时序大于1的插值数据\\interpolation_value_grids_中没有问题的数据.txt");
+        String path="D:\\小论文\\poi资料\\小区\\小区地理编码原始数据\\最后结果\\校对结果\\插值\\";
+        precision_Inspection(path+"interpolation_value_grids.txt",
+                "2015-07",4,
+                path+"interpolation_value_grids_中有问题的数据.txt",
+                path+"interpolation_value_grids_中没有问题的数据.txt");
     }
     public static void precision_Inspection(String file,String compare_month,double differ,String problem,String ok){
         Vector<String> pois= FileTool.Load(file,"utf-8");

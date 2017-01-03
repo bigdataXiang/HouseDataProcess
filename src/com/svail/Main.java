@@ -13,16 +13,10 @@ import static com.svail.grid50.util.GetAllCommunity.tidy_gaode;
 
 public class Main {
 
-    public static String sourcepath="D:\\小论文\\poi资料\\小区\\小区地理编码原始数据\\最后结果\\";
+    public static String sourcepath="D:\\小论文\\poi资料\\学校\\各区中学\\";
     public static void main(String[] args) throws UnsupportedEncodingException {
 
-        /*String filename="北京写字楼名录(500家)_json.txt";
-        String[] keys={"地址"};//"address","name","community"
-        batchProcess(1,sourcepath,filename,keys);*/
-
-        //gaode();
-        String path="D:\\小论文\\poi资料\\小区\\小区地理编码原始数据\\最后结果\\校对结果\\";
-        initial("2015","10",path+"GridData_Resold_gd.txt");
+        gaode();
 
     }
 
@@ -49,10 +43,10 @@ public class Main {
     }
 
     public static void gaode() throws UnsupportedEncodingException {
-        String filename="所有小区名称_地理编码_地址完全匹配_高德纠偏.txt";
-        String[] keys={"community"};//"address","name","community"
+        String filename="城八区中学名录_json.txt";
+        String[] keys={"name"};//"address","name","community"
 
-        addressMatch_GaoDe(1078,keys,sourcepath,filename,"北京","740e5e5a70c8b80e3521979a9c9d750a");
+        addressMatch_GaoDe(381,keys,sourcepath,filename,"北京","47c4f310a83c76373706414a6a22907e");
 
     }
 
