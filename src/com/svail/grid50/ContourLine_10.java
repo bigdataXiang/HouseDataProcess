@@ -18,7 +18,7 @@ public class ContourLine_10 {
 
     public static void main(String[] args){
 
-        String path="D:\\小论文\\poi资料\\小区\\小区地理编码原始数据\\最后结果\\校对结果\\插值\\";
+        String path="D:\\小论文\\影响因素相关性研究\\201508\\";
 
         /*
          * 第一步：生成每个月的价格矩阵，此步在linux上完成
@@ -26,11 +26,15 @@ public class ContourLine_10 {
         //priceMatrix(path,"2015-07");
 
         /*
-        第二步：提取特定价格阈值的等值线
+        第二步：利用python pb201512.py等命令提取区块
          */
-        /*for(int i=3;i<=21;i++){
-            priceBlock(path,"block-2015-07.txt",i);
-        }*/
+
+        /*
+        第三步：提取特定价格阈值的等值线
+         */
+        for(int i=1;i<=21;i++){
+            priceBlock(path,"block-2015-08.txt",i);
+        }
 
 
         /*
@@ -208,6 +212,7 @@ public class ContourLine_10 {
                     count++;
                     corners=getAnglesCoor(grid_code);
                     result.put(grid_code,corners);
+                    FileTool.Dump(grid_code+"",path+"等值线_"+gridvalue+"_格网集合.txt","utf-8");
                 }
             }
             total+=gridnum;
