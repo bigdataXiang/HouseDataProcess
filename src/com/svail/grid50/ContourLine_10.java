@@ -23,10 +23,19 @@ public class ContourLine_10 {
         /*
          * 第一步：生成每个月的价格矩阵，此步在linux上完成
          */
-        priceMatrix(path,"2015-07");
+        //priceMatrix(path,"2015-07");
+
+        /*
+        第二步：提取特定价格阈值的等值线
+         */
+        /*for(int i=3;i<=21;i++){
+            priceBlock(path,"block-2015-07.txt",i);
+        }*/
 
 
-
+        /*
+        第三步：
+         */
 
 
     }
@@ -140,9 +149,7 @@ public class ContourLine_10 {
 
         for(int i=0;i<pois.size();i++){
             String[] array=pois.elementAt(i).split(",");
-
             for(int j=0;j<array.length;j++){
-
                 if(!array[j].equals("-1")){
                     double temp=Double.parseDouble(array[j]);
                     price_matrix[i][j]=(int)temp;

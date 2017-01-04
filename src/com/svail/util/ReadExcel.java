@@ -32,8 +32,9 @@ public class ReadExcel {
             readExcel(files.elementAt(i));
         }*/
 
+        String path="D:\\能源所\\中期汇报\\11浙江——华东\\2010\\";
 
-         readExcel("D:\\小论文\\poi资料\\企业\\北京企业名录大全.xls");
+         readExcel(path+"省级重点生态功能区.xls");
         //D:\小论文\poi资料\北京poi
         //D:\小论文\poi资料\shpPoi数据\
 
@@ -78,7 +79,7 @@ public class ReadExcel {
                         }
                     }
                     //System.out.println(obj);
-                    FileTool.Dump(obj.toString(),fileName.replace(".xlsx","").replace(".xls","")+"_json.txt","utf-8");
+                    FileTool.Dump(obj.toString().replace(" ",""),fileName.replace(".xlsx","").replace(".xls","")+"_json.txt","utf-8");
                 }
             }
         } catch (IOException ex) {
