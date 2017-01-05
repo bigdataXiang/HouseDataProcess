@@ -151,17 +151,16 @@ public class GridAcceleration_12 {
                 JSONObject obj=JSONObject.fromObject(timeserise);
                 //System.out.println(obj);
 
-                Iterator<String> dates=obj.keys();
-
+                Iterator<String> d=obj.keys();
                 //先找到基底价格
                 double basic_price=0;
-                while (dates.hasNext()){
-                    date=dates.next();
+                while (d.hasNext()){
+                    date=d.next();
                     if(date.equals("2015-07")){
                         basic_price=obj.getDouble("2015-07");
                     }
                 }
-
+                Iterator<String> dates=obj.keys();
                 while (dates.hasNext()){
                     doc=new BasicDBObject();
 
