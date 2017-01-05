@@ -1,6 +1,7 @@
 package com.svail.grid50.util.pois;
 
 import com.svail.util.FileTool;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import java.util.HashSet;
@@ -14,9 +15,17 @@ import static com.svail.grid50.util.PoiCode.setPoiCode_50;
  */
 public class School {
     public static void main(String[] args){
-        //toJson("D:\\小论文\\poi资料\\学校\\各区小学\\延庆县小学.txt");
         String path="D:\\小论文\\影响因素相关性研究\\201507\\学校\\";
-        schoolCode_middle(path+"北京中学.txt");
+
+        //toJson("D:\\小论文\\poi资料\\学校\\各区小学\\延庆县小学.txt");
+
+        //schoolCode_middle(path+"北京中学.txt");
+
+        //schoolJson_primary(path+"市重点小学.txt");
+
+        schoolCode_primary(path+"普通小学_json_高德解析信息.txt");
+        schoolCode_primary(path+"区重点小学_json_高德解析信息.txt");
+        schoolCode_primary(path+"市重点小学_json_高德解析信息.txt");
     }
     public static void toJson(String file){
         Vector<String> pois= FileTool.Load(file,"utf-8");
@@ -79,12 +88,51 @@ public class School {
         }
     }
 
-    //将小学的数据处理成含有格网编码的形式
-    public static void schoolCode_primary(String file){
+    //将小学的数据处理成逐条的json形式
+    public static void schoolJson_primary(String file){
         Vector<String> pois=FileTool.Load(file,"utf-8");
         String poi=pois.elementAt(0);
         JSONObject obj=JSONObject.fromObject(poi);
+        JSONArray array=obj.getJSONArray("data");
+        for(int i=0;i<array.size();i++){
+            FileTool.Dump(array.get(i).toString(),file.replace(".txt","_json.txt"),"utf-8");
+        }
+    }
 
+    //将小学的数据处理成含有格网编码的形式
+    public static void schoolCode_primary(String file){
+        Vector<String> pois=FileTool.Load(file,"utf-8");
+
+        for(int i=0;i<pois.size();i++) {
+            String poi = pois.elementAt(i);
+            JSONObject obj = JSONObject.fromObject(poi);
+
+            String school = obj.getString("school");
+            String type=obj.getString("type");
+            double lng_gd = obj.getDouble("lng_gd");
+            double lat_gd = obj.getDouble("lat_gd");
+
+            String result = setPoiCode_50(lat_gd, lng_gd);
+            if(type.contains("市重点")){
+                type="市重点";
+            }else if(type.contains("区重点")){
+                type="区重点";
+            }else if(type.contains("普通")){
+                type="普通";
+            }
+            int qv=schoolLevel(type);
+
+            String[] crc = result.split(",");
+            JSONObject o = new JSONObject();
+            o.put("qualify_value",qv);
+            o.put("school",school);
+            o.put("type",type);
+            o.put("code",crc[0]);
+            o.put("row",crc[1]);
+            o.put("col",crc[2]);
+
+            FileTool.Dump(o.toString(),file.replace(".txt","_格网化.txt"),"utf-8");
+        }
     }
 
 
@@ -92,27 +140,12 @@ public class School {
     public  static int schoolLevel(String qualify){
         int value=1;
         switch (qualify){
-            case "三级甲等":value=10;
+            case "市重点":value=10;
                 break;
-            case "三级乙等":value=9;
+            case "区重点":value=6;
                 break;
-            case "三级合格":value=8;
+            case "普通":value=2;
                 break;
-            case "二级甲等":value=7;
-                break;
-            case "二级乙等":value=6;
-                break;
-            case "二级合格":value=5;
-                break;
-            case "一级甲等":value=4;
-                break;
-            case "一级乙等":value=3;
-                break;
-            case "一级合格":value=2;
-                break;
-            case "未评级":value=1;
-                break;
-
         }
         return value;
     }

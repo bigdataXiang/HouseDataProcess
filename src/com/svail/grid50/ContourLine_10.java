@@ -18,28 +18,42 @@ public class ContourLine_10 {
 
     public static void main(String[] args){
 
-        String path="D:\\小论文\\影响因素相关性研究\\201508\\";
+        String path="D:\\小论文\\影响因素相关性研究\\201507\\坐标串\\";
 
         /*
          * 第一步：生成每个月的价格矩阵，此步在linux上完成
+         * 生成的文件名字:例如【ContourLine-2015-07.txt】
          */
         //priceMatrix(path,"2015-07");
 
         /*
-        第二步：利用python pb201512.py等命令提取区块
+        第二步：根据【ContourLine-2015-07.txt】文件
+        利用python pb201507.py等命令提取区块
+        生成文件【block-2015-07.csv】
+        然后转化成【block-2015-07.txt】
          */
 
         /*
         第三步：提取特定价格阈值的等值线
+        生成一系列等值线【等值线_1.txt】...【等值线_21.txt】
          */
-        for(int i=1;i<=21;i++){
+        /*for(int i=1;i<=21;i++){
             priceBlock(path,"block-2015-08.txt",i);
-        }
+        }*/
 
 
         /*
-        第三步：
+        第四步：利用一系列等值线【等值线_1.txt】...【等值线_21.txt】数据
+        结果程序 【python v1.py】 生成坐标串：
+        【坐标串_1.txt】...【坐标串_21.txt】
          */
+
+        /*
+         *第五步：生成可传至服务端的静态文件
+         */
+        for(int i=1;i<21;i++){
+            toArray(path,"坐标串_"+i+".txt",i);
+        }
 
 
     }
@@ -243,7 +257,7 @@ public class ContourLine_10 {
             String poi=pois.elementAt(i);
             array.add(poi);
         }
-        FileTool.Dump(array.toString(),path+"放入静态文件的坐标串_"+value+".txt","utf-8");
+        FileTool.Dump(array.toString(),path+"polygon_"+(value-1),"utf-8");
     }
 
     /**提取文件中指定月份的价格和code数据*/

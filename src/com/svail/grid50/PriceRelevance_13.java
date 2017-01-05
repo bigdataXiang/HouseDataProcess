@@ -15,7 +15,7 @@ import java.util.Vector;
  */
 public class PriceRelevance_13 {
     public static void main(String[] args){
-        String path="D:\\小论文\\影响因素相关性研究\\201507\\";
+        String path="D:\\小论文\\影响因素相关性研究\\201507\\等值线\\";
 
         //第一步：生成等值线格网，这一步在之后可以省去了
         /*
@@ -24,7 +24,8 @@ public class PriceRelevance_13 {
         }*/
 
         //统计每个区块内的poi的数目
-        InterestPointStatistics_hosipital(path,"北京所有医院_格网化.txt");
+        InterestPointStatistics_hosipital(path,"北京小学_格网化.txt");
+        InterestPointStatistics_hosipital(path,"北京中学_格网化.txt");
 
 
     }

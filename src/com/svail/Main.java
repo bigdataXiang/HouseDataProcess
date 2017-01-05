@@ -52,13 +52,18 @@ public class Main {
                 "奥数网_中学库_高德解析信息.txt","奥数网_高中库_高德解析信息.txt"
         };*/
 
-        String path="D:\\小论文\\poi资料\\地铁\\";
+        /*String path="D:\\小论文\\poi资料\\地铁\\";
         String[] names={
                 "1号线.txt","2号线.txt","4号线.txt","5号线.txt","6号线.txt","7号线.txt","8号线.txt","9号线.txt","10号线.txt",
                 "13号线.txt","14号线.txt","15号线.txt","八通线.txt","昌平线.txt","大兴线.txt","房山线.txt","机场线.txt","亦庄线.txt",
         };
         String[] keys={"station"};//"address","name","community"
         addressMatch_GaoDe(0,keys,path,names[18].replace(".txt","_json.txt"),"北京","0e0926480b9a9118fb2b9d3238a20ce1");
+*/
+        String path="D:\\小论文\\影响因素相关性研究\\201507\\学校\\";
+        String[] keys={"school"};//"address","name","community"
+        addressMatch_GaoDe(0,keys,path,"市重点小学_json.txt","北京","0e0926480b9a9118fb2b9d3238a20ce1");
+
 
 
 
