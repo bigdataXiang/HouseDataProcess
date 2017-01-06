@@ -19,4 +19,9 @@ public class PoiCode {
 
         return result;
     }
+
+    public static void main(String[] args){
+
+        System.out.println(setPoiCode_50(39.929319,116.338249) );
+    }
 }

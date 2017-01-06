@@ -45,7 +45,24 @@ public class GeoCodeCorrect {
 
         //luanma(path+"乱码小区.txt");
 
-        dahuanxue(path+"code为负的小区信息.txt");
+        //dahuanxue(path+"code为负的小区信息.txt");
+
+        //将所有小区通过经纬度进行编码，方便查看感兴趣格网或者小区的具体信息
+        //makeCommunityCode();
+
+        //通过小区查询具体的格网信息
+        //findCode("新安中里");
+
+
+        //通过格网值查询小区信息
+        //findCommunity("3893600");
+        //3893600
+        //5105782
+
+        //通过code查找【BasicData_Resold_gd】里的具体房源数据
+        findPoiwithCode("3893600","2016","08");
+
+
     }
 
     //校对老师的完全匹配的数据:6020条
@@ -460,6 +477,73 @@ public class GeoCodeCorrect {
                 }
             }
 
+        }
+    }
+
+    //将所有小区通过经纬度进行编码，方便查看感兴趣格网或者小区的具体信息
+    //【community】数据库中存在重复的数据，有14275条数据
+    // 去重之后的【community_code】数据库中仅仅含有14107条数据
+    public static void makeCommunityCode(){
+        DBCollection collection=db.getDB("paper").getCollection("community");
+        DBCollection collection_new=db.getDB("paper").getCollection("community_code");
+
+        DBCursor cs=collection.find();
+        BasicDBObject doc;
+        String lng_gd;
+        String lat_gd;
+        String result;
+        while (cs.hasNext()){
+            doc=(BasicDBObject) cs.next();
+            doc.remove("_id");
+            lng_gd=doc.getString("lng_gd");
+            lat_gd=doc.getString("lat_gd");
+            result=setPoiCode_50(Double.parseDouble(lat_gd),Double.parseDouble(lng_gd));
+            String[] crc=result.split(",");
+            doc.put("code",crc[0]);
+            doc.put("row",crc[1]);
+            doc.put("col",crc[2]);
+
+            DBCursor dc=collection_new.find(doc);
+            if(dc.size()==0||dc==null){
+                collection_new.insert(doc);
+            }else {
+                System.out.println("exist");
+            }
+
+        }
+    }
+
+    //通过格网编码查找小区信息
+    public static void findCommunity(String code){
+        DBCollection collection_new=db.getDB("paper").getCollection("community_code");
+        BasicDBObject doc=new BasicDBObject();
+        doc.put("code",code);
+        DBCursor cs=collection_new.find(doc);
+        while (cs.hasNext()){
+            System.out.println(cs.next());
+        }
+    }
+    //通过小区信息查找格网值
+    public static void findCode(String community){
+        DBCollection collection_new=db.getDB("paper").getCollection("community_code");
+        BasicDBObject doc=new BasicDBObject();
+        doc.put("community",community);
+        DBCursor cs=collection_new.find(doc);
+        while (cs.hasNext()){
+            System.out.println(cs.next());
+        }
+    }
+
+    //通过code查找【BasicData_Resold_gd】里的具体房源数据
+    public static void findPoiwithCode(String code,String year,String month){
+        DBCollection collection_new=db.getDB("paper").getCollection("BasicData_Resold_gd");
+        BasicDBObject doc=new BasicDBObject();
+        doc.put("year",year);
+        doc.put("month",month);
+        doc.put("code",code);
+        DBCursor cs=collection_new.find(doc);
+        while (cs.hasNext()){
+            System.out.println(cs.next());
         }
     }
 }

@@ -18,7 +18,7 @@ public class ContourLine_10 {
 
     public static void main(String[] args){
 
-        String path="D:\\小论文\\影响因素相关性研究\\201507\\坐标串\\";
+        String path="D:\\小论文\\影响因素相关性研究\\201509\\";
 
         /*
          * 第一步：生成每个月的价格矩阵，此步在linux上完成
@@ -51,7 +51,7 @@ public class ContourLine_10 {
         /*
          *第五步：生成可传至服务端的静态文件
          */
-        for(int i=1;i<21;i++){
+        for(int i=1;i<20;i++){
             toArray(path,"坐标串_"+i+".txt",i);
         }
 

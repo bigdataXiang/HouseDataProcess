@@ -41,12 +41,12 @@ public class DataInteger {
                 "13福建","14江西","15山东","16河南","17湖北","19广东","20广西","21海南","22重庆","23四川","24贵州","25云南",
                 "26西藏","27陕西","28甘肃","29青海","30宁夏","31新疆维吾尔族自治区"};
         String[] keys={"所属市","区县名称","城镇"};
-        for(int j=4;j<5;j++){
+        for(int j=9;j<10;j++){
             String path = "D:\\能源所\\【各省自治区直辖市主体功能区数据库】\\"+province[j]+"\\json\\filename.txt";
             Vector<String> names=FileTool.Load(path,"utf-8");
             for(int i=0;i<names.size();i++){
                 String name=names.elementAt(i);
-                batchProcess(1,name,keys,"内蒙古自治区");
+                batchProcess(1,name,keys,"浙江省");
                 System.out.println(name);
             }
         }

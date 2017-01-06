@@ -20,6 +20,8 @@ import static com.svail.grid50.util.RowColCalculation.Code_RowCol;
 /**
  * Created by ZhouXiang on 2016/12/16.
  * 将点最优线性无偏插值和邻近插值的结果存储到数据库【GridData_Resold_gd_Interpolation】中
+ *
+ * 这一步最后与第12步合并，一起存储加速度和价格值
  */
 public class GridInterpolation_11 {
     public static void main(String[] args){

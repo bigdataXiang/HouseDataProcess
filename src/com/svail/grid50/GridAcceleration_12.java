@@ -53,11 +53,11 @@ public class GridAcceleration_12 {
         //chooseCode(path+"full_value_grids.txt");
 
         Vector<String> pois=FileTool.Load(path+"全时序数据.txt","utf-8");
-        for(int i=5;i<6;i++){
+        for(int i=0;i<1779;i++){
             String poi=pois.elementAt(i);
             JSONObject obj=JSONObject.fromObject(poi);
             int code=obj.getInt("code");
-            writeExcel(obj,path+code+".xls");
+            writeExcel_check(obj,path+code+".xls");
         }
     }
 
@@ -281,68 +281,163 @@ public class GridAcceleration_12 {
 
     }
 
-    //将得到的全时序数据转化成excel
-    public static void writeExcel(JSONObject obj,String file) throws IOException {
+    //查询涨幅比较快的数据
+    public static void writeExcel_check(JSONObject obj,String file) throws IOException {
 
-        //创建一个Excel(or new XSSFWorkbook())
-        Workbook wb = new HSSFWorkbook();
-        //创建表格
-        Sheet sheet = wb.createSheet("test");
-        //创建行
-        Row row = sheet.createRow(0);
-        //设置行高
-        row.setHeightInPoints(30);
-        designExcel(sheet);
-
-        String element;
-        int count=0;
-
+        //首先判断这个格网的数据是否可靠，可靠才生成表格，不可靠直接忽略
         JSONObject data=obj.getJSONObject("data");
         String date;
         JSONObject grid;
-
+        double value;
         String[] dates={"2015-7","2015-8","2015-9","2015-10","2015-11","2015-12",
-                        "2016-1","2016-2","2016-3", "2016-4","2016-5","2016-6",
-                        "2016-7","2016-8","2016-9","2016-10","2016-11",};
+                "2016-1","2016-2","2016-3", "2016-4","2016-5","2016-6",
+                "2016-7","2016-8","2016-9","2016-10","2016-11",};
+        int monitor=0;
+        for(int i=1;i<dates.length;i++){
+            date=dates[i];
+            grid=data.getJSONObject(date);
+            //System.out.println(grid);
+            value=grid.getDouble("differ_basic");
+            if(value>10000){
+                ++monitor;
+            }
+        }
 
-        try{
-            for(int i=0;i<dates.length;i++){
-                date=dates[i];
-                grid=data.getJSONObject(date);
+        if(monitor>1){
+//创建一个Excel(or new XSSFWorkbook())
+            Workbook wb = new HSSFWorkbook();
+            //创建表格
+            Sheet sheet = wb.createSheet("test");
+            //创建行
+            Row row = sheet.createRow(0);
+            //设置行高
+            row.setHeightInPoints(30);
+            designExcel(sheet);
+            int count=0;
+            try{
+                for(int i=0;i<dates.length;i++){
+                    date=dates[i];
+                    grid=data.getJSONObject(date);
 
-                count++;
-                row = sheet.createRow(count);
-                for (int k = 0; k <= 4; k++) {
-                    switch (k) {
-                        case 0:
-                            row.createCell(0).setCellValue(date);
-                            break;
-                        case 1:
-                            row.createCell(1).setCellValue(getObjValue(grid,"price"));
-                            break;
-                        case 2:
-                            row.createCell(2).setCellValue(getObjValue(grid,"growth_basic"));
-                            break;
-                        case 3:
-                            row.createCell(3).setCellValue(getObjValue(grid,"growth_adjace"));
-                            break;
-                        case 4:
-                            row.createCell(4).setCellValue(getObjValue(grid,"differ_basic"));
-                            break;
+                    count++;
+                    row = sheet.createRow(count);
+                    for (int k = 0; k <= 4; k++) {
+                        switch (k) {
+                            case 0:
+                                row.createCell(0).setCellValue(date);
+                                break;
+                            case 1:
+                                row.createCell(1).setCellValue(getObjValue(grid,"price"));
+                                break;
+                            case 2:
+                                row.createCell(2).setCellValue(getObjValue(grid,"growth_basic"));
+                                break;
+                            case 3:
+                                row.createCell(3).setCellValue(getObjValue(grid,"growth_adjace"));
+                                break;
+                            case 4:
+                                row.createCell(4).setCellValue(getObjValue(grid,"differ_basic"));
+                                break;
+                        }
                     }
                 }
+
+            }catch (NullPointerException e){
+                System.out.println(obj);
             }
 
-        }catch (NullPointerException e){
-            System.out.println(obj);
+            FileOutputStream fos = new FileOutputStream(file);
+            wb.write(fos);
+            if (null != fos) {
+                fos.close();
+            }
+        }else {
+            System.out.println("数据不是持续上涨~");
         }
 
-        FileOutputStream fos = new FileOutputStream(file);
-        wb.write(fos);
-        if (null != fos) {
-            fos.close();
-        }
+
+
+
     }
+
+    public static void writeExcel(JSONObject obj,String file) throws IOException {
+
+        //首先判断这个格网的数据是否可靠，可靠才生成表格，不可靠直接忽略
+        JSONObject data=obj.getJSONObject("data");
+        String date;
+        JSONObject grid;
+        double value;
+        String[] dates={"2015-7","2015-8","2015-9","2015-10","2015-11","2015-12",
+                "2016-1","2016-2","2016-3", "2016-4","2016-5","2016-6",
+                "2016-7","2016-8","2016-9","2016-10","2016-11",};
+        int monitor=0;
+        for(int i=1;i<dates.length;i++){
+            date=dates[i];
+            grid=data.getJSONObject(date);
+            //System.out.println(grid);
+            value=grid.getDouble("differ_basic");
+            if(value<0){
+                ++monitor;
+            }
+        }
+
+        if(monitor<3){
+//创建一个Excel(or new XSSFWorkbook())
+            Workbook wb = new HSSFWorkbook();
+            //创建表格
+            Sheet sheet = wb.createSheet("test");
+            //创建行
+            Row row = sheet.createRow(0);
+            //设置行高
+            row.setHeightInPoints(30);
+            designExcel(sheet);
+            int count=0;
+            try{
+                for(int i=0;i<dates.length;i++){
+                    date=dates[i];
+                    grid=data.getJSONObject(date);
+
+                    count++;
+                    row = sheet.createRow(count);
+                    for (int k = 0; k <= 4; k++) {
+                        switch (k) {
+                            case 0:
+                                row.createCell(0).setCellValue(date);
+                                break;
+                            case 1:
+                                row.createCell(1).setCellValue(getObjValue(grid,"price"));
+                                break;
+                            case 2:
+                                row.createCell(2).setCellValue(getObjValue(grid,"growth_basic"));
+                                break;
+                            case 3:
+                                row.createCell(3).setCellValue(getObjValue(grid,"growth_adjace"));
+                                break;
+                            case 4:
+                                row.createCell(4).setCellValue(getObjValue(grid,"differ_basic"));
+                                break;
+                        }
+                    }
+                }
+
+            }catch (NullPointerException e){
+                System.out.println(obj);
+            }
+
+            FileOutputStream fos = new FileOutputStream(file);
+            wb.write(fos);
+            if (null != fos) {
+                fos.close();
+            }
+        }else {
+            System.out.println("数据不是持续上涨~");
+        }
+
+
+
+
+    }
+
 
     //设计表格的第一行数据
     public static void designExcel(Sheet sheet) {
