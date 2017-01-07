@@ -4,6 +4,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.svail.grid50.util.db;
+import com.svail.grid50.util.db168;
 import com.svail.util.FileTool;
 import net.sf.json.JSONObject;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -13,10 +14,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import java.io.*;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 
 import static com.svail.grid50.util.RowColCalculation.Code_RowCol;
 
@@ -32,7 +30,7 @@ import static com.svail.grid50.util.RowColCalculation.Code_RowCol;
 public class GridAcceleration_12 {
     public static void main(String[] args) throws IOException {
 
-        String path="D:\\小论文\\价格加速度\\";
+
 
         /*DBCollection coll= db.getDB("paper").getCollection("GridData_Resold_gd_Interpolation");
         System.out.println(1);
@@ -52,12 +50,80 @@ public class GridAcceleration_12 {
 
         //chooseCode(path+"full_value_grids.txt");
 
+        /*
+        寻找加速度正常的数据
         Vector<String> pois=FileTool.Load(path+"全时序数据.txt","utf-8");
         for(int i=0;i<1779;i++){
             String poi=pois.elementAt(i);
             JSONObject obj=JSONObject.fromObject(poi);
             int code=obj.getInt("code");
             writeExcel_check(obj,path+code+".xls");
+        }*/
+
+
+        String path="D:\\paper\\价格加速度\\";
+        priceMatrix(path,2015,10);
+
+    }
+
+    public static void priceMatrix(String path,int year,int month){
+
+        Map<Integer,Double> code_price=new HashMap<>();
+        DBCollection coll= db168.getDB("paper").getCollection("GridData_Resold_gd_Interpolation");
+        BasicDBObject document=new BasicDBObject();
+        document.put("year",year);
+        document.put("month",month);
+        DBCursor cs=coll.find(document);
+
+        BasicDBObject doc=new BasicDBObject();
+        double growth_adjace=0;
+        int code=0;
+        List<Double> differ=new ArrayList<>();
+        int monitor=0;
+        while (cs.hasNext()){
+            doc=(BasicDBObject)cs.next();
+            code=doc.getInt("code");
+            growth_adjace=doc.getDouble("growth_adjace");
+            code_price.put(code,growth_adjace);
+            differ.add(growth_adjace);
+
+            //monitor++;
+            //System.out.println(monitor);
+        }
+        double max=Collections.max(differ);
+        double min=Collections.min(differ);
+
+        FileTool.Dump("max:"+max,path+year+"-"+month+"-最值.txt","utf-8");
+        FileTool.Dump("min:"+min,path+year+"-"+month+"-最值.txt","utf-8");
+
+
+        //将200km*200km范围内的格网看作是4000*4000的二维数组，从上至下对二维数组进行赋值
+        //这里要考虑到编码系统里的行列号与数组里面的行列号的差别
+        //编码系统的行列号的起始位置是左下角，而数组的行列号的起始位置是左上角
+        double price;
+        double[][] gridmatrix=new double[4000][4000];
+        int array_row=0;//其中array_row+row=4000
+        //row、col指的是编码系统里的行列号
+        //array_row、array_col指的是二维矩阵中的行列号
+        for(int row=4000;row>=1;row--){
+            System.out.println(4000-row+1);
+            String str="";
+            int array_col=0;//其中array_col=col-1;
+            for(int col=1;col<=4000;col++){
+
+                code=col+(row-1)*4000;
+
+                if(code_price.containsKey(code)){
+                    price=code_price.get(code);
+                    gridmatrix[array_row][array_col]=price;
+                }else{
+                    gridmatrix[array_row][array_col]=0.0;
+                }
+                str+=gridmatrix[array_row][array_col]+",";
+                array_col++;
+            }
+            FileTool.Dump(str,path+"ContourLine-"+year+"-"+month+".txt","utf-8");
+            array_row++;
         }
     }
 
