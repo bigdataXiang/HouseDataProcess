@@ -32,9 +32,13 @@ public class ReadExcel {
             readExcel(files.elementAt(i));
         }*/
 
-        String path="D:\\能源所\\中期汇报\\11浙江——华东\\2010\\";
+        String path="D:\\能源所\\【各省自治区直辖市主体功能区数据库】\\08黑龙江\\";
 
-         readExcel(path+"省级重点生态功能区.xls");
+        readExcel(path+"国家农产品主产区.xlsx");
+        readExcel(path+"国家重点生态功能区.xlsx");
+        readExcel(path+"开发城镇in国家重点生态功能区.xlsx");
+        readExcel(path+"省级重点开发区域.xlsx");
+        readExcel(path+"重点开发城镇in国家农产品主产区.xlsx");
         //D:\小论文\poi资料\北京poi
         //D:\小论文\poi资料\shpPoi数据\
 

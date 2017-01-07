@@ -37,16 +37,18 @@ public class DataInteger {
 
     //2、将数据进行地理编码，但是总是出现为null的现象
     public static void geoCode() throws UnsupportedEncodingException {
-        String[] province={"01北京","02天津","03河北","04山西","05内蒙古","06辽宁","07吉林","09上海","10江苏","11浙江","12安徽",
-                "13福建","14江西","15山东","16河南","17湖北","19广东","20广西","21海南","22重庆","23四川","24贵州","25云南",
-                "26西藏","27陕西","28甘肃","29青海","30宁夏","31新疆维吾尔族自治区"};
+        String[] province={"01北京","02天津","03河北","04山西","05内蒙古","06辽宁",
+                      "07吉林","08黑龙江","09上海","10江苏","11浙江","12安徽",
+                    "13福建","14江西","15山东","16河南","17湖北","18湖南","19广东","20广西",
+                   "21海南","22重庆","23四川","24贵州","25云南",
+                  "26西藏","27陕西","28甘肃","29青海","30宁夏","31新疆维吾尔族自治区"};
         String[] keys={"所属市","区县名称","城镇"};
-        for(int j=9;j<10;j++){
+        for(int j=30;j<31;j++){
             String path = "D:\\能源所\\【各省自治区直辖市主体功能区数据库】\\"+province[j]+"\\json\\filename.txt";
             Vector<String> names=FileTool.Load(path,"utf-8");
             for(int i=0;i<names.size();i++){
                 String name=names.elementAt(i);
-                batchProcess(1,name,keys,"浙江省");
+                batchProcess(100,name,keys,"新疆维吾尔族自治区");
                 System.out.println(name);
             }
         }
