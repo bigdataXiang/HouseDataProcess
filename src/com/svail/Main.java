@@ -16,8 +16,17 @@ public class Main {
     public static String sourcepath="D:\\小论文\\poi资料\\学校\\各区小学\\";
     public static void main(String[] args) throws UnsupportedEncodingException {
 
-        gaode();
+        //gaode();
+        temp("D:\\ContourLine-2016-10.txt");
+    }
 
+    public static void temp(String file){
+        Vector<String> pois=FileTool.Load(file,"utf-8");
+        for(int i=1761;i<1762;i++){
+            String poi=pois.elementAt(i);
+            String[] ay=poi.split(",");
+            System.out.println(ay[945]);
+        }
     }
 
     //老师的地理编码程序

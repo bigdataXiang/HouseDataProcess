@@ -23,10 +23,15 @@ public class CreatExcel {
         String filename="省级重点生态功能区（限制开发区域）"+"_objs_所有结果.txt";
 */
 
-        String path="D:\\能源所\\【各省自治区直辖市主体功能区数据库】\\11浙江\\json\\";
+        String path="D:\\能源所\\【各省自治区直辖市主体功能区数据库】\\27陕西\\json\\";
         String[] names={"所属市","区县名称","城镇","province","city","county",
                 "主体功能区属性","lng","lat"};
-        writeExcel(path+"省级重点生态功能区_json_地理编码.txt",names);
+        Vector<String> pois=FileTool.Load(path+"filename.txt","utf-8");
+        for(int i=0;i<pois.size();i++){
+            String poi=pois.elementAt(i);
+            writeExcel(poi.replace(".txt","_地理编码.txt"),names);
+        }
+
 
     }
 
@@ -186,6 +191,13 @@ public class CreatExcel {
         }
         return value;
     }
+    public static int getObjValue_int(JSONObject obj, String key){
+        int value=0;
+        if(obj.containsKey(key)){
+            value=obj.getInt(key);
+        }
+        return value;
+    }
 
     //设置成可自定义的标签的形式
     public static void designExcel(Sheet sheet,String[] names){
@@ -222,9 +234,21 @@ public class CreatExcel {
                 obj = JSONObject.fromObject(element);
                 if(obj.containsKey("region")){
                     region=obj.getJSONObject("region");
-                    obj.put("province",region.getString("province"));
-                    obj.put("city",region.getString("city"));
-                    obj.put("county",region.getString("county"));
+                    if(region.containsKey("province")){
+                        obj.put("province",region.getString("province"));
+                    }else {
+                        obj.put("province","无");
+                    }
+                    if(region.containsKey("city")){
+                        obj.put("city",region.getString("city"));
+                    }else {
+                        obj.put("city","无");
+                    }
+                    if(region.containsKey("county")){
+                        obj.put("county",region.getString("county"));
+                    }else {
+                        obj.put("county","无");
+                    }
                 }
                 count++;
                 row = sheet.createRow(count);

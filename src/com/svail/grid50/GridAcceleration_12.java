@@ -16,6 +16,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import java.io.*;
 import java.util.*;
 
+import static com.svail.grid50.ContourLine_10.priceBlock;
 import static com.svail.grid50.util.RowColCalculation.Code_RowCol;
 
 /**
@@ -62,10 +63,20 @@ public class GridAcceleration_12 {
 
 
         String path="D:\\paper\\价格加速度\\";
-        priceMatrix(path,2015,10);
+        /*priceMatrix(path,2015,10);*/
+
+
+        //提取由加速度价格矩阵经过区块处理的区块矩阵的每个范围内的等值线
+        //引用【ContourLine_10】的程序
+        for(int i=1;i<=25;i++){
+            priceBlock(path,"block-2016-10.txt",i);
+        }
 
     }
 
+
+
+    //生成4000*4000的每个月的加速度价格矩阵
     public static void priceMatrix(String path,int year,int month){
 
         Map<Integer,Double> code_price=new HashMap<>();
@@ -126,6 +137,7 @@ public class GridAcceleration_12 {
             array_row++;
         }
     }
+
 
     //利用逐个调用数据库code的办法来计算加速度
     public static void calculate_Acceleration(String dbName,String collExport,String collImport,String file){

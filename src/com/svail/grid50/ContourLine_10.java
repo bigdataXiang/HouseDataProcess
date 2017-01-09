@@ -37,9 +37,9 @@ public class ContourLine_10 {
         第三步：提取特定价格阈值的等值线
         生成一系列等值线【等值线_1.txt】...【等值线_21.txt】
          */
-        /*for(int i=1;i<=21;i++){
+        for(int i=1;i<=21;i++){
             priceBlock(path,"block-2015-08.txt",i);
-        }*/
+        }
 
 
         /*
@@ -51,10 +51,10 @@ public class ContourLine_10 {
         /*
          *第五步：生成可传至服务端的静态文件
          */
-        for(int i=1;i<20;i++){
+        /*for(int i=1;i<20;i++){
             toArray(path,"坐标串_"+i+".txt",i);
         }
-
+*/
 
     }
 
