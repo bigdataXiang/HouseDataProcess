@@ -27,7 +27,9 @@ public class Traffic {
         }
 */
 
-        subway_code(path+"totalsubway.txt");
+        //subway_code(path+"totalsubway.txt");
+
+        //busstation_code("D:\\paper\\relative\\201507\\公交\\公交车站_高德解析信息.txt");
     }
     public static void subWay(String file){
         Vector<String> pois= FileTool.Load(file,"utf-8");
@@ -109,6 +111,26 @@ public class Traffic {
             obj.put("col",crc[2]);
 
             FileTool.Dump(obj.toString(),file.replace(".txt","_格网化.txt"),"utf-8");
+        }
+    }
+
+    public static void busstation_code(String file){
+        Vector<String> pois=FileTool.Load(file,"utf-8");
+        for(int i=0;i<pois.size();i++){
+            String poi=pois.elementAt(i);
+            JSONObject obj=JSONObject.fromObject(poi);
+            if(obj.containsKey("lng_gd")){
+                double lng=obj.getDouble("lng_gd");
+                double lat=obj.getDouble("lat_gd");
+                String result=setPoiCode_50(lat,lng);
+                String[] crc=result.split(",");
+                obj.put("code",crc[0]);
+                obj.put("row",crc[1]);
+                obj.put("col",crc[2]);
+
+                FileTool.Dump(obj.toString(),file.replace(".txt","_格网化.txt"),"utf-8");
+
+            }
         }
     }
 }

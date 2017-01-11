@@ -112,7 +112,7 @@ public class School {
             double lng_gd = obj.getDouble("lng_gd");
             double lat_gd = obj.getDouble("lat_gd");
 
-            String result = setPoiCode_50(lat_gd, lng_gd);
+
             if(type.contains("市重点")){
                 type="市重点";
             }else if(type.contains("区重点")){
@@ -122,14 +122,17 @@ public class School {
             }
             int qv=schoolLevel(type);
 
+
+            String result = setPoiCode_50(lat_gd, lng_gd);
             String[] crc = result.split(",");
             JSONObject o = new JSONObject();
-            o.put("qualify_value",qv);
-            o.put("school",school);
-            o.put("type",type);
             o.put("code",crc[0]);
             o.put("row",crc[1]);
             o.put("col",crc[2]);
+
+            o.put("qualify_value",qv);
+            o.put("school",school);
+            o.put("type",type);
 
             FileTool.Dump(o.toString(),file.replace(".txt","_格网化.txt"),"utf-8");
         }

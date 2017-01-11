@@ -19,18 +19,21 @@ import static com.svail.nengyuansuo.CreatExcel.writeExcel;
 public class Process2015 {
     public static Map<String,JSONObject> map=new HashMap<>();
     public static void main(String[] args) throws IOException {
-        String path="D:\\能源所\\中期汇报\\19广东——华南\\2015\\";
-        String[] names={"国家级重点开发区域_json","国家级重点生态功能区_json",
-                        "农产品主产区_json","生态镇in重点开发区域_json",
-                        "省级重点开发区域_json","省级重点生态功能区_json",
-                        "优化开发区_json"};
-        makeMap(path+"经济数据_json.txt");
+        String path="D:\\能源所\\中期汇报\\各省数据整理\\08黑龙江——东北\\2014\\";
+
+        String[] names={"国家级重点开发区域_json.txt",
+        "国家农产品主产区_json.txt",
+        "国家重点生态功能区_json.txt",
+        "省级重点开发区域_json.txt"};
+
+        makeMap(path+"黑龙江省2015区域统计年鉴县级数据_json.txt");
 
         for(int i=0;i<names.length;i++){
-            dataFusion(path+names[i]+".txt");
+            dataFusion(path+names[i]);
         }
         for(int i=0;i<names.length;i++){
-            toExcel(path,names[i]+"_2015.txt");
+            String filename=names[i].replace(".txt","_2015.txt");
+            toExcel(path,filename);
         }
     }
     //将2015年的经济数据存放到map中
@@ -65,6 +68,8 @@ public class Process2015 {
                     result.put("所属市","");
                 }
                 result.put("区县名称",quxian);
+
+                System.out.println(obj);
                 result.put("主体功能区属性",obj.getString("主体功能区属性"));
 
                 if(obj.containsKey("行政区域土地面积")){

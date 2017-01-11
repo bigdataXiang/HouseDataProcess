@@ -1,8 +1,11 @@
 package com.svail;
 
 import com.svail.util.FileTool;
+import net.sf.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 import static com.svail.grid50.BatchProcess_1.addressMatch_GaoDe;
@@ -16,8 +19,12 @@ public class Main {
     public static String sourcepath="D:\\小论文\\poi资料\\学校\\各区小学\\";
     public static void main(String[] args) throws UnsupportedEncodingException {
 
-        //gaode();
-        temp("D:\\ContourLine-2016-10.txt");
+
+         //gaode();
+        //temp("D:\\ContourLine-2016-10.txt");
+
+        //shujuquchong("D:\\paper\\relative\\201507\\公园绿地\\公园绿地_region_json.txt");
+        gaode();
     }
 
     public static void temp(String file){
@@ -69,17 +76,33 @@ public class Main {
         String[] keys={"station"};//"address","name","community"
         addressMatch_GaoDe(0,keys,path,names[18].replace(".txt","_json.txt"),"北京","0e0926480b9a9118fb2b9d3238a20ce1");
 */
-        String path="D:\\小论文\\影响因素相关性研究\\201507\\学校\\";
-        String[] keys={"school"};//"address","name","community"
-        addressMatch_GaoDe(0,keys,path,"市重点小学_json.txt","北京","0e0926480b9a9118fb2b9d3238a20ce1");
-
-
-
-
+        String path="D:\\paper\\relative\\201507\\公园绿地\\";
+        String[] keys={"NAME"};//"address","name","community",,"school"
+        addressMatch_GaoDe(0,keys,path,"公园绿地_region_json_去重.txt","北京","0e0926480b9a9118fb2b9d3238a20ce1");
 
         //String filename="昌平区小学_json_高德解析信息_再次匹配.txt";
 
     }
+
+    public static void shujuquchong(String file){
+        Vector<String> pois=FileTool.Load(file,"utf-8");
+
+        Map<String,String> monitor=new HashMap<>();
+        for(int i=0;i<pois.size();i++){
+            String poi=pois.elementAt(i);
+            JSONObject obj=JSONObject.fromObject(poi);
+            String NAME=obj.getString("NAME");
+            if(monitor.containsKey(NAME)){
+
+            }else {
+                monitor.put(NAME,"");
+                FileTool.Dump(poi,file.replace(".txt","_去重.txt"),"utf-8");
+            }
+
+        }
+
+    }
+
 
 
 }

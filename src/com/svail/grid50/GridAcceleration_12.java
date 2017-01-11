@@ -62,14 +62,15 @@ public class GridAcceleration_12 {
         }*/
 
 
-        String path="D:\\paper\\价格加速度\\";
+
         /*priceMatrix(path,2015,10);*/
 
 
         //提取由加速度价格矩阵经过区块处理的区块矩阵的每个范围内的等值线
         //引用【ContourLine_10】的程序
+        String path="D:\\paper\\acceleration\\201602\\";
         for(int i=1;i<=25;i++){
-            priceBlock(path,"block-2016-10.txt",i);
+            priceBlock(path,"block-2016-2.txt",i);
         }
 
     }

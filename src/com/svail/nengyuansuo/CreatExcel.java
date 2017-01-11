@@ -137,31 +137,31 @@ public class CreatExcel {
                             row.createCell(5).setCellValue(getObjValue_str(obj,"主体功能区属性"));
                             break;
                         case 6:
-                            row.createCell(6).setCellValue(getObjValue_str(obj,"行政区域土地面积"));
+                            row.createCell(6).setCellValue(getObjValue_dou(obj,"行政区域土地面积"));
                             break;
                         case 7:
-                            row.createCell(7).setCellValue(getObjValue_str(obj,"年末常住人口"));
+                            row.createCell(7).setCellValue(getObjValue_dou(obj,"年末常住人口"));
                             break;
                         case 8:
-                            row.createCell(8).setCellValue(getObjValue_str(obj,"地区生产总值"));
+                            row.createCell(8).setCellValue(getObjValue_dou(obj,"地区生产总值"));
                             break;
                         case 9:
-                            row.createCell(9).setCellValue(getObjValue_str(obj,"人均GDP"));
+                            row.createCell(9).setCellValue(getObjValue_dou(obj,"人均GDP"));
                             break;
                         case 10:
-                            row.createCell(10).setCellValue(getObjValue_str(obj,"第一产业"));
+                            row.createCell(10).setCellValue(getObjValue_dou(obj,"第一产业"));
                             break;
                         case 11:
-                            row.createCell(11).setCellValue(getObjValue_str(obj,"第二产业"));
+                            row.createCell(11).setCellValue(getObjValue_dou(obj,"第二产业"));
                             break;
                         case 12:
-                            row.createCell(12).setCellValue(getObjValue_str(obj,"第三产业"));
+                            row.createCell(12).setCellValue(getObjValue_dou(obj,"第三产业"));
                             break;
                         case 13:
-                            row.createCell(13).setCellValue(getObjValue_str(obj,"经度"));
+                            row.createCell(13).setCellValue(getObjValue_dou(obj,"经度"));
                             break;
                         case 14:
-                            row.createCell(14).setCellValue(getObjValue_str(obj,"纬度"));
+                            row.createCell(14).setCellValue(getObjValue_dou(obj,"纬度"));
                             break;
                     }
                 }
