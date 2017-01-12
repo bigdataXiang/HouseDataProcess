@@ -225,7 +225,7 @@ public class ContourLine_10 {
                 if(grid_code!=0){
                     count++;
                     corners=getAnglesCoor(grid_code);
-                    result.put(grid_code,corners);
+                    result.put(grid_code,"");
                     FileTool.Dump(grid_code+"",path+"等值线_"+gridvalue+"_格网集合.txt","utf-8");
                 }
             }

@@ -16,6 +16,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import java.io.*;
 import java.util.*;
 
+import static com.svail.grid50.ContourLine_10.getAnglesCoor;
 import static com.svail.grid50.ContourLine_10.priceBlock;
 import static com.svail.grid50.util.RowColCalculation.Code_RowCol;
 
@@ -68,11 +69,71 @@ public class GridAcceleration_12 {
 
         //提取由加速度价格矩阵经过区块处理的区块矩阵的每个范围内的等值线
         //引用【ContourLine_10】的程序
-        String path="D:\\paper\\acceleration\\201602\\";
+        //String path="D:\\paper\\acceleration\\201603\\";
+        /*for(int i=1;i<=25;i++){
+            priceBlock(path,"block-2016-3.txt",i);
+        }*/
+        /*path="D:\\paper\\acceleration\\201604\\";
         for(int i=1;i<=25;i++){
-            priceBlock(path,"block-2016-2.txt",i);
+            priceBlock(path,"block-2016-4.txt",i);
         }
+        path="D:\\paper\\acceleration\\201605\\";
+        for(int i=1;i<=25;i++){
+            priceBlock(path,"block-2016-5.txt",i);
+        }
+        path="D:\\paper\\acceleration\\201606\\";
+        for(int i=1;i<=25;i++){
+            priceBlock(path,"block-2016-6.txt",i);
+        }
+        path="D:\\paper\\acceleration\\201607\\";
+        for(int i=1;i<=25;i++){
+            priceBlock(path,"block-2016-7.txt",i);
+        }
+        path="D:\\paper\\acceleration\\201608\\";
+        for(int i=1;i<=25;i++){
+            priceBlock(path,"block-2016-8.txt",i);
+        }
+        path="D:\\paper\\acceleration\\201609\\";
+        for(int i=1;i<=25;i++){
+            priceBlock(path,"block-2016-9.txt",i);
+        }
+        path="D:\\paper\\acceleration\\201610\\";
+        for(int i=1;i<=25;i++){
+            priceBlock(path,"block-2016-10.txt",i);
+        }
+        path="D:\\paper\\acceleration\\201611\\";
+        for(int i=1;i<=25;i++){
+            priceBlock(path,"block-2016-11.txt",i);
+        }
+*/
 
+        //单独计算每个区块的经纬四角
+        CalculateLatLng("D:\\paper\\acceleration\\201603\\等值线_12.txt");
+
+    }
+    //由于网格数目太多一次性写不下，故先记下来格网，再计算具体的四个角的经纬度
+    //事实证明这种方式也不可行，所以在v12.py代码中增加了处理四个角坐标的程序
+    public static void CalculateLatLng(String file){
+        Vector<String> pois=FileTool.Load(file,"utf-8");
+        String poi="";
+        JSONObject obj;
+        Iterator<String> it;
+        String code;
+        JSONObject result;
+        JSONObject corners;
+        for(int i=0;i<pois.size();i++){
+            System.out.println("第"+(i+1)+"行");
+            poi=pois.elementAt(i);
+            obj=JSONObject.fromObject(poi);
+            it=obj.keys();
+            result=new JSONObject();
+            while (it.hasNext()){
+                code=it.next();
+                corners=getAnglesCoor(Integer.parseInt(code));
+                result.put(code,corners);
+            }
+            FileTool.Dump(""+result,file.replace(".txt","_corner.txt"),"utf-8");
+        }
     }
 
 
