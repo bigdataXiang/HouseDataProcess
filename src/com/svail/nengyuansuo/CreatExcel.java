@@ -23,7 +23,7 @@ public class CreatExcel {
         String filename="省级重点生态功能区（限制开发区域）"+"_objs_所有结果.txt";
 */
 
-        String path="D:\\能源所\\【各省自治区直辖市主体功能区数据库】\\27陕西\\json\\";
+        String path="D:\\能源所\\【各省自治区直辖市主体功能区数据库】\\31新疆维吾尔族自治区\\json\\";
         String[] names={"所属市","区县名称","城镇","province","city","county",
                 "主体功能区属性","lng","lat"};
         Vector<String> pois=FileTool.Load(path+"filename.txt","utf-8");

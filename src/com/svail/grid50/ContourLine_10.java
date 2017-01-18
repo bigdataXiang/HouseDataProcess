@@ -4,10 +4,7 @@ import com.svail.util.FileTool;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -16,9 +13,7 @@ import java.util.*;
  */
 public class ContourLine_10 {
 
-    public static void main(String[] args){
-
-        String path="D:\\小论文\\影响因素相关性研究\\201509\\";
+    public static void main(String[] args) throws FileNotFoundException {
 
         /*
          * 第一步：生成每个月的价格矩阵，此步在linux上完成
@@ -37,9 +32,9 @@ public class ContourLine_10 {
         第三步：提取特定价格阈值的等值线
         生成一系列等值线【等值线_1.txt】...【等值线_21.txt】
          */
-        for(int i=1;i<=21;i++){
+        /*for(int i=1;i<=21;i++){
             priceBlock(path,"block-2015-08.txt",i);
-        }
+        }*/
 
 
         /*
@@ -51,11 +46,28 @@ public class ContourLine_10 {
         /*
          *第五步：生成可传至服务端的静态文件
          */
-        /*for(int i=1;i<20;i++){
-            toArray(path,"坐标串_"+i+".txt",i);
+        String path="D:\\paper\\acceleration\\";
+        String date="201611\\";
+        String filename="";
+        String filepath="";
+        String storepath="D:\\paper\\acceleration\\storeresult\\";
+        for(int i=1;i<34;i++){
+            try {
+                if(i<=10){
+                    filepath=path+date;
+                    filename="坐标串_"+i+".txt";
+                }else if(10<i&&i<=20){
+                    filepath=path+"newest_acceleration\\"+date;
+                    filename="坐标串_"+i+".txt";
+                }else if(20<i&&i<=33){
+                    filepath=path+date;
+                    filename="坐标串_"+(i-8)+".txt";
+                }
+                toArray(filepath,filename,i,storepath+date);
+            }catch (NullPointerException e){
+                e.getStackTrace();
+            }
         }
-*/
-
     }
 
     /**step_1:根据最终的插值结果生成每个月的价格矩阵
@@ -250,15 +262,18 @@ public class ContourLine_10 {
      * 结果：
      * 【放入静态文件的坐标串_gridvalue.txt】
      */
-    public static void toArray(String path,String inputfile,int value){
+    public static void toArray(String path,String inputfile,int value,String storepath){
         Vector<String> pois=FileTool.Load(path+inputfile,"utf-8");
         JSONArray array=new JSONArray();
         for(int i=0;i<pois.size();i++){
             String poi=pois.elementAt(i);
             array.add(poi);
         }
-        FileTool.Dump(array.toString(),path+"polygon_"+(value-1),"utf-8");
+        System.out.println("等值线"+value+":"+array.size());
+        FileTool.Dump(array.toString(),storepath+"polygon_"+(value),"utf-8");
+
     }
+
 
     /**提取文件中指定月份的价格和code数据*/
     public static void listAssignment(String file,Map<Integer,Double> code_price,String month){

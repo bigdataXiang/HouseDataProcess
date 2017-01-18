@@ -24,15 +24,24 @@ public class Main {
         //temp("D:\\ContourLine-2016-10.txt");
 
         //shujuquchong("D:\\paper\\relative\\201507\\公园绿地\\公园绿地_region_json.txt");
-        gaode();
+        //gaode();
+
+        for(int i=15;i<16;i++){
+            System.out.println(i+"***********");
+            temp("D:\\paper\\acceleration\\newest_acceleration\\201608\\等值线_"+i+".txt");
+        }
+
     }
 
     public static void temp(String file){
         Vector<String> pois=FileTool.Load(file,"utf-8");
-        for(int i=1761;i<1762;i++){
+        for(int i=0;i<pois.size();i++){
             String poi=pois.elementAt(i);
-            String[] ay=poi.split(",");
-            System.out.println(ay[945]);
+            JSONObject obj=JSONObject.fromObject(poi);
+            int n=obj.size();
+            if(n>20000){
+                System.out.println(i+":"+n);//
+            }
         }
     }
 

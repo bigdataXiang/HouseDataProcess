@@ -69,46 +69,70 @@ public class GridAcceleration_12 {
 
         //提取由加速度价格矩阵经过区块处理的区块矩阵的每个范围内的等值线
         //引用【ContourLine_10】的程序
-        //String path="D:\\paper\\acceleration\\201603\\";
-        /*for(int i=1;i<=25;i++){
+        /*System.out.println("**********"+12+"***********");
+        String path="D:\\paper\\acceleration\\newest_acceleration\\201512\\";
+        for(int i=1;i<=33;i++){
+            priceBlock(path,"block-2015-12.txt",i);
+        }
+        System.out.println("**********"+1+"***********");
+        path="D:\\paper\\acceleration\\newest_acceleration\\201601\\";
+        for(int i=1;i<=33;i++){
+            priceBlock(path,"block-2016-1.txt",i);
+        }
+        System.out.println("**********"+2+"***********");
+        path="D:\\paper\\acceleration\\newest_acceleration\\201602\\";
+        for(int i=1;i<=33;i++){
+            priceBlock(path,"block-2016-2.txt",i);
+        }
+        System.out.println("**********"+3+"***********");
+        path="D:\\paper\\acceleration\\newest_acceleration\\201603\\";
+        for(int i=1;i<=33;i++){
             priceBlock(path,"block-2016-3.txt",i);
-        }*/
-        /*path="D:\\paper\\acceleration\\201604\\";
-        for(int i=1;i<=25;i++){
+        }
+        System.out.println("**********"+4+"***********");
+        path="D:\\paper\\acceleration\\newest_acceleration\\201604\\";
+        for(int i=1;i<=33;i++){
             priceBlock(path,"block-2016-4.txt",i);
         }
-        path="D:\\paper\\acceleration\\201605\\";
-        for(int i=1;i<=25;i++){
+        System.out.println("**********"+5+"***********");
+        path="D:\\paper\\acceleration\\newest_acceleration\\201605\\";
+        for(int i=1;i<=33;i++){
             priceBlock(path,"block-2016-5.txt",i);
         }
-        path="D:\\paper\\acceleration\\201606\\";
-        for(int i=1;i<=25;i++){
+        System.out.println("**********"+6+"***********");
+        path="D:\\paper\\acceleration\\newest_acceleration\\201606\\";
+        for(int i=1;i<=33;i++){
             priceBlock(path,"block-2016-6.txt",i);
         }
-        path="D:\\paper\\acceleration\\201607\\";
-        for(int i=1;i<=25;i++){
+        System.out.println("**********"+7+"***********");
+        path="D:\\paper\\acceleration\\newest_acceleration\\201607\\";
+        for(int i=1;i<=33;i++){
             priceBlock(path,"block-2016-7.txt",i);
         }
-        path="D:\\paper\\acceleration\\201608\\";
-        for(int i=1;i<=25;i++){
+        System.out.println("**********"+8+"***********");
+        path="D:\\paper\\acceleration\\newest_acceleration\\201608\\";
+        for(int i=1;i<=33;i++){
             priceBlock(path,"block-2016-8.txt",i);
         }
-        path="D:\\paper\\acceleration\\201609\\";
-        for(int i=1;i<=25;i++){
+        System.out.println("**********"+9+"***********");
+        path="D:\\paper\\acceleration\\newest_acceleration\\201609\\";
+        for(int i=1;i<=33;i++){
             priceBlock(path,"block-2016-9.txt",i);
         }
-        path="D:\\paper\\acceleration\\201610\\";
-        for(int i=1;i<=25;i++){
+        System.out.println("**********"+10+"***********");
+        path="D:\\paper\\acceleration\\newest_acceleration\\201610\\";
+        for(int i=1;i<=33;i++){
             priceBlock(path,"block-2016-10.txt",i);
         }
-        path="D:\\paper\\acceleration\\201611\\";
-        for(int i=1;i<=25;i++){
+        System.out.println("**********"+11+"***********");
+        path="D:\\paper\\acceleration\\newest_acceleration\\201611\\";
+        for(int i=1;i<=33;i++){
             priceBlock(path,"block-2016-11.txt",i);
         }
 */
 
         //单独计算每个区块的经纬四角
-        CalculateLatLng("D:\\paper\\acceleration\\201603\\等值线_12.txt");
+        //CalculateLatLng("D:\\paper\\acceleration\\201603\\等值线_12.txt");
 
     }
     //由于网格数目太多一次性写不下，故先记下来格网，再计算具体的四个角的经纬度

@@ -48,8 +48,8 @@ public class DataInteger {
             Vector<String> names=FileTool.Load(path,"utf-8");
             for(int i=0;i<names.size();i++){
                 String name=names.elementAt(i);
-                batchProcess(100,name,keys,"新疆维吾尔族自治区");
                 System.out.println(name);
+                batchProcess(100,name,keys,"新疆维吾尔自治区");
             }
         }
     }
