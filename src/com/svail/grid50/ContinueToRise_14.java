@@ -46,29 +46,27 @@ public class ContinueToRise_14 {
                          path+"interpolation_value_grids_中没有问题的数据_一直在涨的月份.txt",dates);*/
 
 
-        /*drawTrendLine("D:\\paper\\一直都在涨的格网\\累积增长\\画曲线的数据\\",
+        /*drawTrendLine(0,7,"D:\\paper\\一直都在涨的格网\\累积增长\\画曲线的数据\\",
                 "full_value_grids_一直在涨的月份_小区.txt",
                 "full_value_grids_全时序_全时序.txt",
                 "full_value_grids_全时序_累积增长值.txt");*/
 
-        /*drawTrendLine(11,20,"D:\\paper\\一直都在涨的格网\\累积增长\\画曲线的数据\\",
+        /*drawTrendLine(250,308,"D:\\paper\\一直都在涨的格网\\累积增长\\画曲线的数据\\",
                 "interpolation_value_grids_中没有问题的数据_一直在涨的月份_小区.txt",
                 "interpolation_value_grids_中没有问题的数据_全时序_全时序.txt",
                 "interpolation_value_grids_中没有问题的数据_全时序_累积增长值.txt");*/
 
-        for(int i=10;i<=12;i++){
-            System.out.println("2015"+i+":");
-            queryBaseData("4473658","2015",""+i);
-        }
-        for(int i=1;i<=9;i++){
-            System.out.println("20160"+i+":");
-            queryBaseData("4473658","2016","0"+i);
-        }
-        for(int i=10;i<=11;i++){
-            System.out.println("2016"+i+":");
-            queryBaseData("4473658","2016",""+i);
-        }
 
+
+
+        //将比较理想的code的曲线图作出来
+        /*drawTrendLine_Code(5926158,"D:\\paper\\一直都在涨的格网\\累积增长\\画曲线的数据\\",
+                "interpolation_value_grids_中没有问题的数据_一直在涨的月份_小区.txt",
+                "interpolation_value_grids_中没有问题的数据_全时序_全时序.txt",
+                "interpolation_value_grids_中没有问题的数据_全时序_累积增长值.txt");*/
+
+        // 查询波动比较大的小区的数据
+        batchQuery("4057609");
 
     }
     //第一步：找出数据比较全面的真实的具有长时序数据的code
@@ -380,9 +378,43 @@ public class ContinueToRise_14 {
         }
     }
 
+    public static void drawTrendLine_Code(int tagcode,String path,String bufen,String quanshixu,String leiji){
+        Vector<String> pois1=FileTool.Load(path+bufen,"utf-8");
+        Vector<String> pois2=FileTool.Load(path+quanshixu,"utf-8");
+        Vector<String> pois3=FileTool.Load(path+leiji,"utf-8");
+        for(int i=0;i<pois1.size();i++){
+            JSONObject obj1=JSONObject.fromObject(pois1.elementAt(i));
+            JSONObject obj2=JSONObject.fromObject(pois2.elementAt(i));
+            JSONObject obj3=JSONObject.fromObject(pois3.elementAt(i));
+            String community=obj1.getString("community");
+            int code=obj1.getInt("code");
+            if(code==tagcode){
+                GridCurve(obj1,obj2,obj3,community);
+            }
+        }
+    }
+
+
 
     //查找价格异常的小区的信息
-    public static void queryBaseData(String code,String year,String month){
+    public static void batchQuery(String code){
+
+        JSONObject unitprice_obj=new JSONObject();
+        for(int i=10;i<=12;i++){
+            System.out.println("2015"+i+":");
+            queryBaseData(unitprice_obj,code,"2015",""+i);
+        }
+        for(int i=1;i<=9;i++){
+            System.out.println("20160"+i+":");
+            queryBaseData(unitprice_obj,code,"2016","0"+i);
+        }
+        for(int i=10;i<=11;i++){
+            System.out.println("2016"+i+":");
+            queryBaseData(unitprice_obj,code,"2016",""+i);
+        }
+        System.out.println(unitprice_obj);
+    }
+    public static void queryBaseData(JSONObject unitprice_obj,String code,String year,String month){
         DBCollection coll= db.getDB("paper").getCollection("BasicData_Resold_gd");
         BasicDBObject doc=new BasicDBObject();
         doc.put("year",year);
@@ -392,6 +424,10 @@ public class ContinueToRise_14 {
         BasicDBObject docment;
         DBCursor cs=coll.find(doc);
         JSONObject obj;
+
+        double avenrage=0;
+        double total_price=0;
+        int num=0;
         while (cs.hasNext()){
             docment=(BasicDBObject)cs.next();
             docment.remove("_id");
@@ -407,7 +443,9 @@ public class ContinueToRise_14 {
                 obj.put("area",docment.getString("area"));
             }
             if(docment.containsField("unit_price")){
+                num++;
                 obj.put("unit_price",docment.getString("unit_price"));
+                total_price+=obj.getDouble("unit_price");
             }
             if(docment.containsField("fitment")){
                 obj.put("fitment",docment.getString("fitment"));
@@ -419,6 +457,11 @@ public class ContinueToRise_14 {
                 obj.put("house_type",docment.getString("house_type"));
             }
             System.out.println(obj);
+        }
+        if(num!=0){
+            avenrage=total_price/(double)num;
+            System.out.println("均价："+avenrage);
+            unitprice_obj.put(year+"-"+month,avenrage);
         }
     }
 }
