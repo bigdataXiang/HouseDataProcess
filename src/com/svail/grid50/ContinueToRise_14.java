@@ -8,12 +8,10 @@ import com.svail.util.FileTool;
 import net.sf.json.JSONObject;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 
 import static com.svail.grid50.PriceAccelerationDraw_15.GridCurve;
+import static com.svail.grid50.PriceDraw_16.PriceCurve;
 
 
 /**
@@ -27,7 +25,7 @@ public class ContinueToRise_14 {
                 "2016-2","2016-3","2016-4","2016-5","2016-6","2016-7",
                 "2016-8","2016-9","2016-10","2016-11"};
 
-        String path="D:\\paper\\一直都在涨的格网\\累积增长\\";
+
 
         //findCode(path+"interpolation_value_grids_中没有问题的数据.txt");
 
@@ -60,13 +58,18 @@ public class ContinueToRise_14 {
 
 
         //将比较理想的code的曲线图作出来
-        /*drawTrendLine_Code(5926158,"D:\\paper\\一直都在涨的格网\\累积增长\\画曲线的数据\\",
+       /* drawTrendLine_Code(5926158,"D:\\paper\\一直都在涨的格网\\累积增长\\画曲线的数据\\",
                 "interpolation_value_grids_中没有问题的数据_一直在涨的月份_小区.txt",
                 "interpolation_value_grids_中没有问题的数据_全时序_全时序.txt",
-                "interpolation_value_grids_中没有问题的数据_全时序_累积增长值.txt");*/
-
+                "interpolation_value_grids_中没有问题的数据_全时序_累积增长值.txt");
+*/
         // 查询波动比较大的小区的数据
-        batchQuery("4057609");
+        //batchQuery("4009712","北岗子","");
+
+        String path="D:\\paper\\一直都在涨的格网\\累积增长\\画曲线的数据\\";
+        batchQuery(0,10,
+                path+"interpolation_value_grids_中没有问题的数据_一直在涨的月份_小区.txt",
+                path+"小区价格曲线运行记录.txt");
 
     }
     //第一步：找出数据比较全面的真实的具有长时序数据的code
@@ -397,24 +400,77 @@ public class ContinueToRise_14 {
 
 
     //查找价格异常的小区的信息
-    public static void batchQuery(String code){
+    //并且将最后的时序图画出来
+    public static void batchQuery(String code,String community,String storefile){
 
         JSONObject unitprice_obj=new JSONObject();
         for(int i=10;i<=12;i++){
             System.out.println("2015"+i+":");
-            queryBaseData(unitprice_obj,code,"2015",""+i);
+            queryBaseData(unitprice_obj,code,"2015",""+i,storefile);
         }
         for(int i=1;i<=9;i++){
             System.out.println("20160"+i+":");
-            queryBaseData(unitprice_obj,code,"2016","0"+i);
+            queryBaseData(unitprice_obj,code,"2016","0"+i,storefile);
         }
         for(int i=10;i<=11;i++){
             System.out.println("2016"+i+":");
-            queryBaseData(unitprice_obj,code,"2016",""+i);
+            queryBaseData(unitprice_obj,code,"2016",""+i,storefile);
         }
         System.out.println(unitprice_obj);
+        Iterator<Double> it=unitprice_obj.values().iterator();
+        List<Double> pricelist=new ArrayList<>();
+        while (it.hasNext()){
+            pricelist.add(it.next());
+        }
+        double max=Collections.max(pricelist);
+        double min=Collections.min(pricelist);
+        PriceCurve(unitprice_obj,community,max+1,min-1);
+
     }
-    public static void queryBaseData(JSONObject unitprice_obj,String code,String year,String month){
+
+    //逐个文件批量查找
+    public static void batchQuery(int start,int end,String file,String storefile){
+
+        Vector<String> pois=FileTool.Load(file,"utf-8");
+        for(int n=start;n<end;n++){
+            String poi=pois.elementAt(n);
+            JSONObject obj=JSONObject.fromObject(poi);
+            String code=obj.getString("code");
+            String community=obj.getString("community");
+
+            JSONObject unitprice_obj=new JSONObject();
+            for(int i=10;i<=12;i++){
+                System.out.println("2015"+i+":");
+                FileTool.Dump("2015"+i+":",storefile,"utf-8");
+                queryBaseData(unitprice_obj,code,"2015",""+i,storefile);
+            }
+            for(int i=1;i<=9;i++){
+                System.out.println("20160"+i+":");
+                FileTool.Dump("20160"+i+":",storefile,"utf-8");
+                queryBaseData(unitprice_obj,code,"2016","0"+i,storefile);
+            }
+            for(int i=10;i<=11;i++){
+                System.out.println("2016"+i+":");
+                FileTool.Dump("2016"+i+":",storefile,"utf-8");
+                queryBaseData(unitprice_obj,code,"2016",""+i,storefile);
+            }
+            System.out.println(unitprice_obj);
+            FileTool.Dump(unitprice_obj.toString(),storefile,"utf-8");
+            Iterator<Double> it=unitprice_obj.values().iterator();
+            List<Double> pricelist=new ArrayList<>();
+            while (it.hasNext()){
+                pricelist.add(it.next());
+            }
+            double max=Collections.max(pricelist);
+            double min=Collections.min(pricelist);
+            PriceCurve(unitprice_obj,community,max+1,min-1);
+
+        }
+    }
+
+
+
+    public static void queryBaseData(JSONObject unitprice_obj,String code,String year,String month,String storefile){
         DBCollection coll= db.getDB("paper").getCollection("BasicData_Resold_gd");
         BasicDBObject doc=new BasicDBObject();
         doc.put("year",year);
@@ -457,10 +513,12 @@ public class ContinueToRise_14 {
                 obj.put("house_type",docment.getString("house_type"));
             }
             System.out.println(obj);
+            FileTool.Dump(obj.toString(),storefile,"utf-8");
         }
         if(num!=0){
             avenrage=total_price/(double)num;
             System.out.println("均价："+avenrage);
+            FileTool.Dump("均价："+avenrage,storefile,"utf-8");
             unitprice_obj.put(year+"-"+month,avenrage);
         }
     }
