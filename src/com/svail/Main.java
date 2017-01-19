@@ -10,6 +10,7 @@ import java.util.Vector;
 
 import static com.svail.grid50.BatchProcess_1.addressMatch_GaoDe;
 import static com.svail.grid50.BatchProcess_1.batchProcess;
+import static com.svail.grid50.ContinueToRise_14.batchQuery;
 import static com.svail.grid50.GridData_Resold_6.initial;
 import static com.svail.grid50.util.GetAllCommunity.screen;
 import static com.svail.grid50.util.GetAllCommunity.tidy_gaode;
@@ -26,10 +27,15 @@ public class Main {
         //shujuquchong("D:\\paper\\relative\\201507\\公园绿地\\公园绿地_region_json.txt");
         //gaode();
 
-        for(int i=15;i<16;i++){
+        /*for(int i=15;i<16;i++){
             System.out.println(i+"***********");
             temp("D:\\paper\\acceleration\\newest_acceleration\\201608\\等值线_"+i+".txt");
-        }
+        }*/
+
+        String path="D:\\paper\\一直都在涨的格网\\累积增长\\画曲线的数据\\";
+        batchQuery(120,160,
+                path+"interpolation_value_grids_中没有问题的数据_一直在涨的月份_小区.txt",
+                path+"小区价格曲线运行记录_plus.txt");
 
     }
 

@@ -67,7 +67,7 @@ public class ContinueToRise_14 {
         //batchQuery("4009712","北岗子","");
 
         String path="D:\\paper\\一直都在涨的格网\\累积增长\\画曲线的数据\\";
-        batchQuery(0,10,
+        batchQuery(80,120,
                 path+"interpolation_value_grids_中没有问题的数据_一直在涨的月份_小区.txt",
                 path+"小区价格曲线运行记录.txt");
 
