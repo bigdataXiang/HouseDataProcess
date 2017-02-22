@@ -41,14 +41,16 @@ public class Main {
                 path+"小区价格曲线运行记录_plus.txt");
         System.out.println("ok");*/
 
-        String sourcepath="D:\\1_paper\\Investment model\\1-有效栅格\\201508\\";
-        String storepath="D:\\1_paper\\Investment model\\3-栅格的主要户型\\201508\\";
+        String sourcepath="D:\\1_paper\\Investment model\\1-有效栅格\\201611\\";
+        String storepath="D:\\1_paper\\Investment model\\3-栅格的主要户型\\201611\\";
         DBCollection coll= db.getDB("paper").getCollection("GridData_Resold_gd");
         for(int i=1;i<=21;i++){
-            findHouseType(sourcepath+"等值线_"+i+".txt",storepath+"等值线_"+i+".txt",coll,"2015","08");
+            try{
+                findHouseType(sourcepath+"等值线_"+i+".txt",storepath+"等值线_"+i+".txt",coll,"2016","11");
+            }catch (NullPointerException e){
+                e.getStackTrace();
+            }
         }
-
-
     }
 
     public static void temp(String file){
