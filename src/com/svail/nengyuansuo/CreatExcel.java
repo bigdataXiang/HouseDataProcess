@@ -23,14 +23,17 @@ public class CreatExcel {
         String filename="省级重点生态功能区（限制开发区域）"+"_objs_所有结果.txt";
 */
 
-        String path="D:\\能源所\\【各省自治区直辖市主体功能区数据库】\\31新疆维吾尔族自治区\\json\\";
-        String[] names={"所属市","区县名称","城镇","province","city","county",
-                "主体功能区属性","lng","lat"};
-        Vector<String> pois=FileTool.Load(path+"filename.txt","utf-8");
+        String path="D:\\能源所\\";
+        String[] names={"所属省","所属市","区县名称", "主体功能区属性","行政区土地面积","户籍人口",
+                "地区生产总值","人均GDP","第一产业","第二产业","第三产业","省"};
+
+        writeExcel(path+"四省主体功能区数据汇总_json_结果.txt",names);
+
+        /*Vector<String> pois=FileTool.Load(path+"filename.txt","utf-8");
         for(int i=0;i<pois.size();i++){
             String poi=pois.elementAt(i);
-            writeExcel(poi.replace(".txt","_地理编码.txt"),names);
-        }
+            writeExcel(poi.replace(".txt","_excel.txt"),names);
+        }*/
 
 
     }
@@ -253,7 +256,11 @@ public class CreatExcel {
                 count++;
                 row = sheet.createRow(count);
                 for (int k = 0; k < names.length; k++) {
-                    if(names[k].equals("lng")||names[k].equals("lat")){
+                    if(names[k].equals("lng")||names[k].equals("lat")
+                            ||names[k].equals("行政区土地面积")||names[k].equals("户籍人口")
+                            ||names[k].equals("地区生产总值")||names[k].equals("人均GDP")
+                            ||names[k].equals("第一产业")||names[k].equals("第二产业")
+                            ||names[k].equals("第三产业")){
                         row.createCell(k).setCellValue(getObjValue_dou(obj,names[k]));
                     }else {
                         row.createCell(k).setCellValue(getObjValue_str(obj,names[k]));

@@ -32,9 +32,10 @@ public class ReadExcel {
             readExcel(files.elementAt(i));
         }*/
 
-        String path="D:\\能源所\\系统开发\\全国主体功能区GIS系统——数据样例\\18湖南\\";
+        String path="D:\\能源所\\";
+        readExcel(path+"四省主体功能区数据汇总.xlsx");
 
-        readExcel(path+"国家级开发城镇in国家级重点生态功能区.xlsx");
+        /*readExcel(path+"国家级开发城镇in国家级重点生态功能区.xlsx");
         readExcel(path+"国家级开发城镇in省级重点生态功能区.xlsx");
         readExcel(path+"国家级农产品主产区.xlsx");
         readExcel(path+"国家级重点开发城镇in农产品主产区.xlsx");
@@ -43,8 +44,8 @@ public class ReadExcel {
         readExcel(path+"省级开发城镇in国家级重点生态功能区.xlsx");
         readExcel(path+"省级开发城镇in省级重点生态功能区.xlsx");
         readExcel(path+"省级重点开发城镇in农产品主产区.xlsx");
-        readExcel(path+"省级重点开发区域.xlsx");
-        readExcel(path+"省级重点生态功能区.xlsx");
+        readExcel(path+"省级重点开发区域.xlsx");*/
+
 
 
         //D:\小论文\poi资料\北京poi

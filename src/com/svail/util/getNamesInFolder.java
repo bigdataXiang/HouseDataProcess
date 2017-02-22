@@ -36,7 +36,7 @@ public class getNamesInFolder {
         }
     }
 
-    private static void getFilePath(String path){
+    public static void getFilePath(String path){
         File file = new File(path);
         File[] array = file.listFiles();
 

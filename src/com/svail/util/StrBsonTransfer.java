@@ -35,4 +35,10 @@ public class StrBsonTransfer {
 
         return doc;
     }
+
+    public static JSONObject bsonToJson(BasicDBObject doc){
+        JSONObject obj=new JSONObject();
+        return  obj;
+    }
+
 }

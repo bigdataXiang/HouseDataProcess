@@ -1,5 +1,7 @@
 package com.svail;
 
+import com.mongodb.DBCollection;
+import com.svail.grid50.util.db;
 import com.svail.util.FileTool;
 import net.sf.json.JSONObject;
 
@@ -11,6 +13,7 @@ import java.util.Vector;
 import static com.svail.grid50.BatchProcess_1.addressMatch_GaoDe;
 import static com.svail.grid50.BatchProcess_1.batchProcess;
 import static com.svail.grid50.ContinueToRise_14.batchQuery;
+import static com.svail.grid50.FindEffectiveGrid_16.findHouseType;
 import static com.svail.grid50.GridData_Resold_6.initial;
 import static com.svail.grid50.util.GetAllCommunity.screen;
 import static com.svail.grid50.util.GetAllCommunity.tidy_gaode;
@@ -32,10 +35,19 @@ public class Main {
             temp("D:\\paper\\acceleration\\newest_acceleration\\201608\\等值线_"+i+".txt");
         }*/
 
-        String path="D:\\paper\\一直都在涨的格网\\累积增长\\画曲线的数据\\";
-        batchQuery(120,160,
+        /*String path="D:\\paper\\一直都在涨的格网\\累积增长\\画曲线的数据\\";
+        batchQuery(280,308,
                 path+"interpolation_value_grids_中没有问题的数据_一直在涨的月份_小区.txt",
                 path+"小区价格曲线运行记录_plus.txt");
+        System.out.println("ok");*/
+
+        String sourcepath="D:\\1_paper\\Investment model\\1-有效栅格\\201508\\";
+        String storepath="D:\\1_paper\\Investment model\\3-栅格的主要户型\\201508\\";
+        DBCollection coll= db.getDB("paper").getCollection("GridData_Resold_gd");
+        for(int i=1;i<=21;i++){
+            findHouseType(sourcepath+"等值线_"+i+".txt",storepath+"等值线_"+i+".txt",coll,"2015","08");
+        }
+
 
     }
 
