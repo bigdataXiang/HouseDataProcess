@@ -5,6 +5,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.svail.grid50.util.db;
 import com.svail.util.FileTool;
+import com.svail.util.JsonListCompare;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.bcel.generic.F2D;
@@ -50,7 +51,7 @@ public class FindEffectiveGrid_16 {
         }*/
 
 
-        String[] dates={"201511","201512","201601","201602","201603","201604",
+        /*String[] dates={"201511","201512","201601","201602","201603","201604",
                 "201605","201606","201607","201608","201609","201610","201611"};
         for(int m=0;m<dates.length;m++){
             String date=dates[m];
@@ -63,7 +64,85 @@ public class FindEffectiveGrid_16 {
                     e.getStackTrace();
                 }
             }
+        }*/
+
+
+        /*String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
+                "201605","201606","201607","201608","201609","201610","201611"};
+        for(int m=6;m<dates.length;m++) {
+            String date = dates[m];
+            System.out.println(date);
+            for (int i = 1; i <= 21; i++) {
+                try {
+                    System.out.println(i+":");
+                    houseType_Coordinate(i,
+                            "D:\\1_paper\\Investment model\\4-确定栅格唯一户型\\"+date+"\\等值线_"+i+"_最大比率户型.txt",
+                            "D:\\1_paper\\relative\\"+date+"\\坐标串_"+i+".txt",
+                            "D:\\1_paper\\Investment model\\5-找到每个户型区块对应的坐标串\\"+date+".txt");
+
+                } catch (NullPointerException e) {
+                    e.getStackTrace();
+                }
+            }
+        }*/
+
+        /*String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
+                "201605","201606","201607","201608","201609","201610","201611"};
+        for(int m=1;m<dates.length;m++) {
+            String date = dates[m];
+            System.out.println(date);
+            try {
+                determine_Block_value("D:\\1_paper\\Investment model\\5-找到每个户型区块对应的坐标串\\"+date+".txt",
+                        "D:\\1_paper\\Investment model\\6-精简统计数据\\"+date+".txt");
+            } catch (NullPointerException e) {
+                e.getStackTrace();
+            }
+        }*/
+
+        /*String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
+                "201605","201606","201607","201608","201609","201610","201611"};
+        for(int m=0;m<dates.length;m++) {
+            String date = dates[m];
+            System.out.println(date);
+            try {
+                classifyByPrice("D:\\1_paper\\Investment model\\6-精简统计数据\\"+date+".txt",
+                        "D:\\1_paper\\Investment model\\7-按照总价区间分类\\"+date+"\\");
+            } catch (NullPointerException e) {
+                e.getStackTrace();
+            }
+        }*/
+
+
+        /*String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
+                "201605","201606","201607","201608","201609","201610","201611"};
+        for(int m=0;m<dates.length;m++) {
+            String date = dates[m];
+            System.out.println(date);
+            try {
+                classifyByHouseType("D:\\1_paper\\Investment model\\6-精简统计数据\\"+date+".txt",
+                        "D:\\1_paper\\Investment model\\6-精简统计数据\\"+date+"_户型统计.txt",
+                        "D:\\1_paper\\Investment model\\8-按照户型类型分类\\"+date+"\\");
+            } catch (NullPointerException e) {
+                e.getStackTrace();
+            }
+        }*/
+
+
+        String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
+                "201605","201606","201607","201608","201609","201610","201611"};
+        String[] values={"50","100","200","300","400","500","600","700","800","900","1000","1500"};
+        for(int m=0;m<dates.length;m++) {
+            String date = dates[m];
+            System.out.println(date);
+            try {
+                for(int n=0;n<values.length;n++){
+                    staticFile("");
+                }
+            } catch (NullPointerException e) {
+                e.getStackTrace();
+            }
         }
+
 
     }
 
@@ -275,5 +354,213 @@ public class FindEffectiveGrid_16 {
             }
             FileTool.Dump(result.toString(),storefile,"utf-8");
         }
+    }
+
+    //6.找出每种户型对应的坐标串
+    //由于坐标串的等值线将15万以后的值都叠加到一起了，所以在文件夹【4-确定栅格唯一户型】也将16及其
+    //以后的坐标串全部加载到等值线15之后再将其删除。
+    public static void houseType_Coordinate(int blockValue,String houseType,String coordinate,String storefile){
+        Vector<String> hts=FileTool.Load(houseType,"utf-8");
+        Vector<String> coors=FileTool.Load(coordinate,"utf-8");
+
+        if(hts.size()==coors.size()){
+            for(int i=0;i<hts.size();i++){
+                String ht=hts.elementAt(i);
+                String coor=coors.elementAt(i);
+                if(ht.equals("无")){
+
+                }else{
+                    JSONObject result=new JSONObject();
+                    result.put("blockVaule",blockValue);
+                    result.put("ht",ht);
+                    result.put("coor",coor);
+                    FileTool.Dump(result.toString(),storefile,"utf-8");
+                }
+            }
+        }else {
+            System.out.println("数量不一致！");
+        }
+    }
+
+    //7.确定每个区块的户型和总价
+    public static void determine_Block_value(String sourcefile,String storefile){
+        Vector<String> pois=FileTool.Load(sourcefile,"utf-8");
+
+        Map<String,Integer> ht_nums=new HashMap<>();
+        Map<String,Integer> pr_nums=new HashMap<>();
+        for(int i=0;i<pois.size();i++){
+            String poi=pois.elementAt(i);
+            JSONObject obj=JSONObject.fromObject(poi);
+
+            JSONObject result=new JSONObject();
+            int blockVaule=obj.getInt("blockVaule");
+            JSONObject ht=obj.getJSONObject("ht");
+            JSONObject Area=ht.getJSONObject("area");
+            double area=Area.getDouble("average");
+            JSONObject Price=ht.getJSONObject("price");
+            double price=Price.getDouble("average");
+            JSONObject Unitprice=ht.getJSONObject("unitprice");
+            double unitprice=Unitprice.getDouble("average");
+            String houseType=ht.getString("houseType");
+            if(houseType.contains("厨")){
+                int index=houseType.indexOf("厨");
+                houseType=houseType.substring(0,index-1)+houseType.substring(index+1);
+            }
+            JSONObject coor=obj.getJSONObject("coor");
+            String range=priceRange(price);
+
+            result.put("range",range);
+            result.put("blockVaule",blockVaule);
+            result.put("price",price);
+            result.put("area",area);
+            result.put("unitprice",unitprice);
+            result.put("houseType",houseType);
+            result.put("coor",coor);
+
+            if(ht_nums.containsKey(houseType)){
+                int num=ht_nums.get(houseType);
+                ht_nums.put(houseType,++num);
+            }else {
+                ht_nums.put(houseType,1);
+            }
+
+            if(pr_nums.containsKey(range)){
+                int num=pr_nums.get(range);
+                pr_nums.put(range,++num);
+            }else {
+                pr_nums.put(range,1);
+            }
+
+            FileTool.Dump(result.toString(),storefile,"utf-8");
+        }
+
+        List<JSONObject> ht_list=new ArrayList<>();
+        for(Map.Entry<String,Integer> entry:ht_nums.entrySet()){
+            String key=entry.getKey();
+            int value=entry.getValue();
+            JSONObject o=new JSONObject();
+            o.put("ht",key);
+            o.put("num",value);
+            ht_list.add(o);
+        }
+        List<JSONObject> pr_list=new ArrayList<>();
+        for(Map.Entry<String,Integer> entry:pr_nums.entrySet()){
+            String key=entry.getKey();
+            int value=entry.getValue();
+            JSONObject o=new JSONObject();
+            o.put("pr",key);
+            o.put("num",value);
+            pr_list.add(o);
+        }
+
+        Collections.sort(ht_list, new JsonListCompare.numComparator());
+        Collections.sort(pr_list, new JsonListCompare.numComparator());
+
+        for(int i=0;i<ht_list.size();i++){
+            FileTool.Dump(ht_list.get(i).toString(),storefile.replace(".txt","_户型统计.txt"),"utf-8");
+        }
+        for(int i=0;i<pr_list.size();i++){
+            FileTool.Dump(pr_list.get(i).toString(),storefile.replace(".txt","_价格统计.txt"),"utf-8");
+        }
+    }
+    public static String priceRange(double price){
+        String range="";
+        if(price<=100){
+            range="50";
+        }else if(100<price&&price<=200){
+            range="100";
+        }else if(200<price&&price<=300){
+            range="200";
+        }else if(300<price&&price<=400){
+            range="300";
+        }else if(400<price&&price<=500){
+            range="400";
+        }else if(500<price&&price<=600){
+            range="500";
+        }else if(600<price&&price<=700){
+            range="600";
+        }else if(700<price&&price<=800){
+            range="700";
+        }else if(800<price&&price<=900){
+            range="800";
+        }else if(900<price&&price<=1000){
+            range="900";
+        }else if(1000<price&&price<=1500){
+            range="1000";
+        }else if(1500<price){
+            range="1500";
+        }
+        return range;
+    }
+
+    //8.按照总价区间对区块进行分类
+    public static void classifyByPrice(String sourcefile,String storefile){
+        Vector<String> pois=FileTool.Load(sourcefile,"utf-8");
+        for(int i=0;i<pois.size();i++){
+            String poi=pois.elementAt(i);
+            JSONObject obj=JSONObject.fromObject(poi);
+            String range=obj.getString("range");
+
+            if(range.equals("50")){
+                FileTool.Dump(obj.toString(),storefile+"50.txt","utf-8");
+            }else if(range.equals("100")){
+                FileTool.Dump(obj.toString(),storefile+"100.txt","utf-8");
+            }else if(range.equals("200")){
+                FileTool.Dump(obj.toString(),storefile+"200.txt","utf-8");
+            }else if(range.equals("300")){
+                FileTool.Dump(obj.toString(),storefile+"300.txt","utf-8");
+            }else if(range.equals("400")){
+                FileTool.Dump(obj.toString(),storefile+"400.txt","utf-8");
+            }else if(range.equals("500")){
+                FileTool.Dump(obj.toString(),storefile+"500.txt","utf-8");
+            }else if(range.equals("600")){
+                FileTool.Dump(obj.toString(),storefile+"600.txt","utf-8");
+            }else if(range.equals("700")){
+                FileTool.Dump(obj.toString(),storefile+"700.txt","utf-8");
+            }else if(range.equals("800")){
+                FileTool.Dump(obj.toString(),storefile+"800.txt","utf-8");
+            }else if(range.equals("900")){
+                FileTool.Dump(obj.toString(),storefile+"900.txt","utf-8");
+            }else if(range.equals("1000")){
+                FileTool.Dump(obj.toString(),storefile+"1000.txt","utf-8");
+            }else if(range.equals("1500")){
+                FileTool.Dump(obj.toString(),storefile+"1500.txt","utf-8");
+            }
+        }
+    }
+
+    //9.按照户型种类进行分类
+    public static void classifyByHouseType(String sourcefile,String huxing,String storefile){
+        Vector<String> hxs=FileTool.Load(huxing,"utf-8");
+        Map<String,String> hx_map=new HashMap<>();
+        for(int i=0;i<11;i++){
+            String hx=hxs.elementAt(i);
+            JSONObject obj=JSONObject.fromObject(hx);
+            String ht=obj.getString("ht");
+            hx_map.put(ht,"");
+        }
+
+        Vector<String> pois=FileTool.Load(sourcefile,"utf-8");
+        for(int i=0;i<pois.size();i++){
+            String poi=pois.elementAt(i);
+            JSONObject obj=JSONObject.fromObject(poi);
+            String houseType=obj.getString("houseType");
+            if(hx_map.containsKey(houseType)){
+                FileTool.Dump(poi,storefile+houseType+".txt","utf-8");
+            }else {
+                FileTool.Dump(poi,storefile+"其他户型.txt","utf-8");
+            }
+        }
+    }
+
+    //10.生成静态文件
+    public static void staticFile(String file){
+        Vector<String> pois=FileTool.Load(file,"utf-8");
+        JSONArray array=new JSONArray();
+        for(int i=0;i<pois.size();i++){
+            String poi=pois.elementAt(i);
+            array.add(poi);
+        }
+        FileTool.Dump(array.toString(),file.replace(".txt",""),"utf-8");
     }
 }
