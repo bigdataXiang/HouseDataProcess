@@ -32,8 +32,8 @@ public class ReadExcel {
             readExcel(files.elementAt(i));
         }*/
 
-        String path="D:\\能源所\\";
-        readExcel(path+"四省主体功能区数据汇总.xlsx");
+        String path="D:\\能源所\\找到所属市数据\\";
+        readExcel(path+"全国主体功能区数据汇总_修改.xlsx");
 
         /*readExcel(path+"国家级开发城镇in国家级重点生态功能区.xlsx");
         readExcel(path+"国家级开发城镇in省级重点生态功能区.xlsx");
@@ -89,9 +89,10 @@ public class ReadExcel {
                         cell_value=row.getCell(i);
                         if(cell_value!=null){
                             obj.put(names.get(i),cell_value.toString());
+                        }else {
+                            obj.put(names.get(i),"");
                         }
                     }
-                    //System.out.println(obj);
                     FileTool.Dump(obj.toString().replace(" ",""),fileName.replace(".xlsx","").replace(".xls","")+"_json.txt","utf-8");
                 }
             }

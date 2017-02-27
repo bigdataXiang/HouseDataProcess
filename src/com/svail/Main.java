@@ -41,7 +41,7 @@ public class Main {
                 path+"小区价格曲线运行记录_plus.txt");
         System.out.println("ok");*/
 
-        String sourcepath="D:\\1_paper\\Investment model\\1-有效栅格\\201611\\";
+        /*String sourcepath="D:\\1_paper\\Investment model\\1-有效栅格\\201611\\";
         String storepath="D:\\1_paper\\Investment model\\3-栅格的主要户型\\201611\\";
         DBCollection coll= db.getDB("paper").getCollection("GridData_Resold_gd");
         for(int i=1;i<=21;i++){
@@ -50,7 +50,9 @@ public class Main {
             }catch (NullPointerException e){
                 e.getStackTrace();
             }
-        }
+        }*/
+
+        gaode();
     }
 
     public static void temp(String file){
@@ -105,9 +107,9 @@ public class Main {
         String[] keys={"station"};//"address","name","community"
         addressMatch_GaoDe(0,keys,path,names[18].replace(".txt","_json.txt"),"北京","0e0926480b9a9118fb2b9d3238a20ce1");
 */
-        String path="D:\\paper\\relative\\201507\\公园绿地\\";
-        String[] keys={"NAME"};//"address","name","community",,"school"
-        addressMatch_GaoDe(0,keys,path,"公园绿地_region_json_去重.txt","北京","0e0926480b9a9118fb2b9d3238a20ce1");
+        String path="D:\\能源所\\找到所属市数据\\";
+        String[] keys={"所属省","所属市","区县名称"};//"address","name","community",,"school"
+        addressMatch_GaoDe(530,keys,path,"全国主体功能区数据汇总_修改_json.txt","","0e0926480b9a9118fb2b9d3238a20ce1");
 
         //String filename="昌平区小学_json_高德解析信息_再次匹配.txt";
 

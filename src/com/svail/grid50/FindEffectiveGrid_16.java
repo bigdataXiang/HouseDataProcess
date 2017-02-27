@@ -130,18 +130,23 @@ public class FindEffectiveGrid_16 {
 
         String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
                 "201605","201606","201607","201608","201609","201610","201611"};
-        String[] values={"50","100","200","300","400","500","600","700","800","900","1000","1500"};
+        //String[] values={"50","100","200","300","400","500","600","700","800","900","1000","1500"};
+        String[] values={"其他户型"};//"2室1厅1卫","1室1厅1卫","3室2厅2卫","3室1厅1卫","2室2厅1卫","2室2厅2卫","4室2厅2卫","3室2厅1卫","4室2厅3卫","1室0厅0卫","1室1厅0卫","3室2厅3卫","1室0厅1卫","3室1厅2卫",
+
         for(int m=0;m<dates.length;m++) {
             String date = dates[m];
+            String path="D:\\1_paper\\Investment model\\8-按照户型类型分类\\"+date+"\\";
             System.out.println(date);
             try {
                 for(int n=0;n<values.length;n++){
-                    staticFile("");
+                    String value=values[n];
+                    staticFile(path+value+".txt",value);
                 }
             } catch (NullPointerException e) {
                 e.getStackTrace();
             }
         }
+
 
 
     }
@@ -554,13 +559,13 @@ public class FindEffectiveGrid_16 {
     }
 
     //10.生成静态文件
-    public static void staticFile(String file){
+    public static void staticFile(String file,String value){
         Vector<String> pois=FileTool.Load(file,"utf-8");
         JSONArray array=new JSONArray();
         for(int i=0;i<pois.size();i++){
             String poi=pois.elementAt(i);
             array.add(poi);
         }
-        FileTool.Dump(array.toString(),file.replace(".txt",""),"utf-8");
+        FileTool.Dump(array.toString(),file.replace(value+".txt","polygon_"+value),"utf-8");
     }
 }

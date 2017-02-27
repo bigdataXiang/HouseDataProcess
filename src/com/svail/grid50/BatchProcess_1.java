@@ -538,16 +538,23 @@ public class BatchProcess_1 {
                                     JSONArray array=matchResult.getJSONArray("geocodes");
                                     if(array.size()!=0){
                                         JSONObject geocodes=array.getJSONObject(0);
+                                        //System.out.println(geocodes);
 
                                         String formatted_address=geocodes.getString("formatted_address");
-                                        String district=geocodes.getString("district");
                                         String[] location=geocodes.getString("location").split(",");
                                         double lng=Double.parseDouble(location[0]);
                                         double lat=Double.parseDouble(location[1]);
                                         String level=geocodes.getString("level");
+                                        String adcode=geocodes.getString("adcode");
+                                        String province=geocodes.getString("province");
+                                        String city1=geocodes.getString("city");
+                                        String district=geocodes.getString("district");
 
-                                        source.put("formatted_address",formatted_address);
+                                        source.put("adcode",adcode);
+                                        source.put("province",province);
+                                        source.put("city",city);
                                         source.put("district",district);
+                                        source.put("formatted_address",formatted_address);
                                         source.put("lng_gd",lng);
                                         source.put("lat_gd",lat);
                                         source.put("level",level);
