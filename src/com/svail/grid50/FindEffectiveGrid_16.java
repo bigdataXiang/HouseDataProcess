@@ -173,7 +173,7 @@ public class FindEffectiveGrid_16 {
             }
         }*/
 
-        //9_计算首付,计算不同首付下对应的总价，并进行对比
+        /*//9_计算首付,计算不同首付下对应的总价，并进行对比
         double[] ratios={0.35,0.4,0.5,0.7};
 
         String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
@@ -184,7 +184,7 @@ public class FindEffectiveGrid_16 {
         for(int m=0;m<dates.length;m++) {
             String date = dates[m];
             String sourcepath="D:\\1_paper\\Investment model\\7-按照总价区间分类\\"+date+"\\";
-            String storepath="D:\\1_paper\\Investment model\\9_计算首付\\"+date+"\\";
+            String storepath="D:\\1_paper\\Investment model\\9_计算首付\\";
             System.out.println(date);
             try {
                 for(int n=0;n<values.length;n++){
@@ -192,6 +192,22 @@ public class FindEffectiveGrid_16 {
                     System.out.println(value);
                     downPayments(ratios,sourcepath+value+".txt",storepath+date+".txt");
                 }
+            } catch (NullPointerException e) {
+                e.getStackTrace();
+            }
+        }*/
+
+
+        //10_统计数据的极值和分布
+        String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
+                "201605","201606","201607","201608","201609","201610","201611"};
+        for(int m=0;m<dates.length;m++) {
+            String date = dates[m];
+            String sourcepath="D:\\1_paper\\Investment model\\9_计算首付\\";
+            String storepath="D:\\1_paper\\Investment model\\10_统计数据的极值和分布\\";
+            System.out.println(date);
+            try {
+                characteristicStatistics(sourcepath+date+".txt",storepath);
             } catch (NullPointerException e) {
                 e.getStackTrace();
             }
@@ -636,7 +652,7 @@ public class FindEffectiveGrid_16 {
     //计算不同首付比率下的价格对比
 
     /**
-     *
+     *11.计算首付
      * @param ratios
      * @param sourefile
      * @param storefile
@@ -684,9 +700,86 @@ public class FindEffectiveGrid_16 {
             obj.put("up50",up50);
             obj.put("up70",up70);
 
-            //统计每个阶段的数据的个数和极值
+
 
             FileTool.Dump(obj.toString(),storefile,"utf-8");
         }
+
     }
+
+    //统计极值和各区间值
+    public static void characteristicStatistics(String sourcefile,String storefile){
+
+        Vector<String> pois=FileTool.Load(sourcefile,"utf-8");
+        List<Double> list_downpay_35=new ArrayList<>();
+        List<Double> list_downpay_40=new ArrayList<>();
+        List<Double> list_downpay_50=new ArrayList<>();
+        List<Double> list_downpay_70=new ArrayList<>();
+        List<Double> list_up40=new ArrayList<>();
+        List<Double> list_up50=new ArrayList<>();
+        List<Double> list_up70=new ArrayList<>();
+
+        Map<String,Integer> map_downpay_35=new HashMap<>();
+        Map<String,Integer> map_downpay_40=new HashMap<>();
+        Map<String,Integer> map_downpay_50=new HashMap<>();
+        Map<String,Integer> map_downpay_70=new HashMap<>();
+        Map<String,Integer> map_list_up40=new HashMap<>();
+        Map<String,Integer> map_list_up50=new HashMap<>();
+        Map<String,Integer> map_list_up70=new HashMap<>();
+        for(int i=0;i<pois.size();i++){
+            String poi=pois.elementAt(i);
+            JSONObject obj=JSONObject.fromObject(poi);
+
+            double downpay_35=obj.getDouble("downpay_35");
+            list_downpay_35.add(downpay_35);
+            String threshold=priceRange(downpay_35);
+
+            if(map_downpay_35.containsKey(threshold)){
+                int num=map_downpay_35.get(threshold);
+                map_downpay_35.put(threshold,++num);
+            }else {
+                map_downpay_35.put(threshold,1);
+            }
+
+            double downpay_40=obj.getDouble("downpay_40");
+            list_downpay_40.add(downpay_40);
+
+            double downpay_50=obj.getDouble("downpay_50");
+            list_downpay_50.add(downpay_50);
+
+            double downpay_70=obj.getDouble("downpay_70");
+            list_downpay_70.add(downpay_70);
+
+            double up40=obj.getDouble("up40");
+            list_up40.add(up40);
+
+            double up50=obj.getDouble("up50");
+            list_up50.add(up50);
+
+            double up70=obj.getDouble("up70");
+            list_up70.add(up70);
+        }
+        System.out.println(Collections.max(list_downpay_35));
+        System.out.println(Collections.min(list_downpay_35));
+
+        System.out.println(Collections.max(list_downpay_40));
+        System.out.println(Collections.min(list_downpay_40));
+
+        System.out.println(Collections.max(list_downpay_50));
+        System.out.println(Collections.min(list_downpay_50));
+
+        System.out.println(Collections.max(list_downpay_70));
+        System.out.println(Collections.min(list_downpay_70));
+
+        System.out.println(Collections.max(list_up40));
+        System.out.println(Collections.min(list_up40));
+
+        System.out.println(Collections.max(list_up50));
+        System.out.println(Collections.min(list_up50));
+
+        System.out.println(Collections.max(list_up70));
+        System.out.println(Collections.min(list_up70));
+    }
+
+
 }
