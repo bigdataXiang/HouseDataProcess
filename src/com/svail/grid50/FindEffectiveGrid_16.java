@@ -189,6 +189,7 @@ public class FindEffectiveGrid_16 {
             try {
                 for(int n=0;n<values.length;n++){
                     String value=values[n];
+                    System.out.println(value);
                     downPayments(ratios,sourcepath+value+".txt",storepath+date+".txt");
                 }
             } catch (NullPointerException e) {
@@ -682,6 +683,8 @@ public class FindEffectiveGrid_16 {
             obj.put("up40",up40);
             obj.put("up50",up50);
             obj.put("up70",up70);
+
+            //统计每个阶段的数据的个数和极值
 
             FileTool.Dump(obj.toString(),storefile,"utf-8");
         }
