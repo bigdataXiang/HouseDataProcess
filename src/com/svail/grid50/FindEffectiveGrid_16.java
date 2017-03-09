@@ -21,12 +21,18 @@ import java.util.*;
 public class FindEffectiveGrid_16 {
     public static void main(String[] args){
 
-        /*gridToMap("D:\\1_paper\\Investment model\\2-mongodb中的所有格网\\格网编码.txt");
+        /*String storepath="D:\\1_paper\\Investment model\\2-mongodb中的所有格网\\";
+        findGridFromMongo(storepath+"格网编码.txt");*/
 
-        String[] dates={"201509","201510","201511","201512","201601","201602","201603","201604",
+
+        /*
+        //1-有效栅格
+        gridToMap("D:\\1_paper\\Investment model\\2-mongodb中的所有格网\\格网编码.txt");
+
+        String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
                 "201605","201606","201607","201608","201609","201610","201611"};
-        for(int m=1;m<dates.length;m++){
-            String sourcepath="D:\\1_paper\\relative\\"+dates[m]+"\\";
+        for(int m=0;m<1;m++){//dates.length
+            String sourcepath="D:\\1_paper\\rerun\\"+dates[m]+"\\";
             String storepath="D:\\1_paper\\Investment model\\1-有效栅格\\"+dates[m]+"\\";
             for(int i=1;i<=21;i++){
                 try{
@@ -40,20 +46,26 @@ public class FindEffectiveGrid_16 {
         }*/
 
 
-        /*String storepath="D:\\1_paper\\Investment model\\2-mongodb中的所有格网\\";
-        findGridFromMongo(storepath+"格网编码.txt");*/
 
-        /*String sourcepath="D:\\1_paper\\Investment model\\1-有效栅格\\201507\\";
-        String storepath="D:\\1_paper\\Investment model\\3-栅格的主要户型\\201507\\";
+
+
+        /*
+        //3-栅格的主要户型
+        String year="2015";
+        String month="07";
+        String sourcepath="D:\\1_paper\\Investment model\\1-有效栅格\\"+year+month+"\\";
+        String storepath="D:\\1_paper\\Investment model\\3-栅格的主要户型\\"+year+month+"\\";
         DBCollection coll= db.getDB("paper").getCollection("GridData_Resold_gd");
-        for(int i=2;i<=21;i++){
-            findHouseType(sourcepath+"等值线_"+i+".txt",storepath+"等值线_"+i+".txt",coll,"2015","07");
+        for(int i=1;i<=21;i++){
+            System.out.println(i);
+            findHouseType(sourcepath+"等值线_"+i+".txt",storepath+"等值线_"+i+".txt",coll,year,month);
         }*/
 
 
-        /*String[] dates={"201511","201512","201601","201602","201603","201604",
+/*        //4-确定栅格唯一户型
+        String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
                 "201605","201606","201607","201608","201609","201610","201611"};
-        for(int m=0;m<dates.length;m++){
+        for(int m=0;m<1;m++){//dates.length
             String date=dates[m];
             for(int i=1;i<=21;i++){
                 try{
@@ -67,9 +79,11 @@ public class FindEffectiveGrid_16 {
         }*/
 
 
-        /*String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
+
+        /*//5-找到每个户型区块对应的坐标串
+        String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
                 "201605","201606","201607","201608","201609","201610","201611"};
-        for(int m=6;m<dates.length;m++) {
+        for(int m=0;m<1;m++) {//dates.length
             String date = dates[m];
             System.out.println(date);
             for (int i = 1; i <= 21; i++) {
@@ -77,18 +91,20 @@ public class FindEffectiveGrid_16 {
                     System.out.println(i+":");
                     houseType_Coordinate(i,
                             "D:\\1_paper\\Investment model\\4-确定栅格唯一户型\\"+date+"\\等值线_"+i+"_最大比率户型.txt",
-                            "D:\\1_paper\\relative\\"+date+"\\坐标串_"+i+".txt",
+                            "D:\\1_paper\\rerun\\"+date+"\\坐标串_"+i+".txt",
                             "D:\\1_paper\\Investment model\\5-找到每个户型区块对应的坐标串\\"+date+".txt");
-
                 } catch (NullPointerException e) {
                     e.getStackTrace();
                 }
             }
         }*/
 
-        /*String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
+
+
+        /*//6-精简统计数据,这一步要做改进，有些区块单价太便宜，一看就是有问题的，要将这些区块的单价用区块值代替
+        String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
                 "201605","201606","201607","201608","201609","201610","201611"};
-        for(int m=1;m<dates.length;m++) {
+        for(int m=0;m<1;m++) {//dates.length
             String date = dates[m];
             System.out.println(date);
             try {
@@ -99,9 +115,11 @@ public class FindEffectiveGrid_16 {
             }
         }*/
 
-        /*String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
+        /*
+        //7-按照总价区间分类
+        String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
                 "201605","201606","201607","201608","201609","201610","201611"};
-        for(int m=0;m<dates.length;m++) {
+        for(int m=0;m<1;m++) {//dates.length
             String date = dates[m];
             System.out.println(date);
             try {
@@ -113,9 +131,11 @@ public class FindEffectiveGrid_16 {
         }*/
 
 
-        /*String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
+        /*
+        //8-按照户型类型分类
+        String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
                 "201605","201606","201607","201608","201609","201610","201611"};
-        for(int m=0;m<dates.length;m++) {
+        for(int m=0;m<1;m++) {//dates.length
             String date = dates[m];
             System.out.println(date);
             try {
@@ -128,14 +148,20 @@ public class FindEffectiveGrid_16 {
         }*/
 
 
+        /*//转换成静态文件
         String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
                 "201605","201606","201607","201608","201609","201610","201611"};
-        //String[] values={"50","100","200","300","400","500","600","700","800","900","1000","1500"};
-        String[] values={"其他户型"};//"2室1厅1卫","1室1厅1卫","3室2厅2卫","3室1厅1卫","2室2厅1卫","2室2厅2卫","4室2厅2卫","3室2厅1卫","4室2厅3卫","1室0厅0卫","1室1厅0卫","3室2厅3卫","1室0厅1卫","3室1厅2卫",
+
+        String[] values={"50","100","200","300","400","500","600","700","800","900","1000","1500"};
+        //String[] values={"其他户型"};
+
+        //7-按照总价区间分类
+        //8-按照户型类型分类
+        String folderName="7-按照总价区间分类";
 
         for(int m=0;m<dates.length;m++) {
             String date = dates[m];
-            String path="D:\\1_paper\\Investment model\\8-按照户型类型分类\\"+date+"\\";
+            String path="D:\\1_paper\\Investment model\\"+folderName+"\\"+date+"\\";
             System.out.println(date);
             try {
                 for(int n=0;n<values.length;n++){
@@ -145,9 +171,10 @@ public class FindEffectiveGrid_16 {
             } catch (NullPointerException e) {
                 e.getStackTrace();
             }
-        }
+        }*/
 
-
+        //计算不同首付下对应的总价，并进行对比
+        //double[] ratios={0.35,0.4,0.5,0.7};
 
     }
 
@@ -163,7 +190,7 @@ public class FindEffectiveGrid_16 {
             obj=JSONObject.fromObject(poi);
             it=obj.keys();
 
-            System.out.println(i+":"+obj.size());
+            //System.out.println(i+":"+obj.size());
             JSONArray array=new JSONArray();
             while (it.hasNext()){
                 key=it.next();
@@ -171,6 +198,7 @@ public class FindEffectiveGrid_16 {
                     array.add(key);
                 }
             }
+
             FileTool.Dump(array.toString(),storefile,"utf-8");
         }
     }
@@ -212,6 +240,7 @@ public class FindEffectiveGrid_16 {
     }
 
     //4.挑选出每个栅格每个月份中的主打户型及其附属的面积、价格信息
+    //发现主打户型不一定代表该区域的价格，因此取最大均价试试
     public static void findHouseType(String sourcefile,String storefile,DBCollection coll,String year,String month){
         Vector<String> codes=FileTool.Load(sourcefile,"utf-8");
         JSONArray codearray;
@@ -243,18 +272,23 @@ public class FindEffectiveGrid_16 {
                                     String housetype=it.next();
                                     JSONObject ht=type.getJSONObject(housetype);
                                     //System.out.println(ht);
-                                    if(ht.containsKey("ratio")){
-                                        ratio=ht.getDouble("ratio");
+                                    if(ht.containsKey("unitprice")){//这里将ratio改成了unitprice
+                                        JSONObject up=ht.getJSONObject("unitprice");
+                                        ratio=up.getDouble("average");
                                         ratios.add(ratio);
+                                        //System.out.println(ratio);
                                     }
                                 }
 
                                 double max_ratio=Collections.max(ratios);
+                                //System.out.println(max_ratio);
                                 it=type.keys();
                                 while (it.hasNext()){
                                     String housetype=it.next();
                                     JSONObject ht=type.getJSONObject(housetype);
-                                    double r=ht.getDouble("ratio");
+                                    //System.out.println(ht);
+                                    JSONObject ut=ht.getJSONObject("unitprice");//这里将ratio换成unitprice的比较
+                                    double r=ut.getDouble("average");
                                     if(r==max_ratio){
                                         ht.put("houseType",housetype);
                                         result.put(code,ht);
@@ -339,7 +373,7 @@ public class FindEffectiveGrid_16 {
                         for(int j=0;j<array1.size();j++){
                             String code=array1.getString(j);
                             JSONObject o=code_json.get(code);
-                            JSONObject p=o.getJSONObject("price");
+                            JSONObject p=o.getJSONObject("unitprice");//这里将price改成unitprice
                             double price=p.getDouble("average");
                             price_code.put(price,code);
                             blockprice.add(price);
@@ -348,8 +382,8 @@ public class FindEffectiveGrid_16 {
                         totalprice.add(min);
                     }
                 }
-                //相同权重的几个户型中，总价最低者为投资门槛
-                double minprice=Collections.min(totalprice);
+                //相同权重的几个户型中，单价最高者为投资门槛，主要是为了避免很多值
+                double minprice=Collections.max(totalprice);
                 String indexcode=price_code.get(minprice);
                 JSONObject indexjson=code_json.get(indexcode);
 
@@ -398,14 +432,21 @@ public class FindEffectiveGrid_16 {
             JSONObject obj=JSONObject.fromObject(poi);
 
             JSONObject result=new JSONObject();
-            int blockVaule=obj.getInt("blockVaule");
+
             JSONObject ht=obj.getJSONObject("ht");
             JSONObject Area=ht.getJSONObject("area");
             double area=Area.getDouble("average");
-            JSONObject Price=ht.getJSONObject("price");
-            double price=Price.getDouble("average");
+
+
             JSONObject Unitprice=ht.getJSONObject("unitprice");
             double unitprice=Unitprice.getDouble("average");
+            int blockVaule=obj.getInt("blockVaule");
+            double differ=blockVaule-unitprice;
+            if(differ>1){
+                unitprice=blockVaule;
+            }
+            double price=unitprice*area;
+
             String houseType=ht.getString("houseType");
             if(houseType.contains("厨")){
                 int index=houseType.indexOf("厨");
@@ -567,5 +608,52 @@ public class FindEffectiveGrid_16 {
             array.add(poi);
         }
         FileTool.Dump(array.toString(),file.replace(value+".txt","polygon_"+value),"utf-8");
+    }
+
+
+    //计算不同首付比率下的价格对比
+    public static void downPayments(double[] ratios,String sourefile,String storefile){
+        Vector<String> pois=FileTool.Load(sourefile,"utf-8");
+        double downpay=0;
+        double deedtax=0;
+        double serve=0;
+        double valuation=0;
+        for(int i=0;i<pois.size();i++){
+            String poi=pois.elementAt(i);
+            JSONObject obj=JSONObject.fromObject(poi);
+            double price=obj.getDouble("price");
+
+            for(int j=0;j<ratios.length;j++){
+                double ratio=ratios[j];
+                //契税按照最高来算
+                deedtax=0.03*price;
+                //评估价按成交价的80%计算
+                valuation=0.8*price;
+                //服务费按照成交价的2.7%计算
+                serve=0.027*price;
+
+                downpay=(price+deedtax+serve)-valuation*(1-ratio);
+
+                //0.35,0.4,0.5,0.7
+                if(ratio==0.35){
+                    obj.put("downpay_35",downpay);
+                }else if(ratio==0.4){
+                    obj.put("downpay_40",downpay);
+                }else if(ratio==0.5){
+                    obj.put("downpay_50",downpay);
+                }else if(ratio==0.7){
+                    obj.put("downpay_70",downpay);
+                }
+            }
+
+            //计算首付变化后要多交多少钱
+            double up40=obj.getDouble("downpay_40")-obj.getDouble("downpay_35");
+            double up50=obj.getDouble("downpay_50")-obj.getDouble("downpay_35");
+            double up70=obj.getDouble("downpay_70")-obj.getDouble("downpay_35");
+
+
+
+            FileTool.Dump(obj.toString(),storefile,"utf-8");
+        }
     }
 }

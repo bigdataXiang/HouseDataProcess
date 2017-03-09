@@ -3,6 +3,7 @@ package com.svail;
 import com.mongodb.DBCollection;
 import com.svail.grid50.util.db;
 import com.svail.util.FileTool;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
@@ -52,7 +53,24 @@ public class Main {
             }
         }*/
 
-        gaode();
+        //gaode();
+
+        staticFile("D:\\1_paper\\poi资料\\小区\\小区地理编码原始数据\\最后结果\\校对结果\\北京所有小区匹配数据汇总_拷贝.txt");
+    }
+    public static void staticFile(String file){
+        Vector<String> pois=FileTool.Load(file,"utf-8");
+        JSONArray array=new JSONArray();
+        for(int i=0;i<pois.size();i++){
+            System.out.println(i);
+            String poi=pois.elementAt(i);
+            JSONObject obj=JSONObject.fromObject(poi);
+            JSONObject o=new JSONObject();
+            o.put("community",obj.getString("community"));
+            o.put("lng_gd",obj.getDouble("lng_gd"));
+            o.put("lat_gd",obj.getDouble("lat_gd"));
+            array.add(o);
+        }
+        FileTool.Dump(array.toString(),file.replace(".txt","_array.txt"),"utf-8");
     }
 
     public static void temp(String file){

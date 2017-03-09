@@ -4,7 +4,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.svail.grid50.util.db;
-import com.svail.grid50.util.db168;
+import com.svail.grid50.util.dbip;
 import com.svail.util.FileTool;
 import net.sf.json.JSONObject;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -17,7 +17,6 @@ import java.io.*;
 import java.util.*;
 
 import static com.svail.grid50.ContourLine_10.getAnglesCoor;
-import static com.svail.grid50.ContourLine_10.priceBlock;
 import static com.svail.grid50.util.RowColCalculation.Code_RowCol;
 
 /**
@@ -166,7 +165,7 @@ public class GridAcceleration_12 {
     public static void priceMatrix(String path,int year,int month){
 
         Map<Integer,Double> code_price=new HashMap<>();
-        DBCollection coll= db168.getDB("paper").getCollection("GridData_Resold_gd_Interpolation");
+        DBCollection coll= db.getDB("paper").getCollection("GridData_Resold_gd_Interpolation");
         BasicDBObject document=new BasicDBObject();
         document.put("year",year);
         document.put("month",month);
