@@ -173,8 +173,29 @@ public class FindEffectiveGrid_16 {
             }
         }*/
 
-        //计算不同首付下对应的总价，并进行对比
-        //double[] ratios={0.35,0.4,0.5,0.7};
+        //9_计算首付,计算不同首付下对应的总价，并进行对比
+        double[] ratios={0.35,0.4,0.5,0.7};
+
+        String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
+                "201605","201606","201607","201608","201609","201610","201611"};
+
+        String[] values={"50","100","200","300","400","500","600","700","800","900","1000","1500"};
+
+        for(int m=0;m<dates.length;m++) {
+            String date = dates[m];
+            String sourcepath="D:\\1_paper\\Investment model\\7-按照总价区间分类\\"+date+"\\";
+            String storepath="D:\\1_paper\\Investment model\\9_计算首付\\"+date+"\\";
+            System.out.println(date);
+            try {
+                for(int n=0;n<values.length;n++){
+                    String value=values[n];
+                    downPayments(ratios,sourcepath+value+".txt",storepath+date+".txt");
+                }
+            } catch (NullPointerException e) {
+                e.getStackTrace();
+            }
+        }
+
 
     }
 
@@ -612,6 +633,13 @@ public class FindEffectiveGrid_16 {
 
 
     //计算不同首付比率下的价格对比
+
+    /**
+     *
+     * @param ratios
+     * @param sourefile
+     * @param storefile
+     */
     public static void downPayments(double[] ratios,String sourefile,String storefile){
         Vector<String> pois=FileTool.Load(sourefile,"utf-8");
         double downpay=0;
@@ -651,7 +679,9 @@ public class FindEffectiveGrid_16 {
             double up50=obj.getDouble("downpay_50")-obj.getDouble("downpay_35");
             double up70=obj.getDouble("downpay_70")-obj.getDouble("downpay_35");
 
-
+            obj.put("up40",up40);
+            obj.put("up50",up50);
+            obj.put("up70",up70);
 
             FileTool.Dump(obj.toString(),storefile,"utf-8");
         }
