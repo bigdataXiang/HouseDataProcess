@@ -174,7 +174,8 @@ public class FindEffectiveGrid_16 {
         }*/
 
         /*//9_计算首付,计算不同首付下对应的总价，并进行对比
-        double[] ratios={0.35,0.4,0.5,0.7};
+        //设置当前首付比率为35%，考虑首付比率上调或下调造成的影响
+        double[] ratios={0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8};
 
         String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
                 "201605","201606","201607","201608","201609","201610","201611"};
@@ -198,22 +199,35 @@ public class FindEffectiveGrid_16 {
         }*/
 
 
-        //10_统计数据的极值和分布
+        /*//10_统计数据的极值和分布
         String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
                 "201605","201606","201607","201608","201609","201610","201611"};
         for(int m=0;m<dates.length;m++) {
             String date = dates[m];
             String sourcepath="D:\\1_paper\\Investment model\\9_计算首付\\";
-            String storepath="D:\\1_paper\\Investment model\\10_统计数据的极值和分布\\";
+            String storepath="D:\\1_paper\\Investment model\\10_统计数据的极值和分布\\"+date+"\\";
             System.out.println(date);
             try {
                 characteristicStatistics(sourcepath+date+".txt",storepath);
             } catch (NullPointerException e) {
                 e.getStackTrace();
             }
+        }*/
+
+        //11_按首付差价划分不同等级
+        String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
+                "201605","201606","201607","201608","201609","201610","201611"};
+        for(int m=0;m<dates.length;m++) {
+            String date = dates[m];
+            String sourcepath="D:\\1_paper\\Investment model\\9_计算首付\\";
+            String storepath="D:\\1_paper\\Investment model\\11_按首付差价划分不同等级\\"+date+"\\";
+            System.out.println(date);
+            try {
+                gradeClassification(sourcepath+date+".txt",storepath);
+            } catch (NullPointerException e) {
+                e.getStackTrace();
+            }
         }
-
-
     }
 
     //1.获取每个月份的每个价格区划下的小区划中的有具体房源的小栅格
@@ -679,26 +693,65 @@ public class FindEffectiveGrid_16 {
 
                 downpay=(price+deedtax+serve)-valuation*(1-ratio);
 
-                //0.35,0.4,0.5,0.7
-                if(ratio==0.35){
+                //0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8
+                if(ratio==0.2){
+                    obj.put("downpay_20",downpay);
+                }else if(ratio==0.25){
+                    obj.put("downpay_25",downpay);
+                }else if(ratio==0.3){
+                    obj.put("downpay_30",downpay);
+                }else if(ratio==0.35){
                     obj.put("downpay_35",downpay);
                 }else if(ratio==0.4){
                     obj.put("downpay_40",downpay);
+                }else if(ratio==0.45){
+                    obj.put("downpay_45",downpay);
                 }else if(ratio==0.5){
                     obj.put("downpay_50",downpay);
+                }else if(ratio==0.55){
+                    obj.put("downpay_55",downpay);
+                }else if(ratio==0.6){
+                    obj.put("downpay_60",downpay);
+                }else if(ratio==0.65){
+                    obj.put("downpay_65",downpay);
                 }else if(ratio==0.7){
                     obj.put("downpay_70",downpay);
+                }else if(ratio==0.75){
+                    obj.put("downpay_75",downpay);
+                }else if(ratio==0.8){
+                    obj.put("downpay_80",downpay);
                 }
             }
 
             //计算首付变化后要多交多少钱
             double up40=obj.getDouble("downpay_40")-obj.getDouble("downpay_35");
+            double up45=obj.getDouble("downpay_45")-obj.getDouble("downpay_35");
             double up50=obj.getDouble("downpay_50")-obj.getDouble("downpay_35");
+            double up55=obj.getDouble("downpay_55")-obj.getDouble("downpay_35");
+            double up60=obj.getDouble("downpay_60")-obj.getDouble("downpay_35");
+            double up65=obj.getDouble("downpay_65")-obj.getDouble("downpay_35");
             double up70=obj.getDouble("downpay_70")-obj.getDouble("downpay_35");
+            double up75=obj.getDouble("downpay_75")-obj.getDouble("downpay_35");
+            double up80=obj.getDouble("downpay_80")-obj.getDouble("downpay_35");
+
+            //对于low而言，绝对值越大表示下降得越多
+            double low20=Math.abs(obj.getDouble("downpay_20")-obj.getDouble("downpay_35"));
+            double low25=Math.abs(obj.getDouble("downpay_25")-obj.getDouble("downpay_35"));
+            double low30=Math.abs(obj.getDouble("downpay_30")-obj.getDouble("downpay_35"));
 
             obj.put("up40",up40);
+            obj.put("up45",up45);
             obj.put("up50",up50);
+            obj.put("up55",up55);
+            obj.put("up60",up60);
+            obj.put("up65",up65);
             obj.put("up70",up70);
+            obj.put("up75",up75);
+            obj.put("up80",up80);
+
+            obj.put("low20",low20);
+            obj.put("low25",low25);
+            obj.put("low30",low30);
 
 
 
@@ -708,78 +761,165 @@ public class FindEffectiveGrid_16 {
     }
 
     //统计极值和各区间值
-    public static void characteristicStatistics(String sourcefile,String storefile){
+    public static void characteristicStatistics(String sourcefile,String storepath){
 
         Vector<String> pois=FileTool.Load(sourcefile,"utf-8");
-        List<Double> list_downpay_35=new ArrayList<>();
-        List<Double> list_downpay_40=new ArrayList<>();
-        List<Double> list_downpay_50=new ArrayList<>();
-        List<Double> list_downpay_70=new ArrayList<>();
-        List<Double> list_up40=new ArrayList<>();
-        List<Double> list_up50=new ArrayList<>();
-        List<Double> list_up70=new ArrayList<>();
+        String[] array={"downpay_20","downpay_25","downpay_30", "downpay_35",
+                "downpay_40","downpay_45","downpay_50","downpay_55","downpay_60",
+                "downpay_65","downpay_70","downpay_75","downpay_80",
+                "up40","up45","up50","up55","up60","up65","up70","up75","up80",
+                "low20","low25","low30"};
 
-        Map<String,Integer> map_downpay_35=new HashMap<>();
-        Map<String,Integer> map_downpay_40=new HashMap<>();
-        Map<String,Integer> map_downpay_50=new HashMap<>();
-        Map<String,Integer> map_downpay_70=new HashMap<>();
-        Map<String,Integer> map_list_up40=new HashMap<>();
-        Map<String,Integer> map_list_up50=new HashMap<>();
-        Map<String,Integer> map_list_up70=new HashMap<>();
-        for(int i=0;i<pois.size();i++){
-            String poi=pois.elementAt(i);
-            JSONObject obj=JSONObject.fromObject(poi);
 
-            double downpay_35=obj.getDouble("downpay_35");
-            list_downpay_35.add(downpay_35);
-            String threshold=priceRange(downpay_35);
+        for(int j=0;j<array.length;j++){
 
-            if(map_downpay_35.containsKey(threshold)){
-                int num=map_downpay_35.get(threshold);
-                map_downpay_35.put(threshold,++num);
-            }else {
-                map_downpay_35.put(threshold,1);
+            String key=array[j];
+            System.out.println(key);
+
+            //由于这两个变量之前放到了上一层，导致数据统计错误
+            List<Double> list_downpay=new ArrayList<>();
+            Map<String,Integer> map_downpay=new HashMap<>();
+
+            for(int i=0;i<pois.size();i++){
+                String poi=pois.elementAt(i);
+                JSONObject obj=JSONObject.fromObject(poi);
+
+                double downpay=obj.getDouble(key);
+                list_downpay.add(downpay);
+                String threshold="";
+                if(key.contains("downpay_")){
+                    threshold=priceRange(downpay);
+                }else if(key.contains("up")||key.contains("low")){
+                    threshold=incrementRange(downpay);
+                }
+
+                if(map_downpay.containsKey(threshold)){
+                    int num=map_downpay.get(threshold);
+                    map_downpay.put(threshold,++num);
+                }else {
+                    map_downpay.put(threshold,1);
+                }
+
             }
 
-            double downpay_40=obj.getDouble("downpay_40");
-            list_downpay_40.add(downpay_40);
+            System.out.println(Collections.max(list_downpay));
+            System.out.println(Collections.min(list_downpay));
 
-            double downpay_50=obj.getDouble("downpay_50");
-            list_downpay_50.add(downpay_50);
-
-            double downpay_70=obj.getDouble("downpay_70");
-            list_downpay_70.add(downpay_70);
-
-            double up40=obj.getDouble("up40");
-            list_up40.add(up40);
-
-            double up50=obj.getDouble("up50");
-            list_up50.add(up50);
-
-            double up70=obj.getDouble("up70");
-            list_up70.add(up70);
+            for(Map.Entry<String,Integer> entry:map_downpay.entrySet()){
+                String k=entry.getKey();
+                int v=entry.getValue();
+                //System.out.println(k+":"+v);
+                FileTool.Dump(k+";"+v,storepath+key+".txt","utf-8");
+            }
         }
-        System.out.println(Collections.max(list_downpay_35));
-        System.out.println(Collections.min(list_downpay_35));
-
-        System.out.println(Collections.max(list_downpay_40));
-        System.out.println(Collections.min(list_downpay_40));
-
-        System.out.println(Collections.max(list_downpay_50));
-        System.out.println(Collections.min(list_downpay_50));
-
-        System.out.println(Collections.max(list_downpay_70));
-        System.out.println(Collections.min(list_downpay_70));
-
-        System.out.println(Collections.max(list_up40));
-        System.out.println(Collections.min(list_up40));
-
-        System.out.println(Collections.max(list_up50));
-        System.out.println(Collections.min(list_up50));
-
-        System.out.println(Collections.max(list_up70));
-        System.out.println(Collections.min(list_up70));
     }
 
+    public static void gradeClassification(String sourcefile,String storepath){
+        String[] array={"downpay_20","downpay_25","downpay_30", "downpay_35",
+                "downpay_40","downpay_45","downpay_50","downpay_55","downpay_60",
+                "downpay_65","downpay_70","downpay_75","downpay_80",
+                "up40","up45","up50","up55","up60","up65","up70","up75","up80",
+                "low20","low25","low30"};
+
+        for(int j=0;j<array.length;j++){
+            String key=array[j];
+            String path=storepath+key+"\\";
+
+            Vector<String> pois=FileTool.Load(sourcefile,"utf-8");
+            for(int i=0;i<pois.size();i++){
+                String poi=pois.elementAt(i);
+                JSONObject o=JSONObject.fromObject(poi);
+                double value=o.getDouble(key);
+
+
+                String range="";
+                if(key.contains("downpay")){
+                    range=priceRange(value);
+                }else if(key.contains("up")||key.contains("low")){
+                    range=incrementRange(value);
+                }
+
+                JSONObject obj=new JSONObject();
+                obj.put(key,value);
+                obj.put("price",o.getDouble("price"));
+                obj.put("area",o.getDouble("area"));
+                obj.put("unitprice",o.getDouble("unitprice"));
+                obj.put("houseType",o.getString("houseType"));
+                obj.put("coor",o.getJSONObject("coor"));
+
+                if(key.contains("downpay")){
+                    if(range.equals("50")){
+                        FileTool.Dump(obj.toString(),path+"50.txt","utf-8");
+                    }else if(range.equals("100")){
+                        FileTool.Dump(obj.toString(),path+"100.txt","utf-8");
+                    }else if(range.equals("200")){
+                        FileTool.Dump(obj.toString(),path+"200.txt","utf-8");
+                    }else if(range.equals("300")){
+                        FileTool.Dump(obj.toString(),path+"300.txt","utf-8");
+                    }else if(range.equals("400")){
+                        FileTool.Dump(obj.toString(),path+"400.txt","utf-8");
+                    }else if(range.equals("500")){
+                        FileTool.Dump(obj.toString(),path+"500.txt","utf-8");
+                    }else if(range.equals("600")){
+                        FileTool.Dump(obj.toString(),path+"600.txt","utf-8");
+                    }else if(range.equals("700")){
+                        FileTool.Dump(obj.toString(),path+"700.txt","utf-8");
+                    }else if(range.equals("800")){
+                        FileTool.Dump(obj.toString(),path+"800.txt","utf-8");
+                    }else if(range.equals("900")){
+                        FileTool.Dump(obj.toString(),path+"900.txt","utf-8");
+                    }else if(range.equals("1000")){
+                        FileTool.Dump(obj.toString(),path+"1000.txt","utf-8");
+                    }else if(range.equals("1500")){
+                        FileTool.Dump(obj.toString(),path+"1500.txt","utf-8");
+                    }
+                }else if(key.contains("up")||key.contains("low")){
+                    if(range.equals("20")){
+                        FileTool.Dump(obj.toString(),path+"20.txt","utf-8");
+                    }else if(range.equals("40")){
+                        FileTool.Dump(obj.toString(),path+"40.txt","utf-8");
+                    }else if(range.equals("60")){
+                        FileTool.Dump(obj.toString(),path+"60.txt","utf-8");
+                    }else if(range.equals("80")){
+                        FileTool.Dump(obj.toString(),path+"80.txt","utf-8");
+                    }else if(range.equals("100")){
+                        FileTool.Dump(obj.toString(),path+"100.txt","utf-8");
+                    }else if(range.equals("150")){
+                        FileTool.Dump(obj.toString(),path+"150.txt","utf-8");
+                    }else if(range.equals("200")){
+                        FileTool.Dump(obj.toString(),path+"200.txt","utf-8");
+                    }else if(range.equals("400")){
+                        FileTool.Dump(obj.toString(),path+"400.txt","utf-8");
+                    }else if(range.equals("401")){
+                        FileTool.Dump(obj.toString(),path+"401.txt","utf-8");
+                    }
+                }
+            }
+        }
+    }
+
+    public static String incrementRange(double price){
+        String range="";
+        if(price<=20){
+            range="20";
+        }else if(20<price&&price<=40){
+            range="40";
+        }else if(40<price&&price<=60){
+            range="60";
+        }else if(60<price&&price<=80){
+            range="80";
+        }else if(80<price&&price<=100){
+            range="100";
+        }else if(100<price&&price<=150){
+            range="150";
+        }else if(150<price&&price<=200){
+            range="200";
+        }else if(200<price&&price<=400){
+            range="400";
+        }else if(400<price){
+            range="401";
+        }
+        return range;
+    }
 
 }
