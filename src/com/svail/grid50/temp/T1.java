@@ -1,15 +1,9 @@
 package com.svail.grid50.temp;
 
-import com.mongodb.DBCollection;
-import com.svail.grid50.util.db;
 import com.svail.util.FileTool;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Vector;
-
-import static com.svail.grid50.FindEffectiveGrid_16.blockHouseType;
-import static com.svail.grid50.FindEffectiveGrid_16.findHouseType;
-import static com.svail.grid50.GridData_Resold_6.initial;
 
 /**
  * Created by ZhouXiang on 2017/1/1.

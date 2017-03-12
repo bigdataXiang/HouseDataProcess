@@ -18,7 +18,7 @@ import java.util.*;
  * 1、获取小区划内的有效栅格数据
  * 2、确定单元栅格内的主打户型
  */
-public class FindEffectiveGrid_16 {
+public class FindEffectiveGrid_17 {
     public static void main(String[] args){
 
         /*String storepath="D:\\1_paper\\Investment model\\2-mongodb中的所有格网\\";
@@ -214,7 +214,7 @@ public class FindEffectiveGrid_16 {
             }
         }*/
 
-        //11_按首付差价划分不同等级
+        /*//11_按首付差价划分不同等级
         String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
                 "201605","201606","201607","201608","201609","201610","201611"};
         for(int m=0;m<dates.length;m++) {
@@ -226,6 +226,65 @@ public class FindEffectiveGrid_16 {
                 gradeClassification(sourcepath+date+".txt",storepath);
             } catch (NullPointerException e) {
                 e.getStackTrace();
+            }
+        }*/
+
+        //12_将首付差价文件编变成静态文件
+        String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
+                "201605","201606","201607","201608","201609","201610","201611"};
+
+        String[] ratios={"20","25","30","35","40","45","50","55","60","65","70","75","80"};
+
+        String[] downpayment={"downpay_20","downpay_25","downpay_30", "downpay_35",
+                "downpay_40","downpay_45","downpay_50","downpay_55","downpay_60",
+                "downpay_65","downpay_70","downpay_75","downpay_80"};
+
+        String[] downpayment_differ={"up40","up45","up50","up55","up60","up65","up70","up75","up80",
+                "low20","low25","low30"};
+
+        String[] downpayment_values={"50","100","200","300","400","500","600","700","800","900","1000","1500"};
+
+        String[] downpayment_differ_values={"20","40","60","80","100","150","200","400","401"};
+
+
+        for(int m=0;m<dates.length;m++) {
+            String date = dates[m];
+            System.out.println(date);
+            for(int n=0;n<downpayment.length;n++){
+                String dp=downpayment[n];
+                String ratio=ratios[n];
+                String sourcepath="D:\\1_paper\\Investment model\\11_按首付差价划分不同等级\\"+date+"\\"+dp+"\\";
+                String storepath="D:\\1_paper\\Investment model\\12_静态文件\\downpayment\\"+date+"\\"+ratio+"\\";
+                for(int k=0;k<downpayment_values.length;k++){
+                    String value=downpayment_values[k];
+                    try {
+                        downpayment_staticFile(sourcepath+value+".txt",value,Integer.parseInt(ratio),storepath);
+                    } catch (NullPointerException e) {
+                        e.getStackTrace();
+                    }
+                }
+
+            }
+        }
+
+        for(int m=0;m<dates.length;m++) {
+            String date = dates[m];
+            System.out.println(date);
+            for(int n=0;n<downpayment_differ.length;n++){
+                String dp=downpayment_differ[n];
+                String ratio=ratios[n];
+                if(Integer.parseInt(ratio)!=35){
+                    String sourcepath="D:\\1_paper\\Investment model\\11_按首付差价划分不同等级\\"+date+"\\"+dp+"\\";
+                    String storepath="D:\\1_paper\\Investment model\\12_静态文件\\downpayment_differ\\"+date+"\\"+ratio+"\\";
+                    for(int k=0;k<downpayment_values.length;k++){
+                        String value=downpayment_differ_values[k];
+                        try {
+                            downpayment_differ_staticFile(sourcepath+value+".txt",value,Integer.parseInt(ratio),storepath);
+                        } catch (NullPointerException e) {
+                            e.getStackTrace();
+                        }
+                    }
+                }
             }
         }
     }
@@ -306,8 +365,8 @@ public class FindEffectiveGrid_16 {
                     int code=codearray.getInt(j);
                     BasicDBObject document=new BasicDBObject();
                     document.put("code",code);
-                    //document.put("year",year);
-                    //document.put("month",month);
+                    document.put("year",year);
+                    document.put("month",month);
                     DBCursor cs=coll.find(document);
 
                     JSONObject result=new JSONObject();
@@ -920,6 +979,36 @@ public class FindEffectiveGrid_16 {
             range="401";
         }
         return range;
+    }
+
+    //将首付文件变成静态文件
+    public static void downpayment_staticFile(String file,String value,int ratio,String storepath){
+        Vector<String> pois=FileTool.Load(file,"utf-8");
+        JSONArray array=new JSONArray();
+        for(int i=0;i<pois.size();i++){
+            String poi=pois.elementAt(i);
+            JSONObject obj=JSONObject.fromObject(poi);
+            obj.put("downpay",obj.getDouble("downpay_"+ratio));
+            array.add(obj);
+        }
+        FileTool.Dump(array.toString(),storepath+"\\polygon_"+value,"utf-8");
+    }
+
+    //将首付差异的文件变成静态文件
+    public static void downpayment_differ_staticFile(String file,String value,int ratio,String storepath){
+        Vector<String> pois=FileTool.Load(file,"utf-8");
+        JSONArray array=new JSONArray();
+        for(int i=0;i<pois.size();i++){
+            String poi=pois.elementAt(i);
+            JSONObject obj=JSONObject.fromObject(poi);
+            if(ratio<35){
+                obj.put("differ",obj.getDouble("low"+ratio));
+            }else {
+                obj.put("differ",obj.getDouble("up"+ratio));
+            }
+            array.add(obj);
+        }
+        FileTool.Dump(array.toString(),storepath+"\\polygon_"+value,"utf-8");
     }
 
 }

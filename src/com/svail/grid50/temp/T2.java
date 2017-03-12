@@ -5,8 +5,7 @@ import com.svail.grid50.util.db;
 
 import java.io.UnsupportedEncodingException;
 
-import static com.svail.grid50.FindEffectiveGrid_16.findHouseType;
-import static com.svail.grid50.GridData_Resold_6.initial;
+import static com.svail.grid50.FindEffectiveGrid_17.findHouseType;
 
 /**
  * Created by ZhouXiang on 2017/1/1.

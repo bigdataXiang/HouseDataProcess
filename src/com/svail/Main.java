@@ -1,7 +1,5 @@
 package com.svail;
 
-import com.mongodb.DBCollection;
-import com.svail.grid50.util.db;
 import com.svail.util.FileTool;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -14,10 +12,6 @@ import java.util.Vector;
 import static com.svail.grid50.BatchProcess_1.addressMatch_GaoDe;
 import static com.svail.grid50.BatchProcess_1.batchProcess;
 import static com.svail.grid50.ContinueToRise_14.batchQuery;
-import static com.svail.grid50.FindEffectiveGrid_16.findHouseType;
-import static com.svail.grid50.GridData_Resold_6.initial;
-import static com.svail.grid50.util.GetAllCommunity.screen;
-import static com.svail.grid50.util.GetAllCommunity.tidy_gaode;
 
 public class Main {
 
