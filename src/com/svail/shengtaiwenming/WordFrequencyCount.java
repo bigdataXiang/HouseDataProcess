@@ -16,7 +16,7 @@ import java.util.*;
 public class WordFrequencyCount {
     public static void main(String[] args){
         //获取程序开始时间
-        long startTime = System.currentTimeMillis();
+        /*long startTime = System.currentTimeMillis();
 
         String[] keywords={"生态"};
 
@@ -25,7 +25,10 @@ public class WordFrequencyCount {
 
         long endTime = System.currentTimeMillis();    //获取结束时间
 
-        System.out.println("程序运行时间：" + (endTime - startTime) + "ms");    //输出程序运行时间
+        System.out.println("程序运行时间：" + (endTime - startTime) + "ms");//输出程序运行时间
+*/
+        integration_wordFrequency("D:\\5_生态文明关键词\\",
+                "D:\\5_生态文明关键词\\所有年份的词频汇总.txt");
     }
 
     public static void accessDatabase(String[] keywords,int start,int end,String storefile){
@@ -95,6 +98,42 @@ public class WordFrequencyCount {
             JSONObject obj=new JSONObject();
             obj.put("kw",kw);
             obj.put("num",num);
+            list.add(obj);
+        }
+        Collections.sort(list, new JsonListCompare.numComparator());
+        for(int i=0;i<list.size();i++){
+            FileTool.Dump(list.get(i).toString(),storefile,"utf-8");
+        }
+
+    }
+
+    //将所有年份的统计词合并
+    public static void integration_wordFrequency(String path,String storefile){
+        Map<String,Integer> map=new HashMap<>();
+        String[] files={"1992.txt","2007.txt","2012.txt","2017.txt"};
+        for(int i=0;i<files.length;i++){
+            Vector<String> pois=FileTool.Load(path+files[i],"utf-8");
+            for(int j=0;j<pois.size();j++){
+                String poi=pois.elementAt(j);
+                JSONObject obj=JSONObject.fromObject(poi);
+                String key=obj.getString("kw");
+                int value=obj.getInt("num");
+                if(map.containsKey(key)){
+                    int num=map.get(key);
+                    num+=value;
+                    map.put(key,num);
+
+                }else {
+                    map.put(key,value);
+                }
+            }
+        }
+
+        List<JSONObject> list=new ArrayList<>();
+        for(Map.Entry<String,Integer>entry:map.entrySet()){
+            JSONObject obj=new JSONObject();
+            obj.put("kw",entry.getKey());
+            obj.put("num",entry.getValue());
             list.add(obj);
         }
         Collections.sort(list, new JsonListCompare.numComparator());

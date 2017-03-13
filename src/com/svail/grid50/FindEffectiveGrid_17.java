@@ -7,6 +7,7 @@ import com.svail.grid50.util.db;
 import com.svail.util.FileTool;
 import com.svail.util.JsonListCompare;
 import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import org.apache.bcel.generic.F2D;
 
@@ -230,31 +231,34 @@ public class FindEffectiveGrid_17 {
         }*/
 
         //12_将首付差价文件编变成静态文件
-        String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
+        /*String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
                 "201605","201606","201607","201608","201609","201610","201611"};
 
-        String[] ratios={"20","25","30","35","40","45","50","55","60","65","70","75","80"};
+        //这是downpayment对应的ratios
+        //String[] ratios={"20","25","30","35","40","45","50","55","60","65","70","75","80"};
+
+        //这是downpayment_differ对应的ratios
+        String[] ratios={"20","25","30","40","45","50","55","60","65","70","75","80"};
 
         String[] downpayment={"downpay_20","downpay_25","downpay_30", "downpay_35",
                 "downpay_40","downpay_45","downpay_50","downpay_55","downpay_60",
                 "downpay_65","downpay_70","downpay_75","downpay_80"};
 
-        String[] downpayment_differ={"up40","up45","up50","up55","up60","up65","up70","up75","up80",
-                "low20","low25","low30"};
+        String[] downpayment_differ={"low20","low25","low30","up40","up45","up50","up55","up60","up65","up70","up75","up80"};
 
         String[] downpayment_values={"50","100","200","300","400","500","600","700","800","900","1000","1500"};
 
         String[] downpayment_differ_values={"20","40","60","80","100","150","200","400","401"};
+*/
 
-
-        for(int m=0;m<dates.length;m++) {
+        /*for(int m=0;m<dates.length;m++) {
             String date = dates[m];
             System.out.println(date);
             for(int n=0;n<downpayment.length;n++){
                 String dp=downpayment[n];
                 String ratio=ratios[n];
-                String sourcepath="D:\\1_paper\\Investment model\\11_按首付差价划分不同等级\\"+date+"\\"+dp+"\\";
-                String storepath="D:\\1_paper\\Investment model\\12_静态文件\\downpayment\\"+date+"\\"+ratio+"\\";
+                String sourcepath="D:\\1_paper\\Investment model\\linux\\11_按首付差价划分不同等级\\"+date+"\\"+dp+"\\";
+                String storepath="D:\\1_paper\\Investment model\\linux\\12_静态文件\\downpayment\\"+date+"\\"+ratio+"\\";
                 for(int k=0;k<downpayment_values.length;k++){
                     String value=downpayment_values[k];
                     try {
@@ -265,8 +269,8 @@ public class FindEffectiveGrid_17 {
                 }
 
             }
-        }
-
+        }*/
+        /*System.out.println("开始第二部分：");
         for(int m=0;m<dates.length;m++) {
             String date = dates[m];
             System.out.println(date);
@@ -274,20 +278,113 @@ public class FindEffectiveGrid_17 {
                 String dp=downpayment_differ[n];
                 String ratio=ratios[n];
                 if(Integer.parseInt(ratio)!=35){
-                    String sourcepath="D:\\1_paper\\Investment model\\11_按首付差价划分不同等级\\"+date+"\\"+dp+"\\";
-                    String storepath="D:\\1_paper\\Investment model\\12_静态文件\\downpayment_differ\\"+date+"\\"+ratio+"\\";
-                    for(int k=0;k<downpayment_values.length;k++){
-                        String value=downpayment_differ_values[k];
+                    String sourcepath="D:\\1_paper\\Investment model\\linux\\11_按首付差价划分不同等级\\"+date+"\\"+dp+"\\";
+                    String storepath="D:\\1_paper\\Investment model\\linux\\12_静态文件\\downpayment_differ\\"+date+"\\"+ratio+"\\";
+
+                    System.out.println("首付比率为"+ratio+"%:");
+                    for(int k=0;k<downpayment_differ_values.length;k++){
                         try {
+                            String value=downpayment_differ_values[k];
+                            System.out.println(value+".txt:");
                             downpayment_differ_staticFile(sourcepath+value+".txt",value,Integer.parseInt(ratio),storepath);
                         } catch (NullPointerException e) {
                             e.getStackTrace();
+                        }catch (ArrayIndexOutOfBoundsException e){
+                            System.out.println(k);
                         }
                     }
                 }
             }
-        }
+        }*/
+
+
+        /*//13_统计面积分布
+        String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
+                "201605","201606","201607","201608","201609","201610","201611"};
+        for(int m=0;m<dates.length;m++) {//dates.length
+            String date = dates[m];
+            System.out.println(date);
+            try {
+                classifyByArea("D:\\1_paper\\Investment model\\linux\\6-精简统计数据\\"+date+".txt",
+                        "D:\\1_paper\\Investment model\\linux\\13_将面积分类\\"+date+"\\");
+            } catch (NullPointerException e) {
+                e.getStackTrace();
+            }
+        }*/
+
+        /*//14_将面积统计的文件变成静态文件
+        String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
+                "201605","201606","201607","201608","201609","201610","201611"};
+
+        String[] values={"50","60","65","70","75","80","85","95","110","160","210","211"};
+
+        String folderName="13_将面积分类";
+
+        for(int m=0;m<dates.length;m++) {
+            String date = dates[m];
+            String path="D:\\1_paper\\Investment model\\linux\\"+folderName+"\\"+date+"\\";
+            System.out.println(date);
+            try {
+                for(int n=0;n<values.length;n++){
+                    String value=values[n];
+                    staticFile(path+value+".txt",value);
+                }
+            } catch (NullPointerException e) {
+                e.getStackTrace();
+            }
+        }*/
+
+        /*//15_统计单价分布
+        String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
+                "201605","201606","201607","201608","201609","201610","201611"};
+        for(int m=0;m<dates.length;m++) {//dates.length
+            String date = dates[m];
+            System.out.println(date);
+            try {
+                classifyByUnitPrice("D:\\1_paper\\Investment model\\linux\\6-精简统计数据\\"+date+".txt",
+                        "D:\\1_paper\\Investment model\\linux\\14_将单价分类\\"+date+"\\");
+            } catch (NullPointerException e) {
+                e.getStackTrace();
+            }
+        }*/
+
+        /* //15_将面积统计的文件变成静态文件
+        String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
+                "201605","201606","201607","201608","201609","201610","201611"};
+
+        String[] values={"2","3","4","5","6","7","8","9","10","11","12","13"};
+
+        String folderName="14_将单价分类";
+
+        for(int m=0;m<dates.length;m++) {
+            String date = dates[m];
+            String path="D:\\1_paper\\Investment model\\linux\\"+folderName+"\\"+date+"\\";
+            System.out.println(date);
+            try {
+                for(int n=0;n<values.length;n++){
+                    String value=values[n];
+                    staticFile(path+value+".txt",value);
+                }
+            } catch (NullPointerException e) {
+                e.getStackTrace();
+            }
+        }*/
+
+        /*//将所有月份的户型排在前11位的都拿出来
+        String[] dates={"201507_户型统计.txt","201508_户型统计.txt","201509_户型统计.txt","201510_户型统计.txt","201511_户型统计.txt","201512_户型统计.txt","201601_户型统计.txt","201602_户型统计.txt",
+                "201603_户型统计.txt","201604_户型统计.txt", "201605_户型统计.txt","201606_户型统计.txt","201607_户型统计.txt","201608_户型统计.txt","201609_户型统计.txt","201610_户型统计.txt","201611_户型统计.txt"};
+        huxingTop11(dates,"D:\\1_paper\\Investment model\\linux\\6-精简统计数据\\");
+*/
+
+        //16_特征统计
+        String path="D:\\1_paper\\Investment model\\linux\\15_特征统计\\";
+        //16-1 单价特征统计
+
+
+
+
     }
+    //16-1单价特征统计
 
     //1.获取每个月份的每个价格区划下的小区划中的有具体房源的小栅格
     public  static void findGrid(String sourcefile,String storefile){
@@ -1001,14 +1098,165 @@ public class FindEffectiveGrid_17 {
         for(int i=0;i<pois.size();i++){
             String poi=pois.elementAt(i);
             JSONObject obj=JSONObject.fromObject(poi);
-            if(ratio<35){
-                obj.put("differ",obj.getDouble("low"+ratio));
-            }else {
-                obj.put("differ",obj.getDouble("up"+ratio));
+            try{
+                if(ratio<35){
+                    obj.put("differ",obj.getDouble("low"+ratio));
+                }else {
+                    obj.put("differ",obj.getDouble("up"+ratio));
+                }
+            }catch(JSONException e){
+                System.out.println(obj);
             }
             array.add(obj);
         }
         FileTool.Dump(array.toString(),storepath+"\\polygon_"+value,"utf-8");
     }
 
+    public static String areaRange(double area){
+        String range="";
+        if(area<=50){
+            range="50";
+        }else if(50<area&&area<=60){
+            range="60";
+        }else if(60<area&&area<=65){
+            range="65";
+        }else if(65<area&&area<=70){
+            range="70";
+        }else if(70<area&&area<=75){
+            range="75";
+        }else if(75<area&&area<=80){
+            range="80";
+        }else if(80<area&&area<=85){
+            range="85";
+        }else if(85<area&&area<=95){
+            range="95";
+        }else if(95<area&&area<=110){
+            range="110";
+        }else if(110<area&&area<=160){
+            range="160";
+        }else if(160<area&&area<=210){
+            range="210";
+        }else if(210<area){
+            range="211";
+        }
+        return range;
+    }
+
+    //8.按照总价区间对区块进行分类
+    public static void classifyByArea(String sourcefile,String storefile){
+        Vector<String> pois=FileTool.Load(sourcefile,"utf-8");
+        for(int i=0;i<pois.size();i++){
+            String poi=pois.elementAt(i);
+            JSONObject obj=JSONObject.fromObject(poi);
+            String range=areaRange(obj.getDouble("area"));
+
+            if(range.equals("50")){
+                FileTool.Dump(obj.toString(),storefile+"50.txt","utf-8");
+            }else if(range.equals("60")){
+                FileTool.Dump(obj.toString(),storefile+"60.txt","utf-8");
+            }else if(range.equals("65")){
+                FileTool.Dump(obj.toString(),storefile+"65.txt","utf-8");
+            }else if(range.equals("70")){
+                FileTool.Dump(obj.toString(),storefile+"70.txt","utf-8");
+            }else if(range.equals("75")){
+                FileTool.Dump(obj.toString(),storefile+"75.txt","utf-8");
+            }else if(range.equals("80")){
+                FileTool.Dump(obj.toString(),storefile+"80.txt","utf-8");
+            }else if(range.equals("85")){
+                FileTool.Dump(obj.toString(),storefile+"85.txt","utf-8");
+            }else if(range.equals("95")){
+                FileTool.Dump(obj.toString(),storefile+"95.txt","utf-8");
+            }else if(range.equals("110")){
+                FileTool.Dump(obj.toString(),storefile+"110.txt","utf-8");
+            }else if(range.equals("160")){
+                FileTool.Dump(obj.toString(),storefile+"160.txt","utf-8");
+            }else if(range.equals("210")){
+                FileTool.Dump(obj.toString(),storefile+"210.txt","utf-8");
+            }else if(range.equals("211")){
+                FileTool.Dump(obj.toString(),storefile+"211.txt","utf-8");
+            }
+        }
+    }
+
+    public  static void classifyByUnitPrice(String sourcefile,String storefile){
+        Vector<String> pois=FileTool.Load(sourcefile,"utf-8");
+        for(int i=0;i<pois.size();i++){
+            String poi=pois.elementAt(i);
+            JSONObject obj=JSONObject.fromObject(poi);
+            String range=unitPriceRange(obj.getDouble("unitprice"));
+
+            if(range.equals("2")){
+                FileTool.Dump(obj.toString(),storefile+"2.txt","utf-8");
+            }else if(range.equals("3")){
+                FileTool.Dump(obj.toString(),storefile+"3.txt","utf-8");
+            }else if(range.equals("4")){
+                FileTool.Dump(obj.toString(),storefile+"4.txt","utf-8");
+            }else if(range.equals("5")){
+                FileTool.Dump(obj.toString(),storefile+"5.txt","utf-8");
+            }else if(range.equals("6")){
+                FileTool.Dump(obj.toString(),storefile+"6.txt","utf-8");
+            }else if(range.equals("7")){
+                FileTool.Dump(obj.toString(),storefile+"7.txt","utf-8");
+            }else if(range.equals("8")){
+                FileTool.Dump(obj.toString(),storefile+"8.txt","utf-8");
+            }else if(range.equals("9")){
+                FileTool.Dump(obj.toString(),storefile+"9.txt","utf-8");
+            }else if(range.equals("10")){
+                FileTool.Dump(obj.toString(),storefile+"10.txt","utf-8");
+            }else if(range.equals("11")){
+                FileTool.Dump(obj.toString(),storefile+"11.txt","utf-8");
+            }else if(range.equals("12")){
+                FileTool.Dump(obj.toString(),storefile+"12.txt","utf-8");
+            }else if(range.equals("13")){
+                FileTool.Dump(obj.toString(),storefile+"13.txt","utf-8");
+            }
+        }
+    }
+    public static String unitPriceRange(double unitprice){
+        String range="";
+        if(unitprice<=2){
+            range="2";
+        }else if(2<unitprice&&unitprice<=3){
+            range="3";
+        }else if(3<unitprice&&unitprice<=4){
+            range="4";
+        }else if(4<unitprice&&unitprice<=5){
+            range="5";
+        }else if(5<unitprice&&unitprice<=6){
+            range="6";
+        }else if(6<unitprice&&unitprice<=7){
+            range="7";
+        }else if(7<unitprice&&unitprice<=8){
+            range="8";
+        }else if(8<unitprice&&unitprice<=9){
+            range="9";
+        }else if(9<unitprice&&unitprice<=10){
+            range="10";
+        }else if(10<unitprice&&unitprice<=11){
+            range="11";
+        }else if(11<unitprice&&unitprice<=12){
+            range="12";
+        }else if(12<unitprice){
+            range="13";
+        }
+        return range;
+    }
+
+    public static void huxingTop11(String[] files,String path){
+        Set<String> set=new HashSet<>();
+        for(int i=0;i<files.length;i++){
+            String file=path+files[i];
+            Vector<String> pois=FileTool.Load(file,"utf-8");
+            for(int j=0;j<11;j++){
+                String poi=pois.elementAt(j);
+                JSONObject obj=JSONObject.fromObject(poi);
+                set.add(obj.getString("ht"));
+            }
+        }
+
+        Iterator<String> it=set.iterator();
+        while (it.hasNext()){
+            System.out.println(it.next());
+        }
+    }
 }
