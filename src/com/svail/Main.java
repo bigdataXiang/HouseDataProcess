@@ -1,11 +1,15 @@
 package com.svail;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
+import com.svail.grid50.util.db;
 import com.svail.util.FileTool;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 
@@ -47,9 +51,13 @@ public class Main {
             }
         }*/
 
-        //gaode();
+        gaode();
 
-        staticFile("D:\\1_paper\\poi资料\\小区\\小区地理编码原始数据\\最后结果\\校对结果\\北京所有小区匹配数据汇总_拷贝.txt");
+        //staticFile("D:\\1_paper\\poi资料\\小区\\小区地理编码原始数据\\最后结果\\校对结果\\北京所有小区匹配数据汇总_拷贝.txt");
+
+        //D:\1_paper\poi资料\学校\各区中学\地理编码
+        //poiToMongo("D:\\1_paper\\poi资料\\学校\\各区中学\\地理编码\\北京所有中学名单_json_地理编码.txt");
+
     }
     public static void staticFile(String file){
         Vector<String> pois=FileTool.Load(file,"utf-8");
@@ -119,9 +127,9 @@ public class Main {
         String[] keys={"station"};//"address","name","community"
         addressMatch_GaoDe(0,keys,path,names[18].replace(".txt","_json.txt"),"北京","0e0926480b9a9118fb2b9d3238a20ce1");
 */
-        String path="D:\\能源所\\找到所属市数据\\";
-        String[] keys={"所属省","所属市","区县名称"};//"address","name","community",,"school"
-        addressMatch_GaoDe(530,keys,path,"全国主体功能区数据汇总_修改_json.txt","","0e0926480b9a9118fb2b9d3238a20ce1");
+        String path="D:\\4_能源所\\【二氧化碳排放数据】\\";
+        String[] keys={"省","名"};//"address","name","community",,"school"
+        addressMatch_GaoDe(0,keys,path,"各省二氧化碳排放数据汇总_json.txt","","0e0926480b9a9118fb2b9d3238a20ce1");
 
         //String filename="昌平区小学_json_高德解析信息_再次匹配.txt";
 
@@ -145,6 +153,25 @@ public class Main {
         }
 
     }
+
+    public static void poiToMongo(String file){
+        Vector<String> pois=FileTool.Load(file,"utf-8");
+        DBCollection collection= db.getDB("paper").getCollection("POI");
+        for(int i=0;i<pois.size();i++){
+            String poi=pois.elementAt(i);
+            JSONObject obj=JSONObject.fromObject(poi);
+            BasicDBObject document=new BasicDBObject();
+            Iterator<String> it=obj.keySet().iterator();
+            while (it.hasNext()){
+                String key=it.next();
+                document.put(key,obj.get(key));
+            }
+            document.remove("nlp_status");
+            document.put("type","中学");
+            collection.insert(document);
+        }
+    }
+
 
 
 

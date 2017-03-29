@@ -1,6 +1,7 @@
 package com.svail.nengyuansuo;
 
 import com.svail.util.FileTool;
+import com.svail.util.Tool;
 import net.sf.json.JSONObject;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -23,11 +24,12 @@ public class CreatExcel {
         String filename="省级重点生态功能区（限制开发区域）"+"_objs_所有结果.txt";
 */
 
-        String path="D:\\能源所\\";
-        String[] names={"所属省","所属市","区县名称", "主体功能区属性","行政区土地面积","户籍人口",
-                "地区生产总值","人均GDP","第一产业","第二产业","第三产业","省"};
+        String path="D:\\4_能源所\\【二氧化碳排放数据】\\";
+        /*String[] names={"所属省","所属市","区县名称", "主体功能区属性","行政区土地面积","户籍人口",
+                "地区生产总值","人均GDP","第一产业","第二产业","第三产业","省"};*/
+        String[] names={"省","排放量（万吨）","lng_gd","lat_gd"};
 
-        writeExcel(path+"四省主体功能区数据汇总_json_结果.txt",names);
+        writeExcel(path+"各省二氧化碳排放数据汇总_json_高德解析信息.txt",names);
 
         /*Vector<String> pois=FileTool.Load(path+"filename.txt","utf-8");
         for(int i=0;i<pois.size();i++){
@@ -256,11 +258,10 @@ public class CreatExcel {
                 count++;
                 row = sheet.createRow(count);
                 for (int k = 0; k < names.length; k++) {
-                    if(names[k].equals("lng")||names[k].equals("lat")
-                            ||names[k].equals("行政区土地面积")||names[k].equals("户籍人口")
-                            ||names[k].equals("地区生产总值")||names[k].equals("人均GDP")
-                            ||names[k].equals("第一产业")||names[k].equals("第二产业")
-                            ||names[k].equals("第三产业")){
+
+                    String value=obj.getString(names[k]);
+                    boolean num= Tool.isNumeric(value);
+                    if(num){
                         row.createCell(k).setCellValue(getObjValue_dou(obj,names[k]));
                     }else {
                         row.createCell(k).setCellValue(getObjValue_str(obj,names[k]));

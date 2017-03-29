@@ -17,9 +17,9 @@ public class getNamesInFolder {
             getFilePath(path);
         }*/
 
-         String path="D:\\能源所\\【各省自治区直辖市主体功能区数据库】\\08黑龙江\\json\\";
+         String path="D:\\4_能源所\\【数据库数据源】\\中国县域统计年鉴2015（县市卷）\\";
          getFileName(path);
-        getFilePath(path);
+         //getFilePath(path);
     }
 
     private static void getFileName(String path){

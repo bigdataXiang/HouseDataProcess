@@ -362,7 +362,8 @@ public class FileTool {
 				|| fileName.endsWith(".XML")
 				|| fileName.endsWith(".xml")
 				|| fileName.endsWith(".suffix")
-				|| fileName.endsWith(".json")))
+				|| fileName.endsWith(".json"))
+				|| fileName.endsWith(".xls"))
 			return null;
 		
 		// System.out.print(fileName + "\n");

@@ -378,13 +378,72 @@ public class FindEffectiveGrid_17 {
 
         //16_特征统计
         String path="D:\\1_paper\\Investment model\\linux\\15_特征统计\\";
-        //16-1 单价特征统计
+        String[] dates={"201507","201508","201509","201510","201511","201512","201601","201602","201603","201604",
+                "201605","201606","201607","201608","201609","201610","201611"};
+
+
+        /*//16-1 单价特征统计
+
+        String[] values={"2","3","4","5","6","7","8","9","10","11","12","13"};
+
+        unitPriceCharacter(dates,values,"D:\\1_paper\\Investment model\\linux\\14_将单价分类\\",
+        path+"单价区块数量统计.txt");*/
+
+        /*//16-2 户型特征统计
+        String[] values={"2室1厅2卫","1室1厅0卫","3室1厅2卫","1室0厅1卫","4室2厅3卫",
+        "4室2厅2卫","2室2厅2卫","3室2厅1卫","1室0厅0卫","2室2厅1卫","3室2厅2卫",
+        "3室1厅1卫","1室1厅1卫","2室1厅1卫","其他户型"};
+
+        unitPriceCharacter(dates,values,"D:\\1_paper\\Investment model\\linux\\8-按照户型类型分类\\",
+                path+"户型数量统计.txt");*/
+
+        /*//16-3 面积特征统计
+        String[] values={"50","60","65","70","75","80","85","95","110","160","210","211"};
+
+        unitPriceCharacter(dates,values,"D:\\1_paper\\Investment model\\linux\\13_将面积分类\\",
+                path+"面积数量统计.txt");*/
+
+        //16-4 总价特征统计
+        String[] values={"50","100","200","300","400","500","600","700","800","900","1000","1500"};
+
+        unitPriceCharacter(dates,values,"D:\\1_paper\\Investment model\\linux\\7-按照总价区间分类\\",
+                path+"总价数量统计.txt");
+
+
+
 
 
 
 
     }
     //16-1单价特征统计
+    public static void unitPriceCharacter(String[] dates,String[] values,String sourcepath,String storepath){
+
+        for(int i=0;i<dates.length;i++){
+            String sp="";
+            String date=dates[i];
+            sp=sourcepath+date+"\\";
+
+            String result="";
+            for(int j=0;j<values.length;j++){
+                String spv="";
+                String value=values[j];
+                System.out.print(value+";");
+                spv=sp+value+".txt";
+                try {
+                    Vector<String> pois=FileTool.Load(spv,"utf-8");
+                    result+=pois.size()+";";
+                }catch (NullPointerException e){
+                    result+=0+";";
+                    e.getStackTrace();
+                }
+            }
+            System.out.println(" ");
+
+            FileTool.Dump(result,storepath,"utf-8");
+        }
+
+    }
 
     //1.获取每个月份的每个价格区划下的小区划中的有具体房源的小栅格
     public  static void findGrid(String sourcefile,String storefile){

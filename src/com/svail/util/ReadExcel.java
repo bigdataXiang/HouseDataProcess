@@ -32,8 +32,8 @@ public class ReadExcel {
             readExcel(files.elementAt(i));
         }*/
 
-        String path="D:\\能源所\\找到所属市数据\\";
-        readExcel(path+"全国主体功能区数据汇总_修改.xlsx");
+        String path="D:\\4_能源所\\【0324所有数据汇总】\\总结性成果表\\2015\\程序处理文件夹\\";
+        readExcel(path+"县级市.xlsx");
 
         /*readExcel(path+"国家级开发城镇in国家级重点生态功能区.xlsx");
         readExcel(path+"国家级开发城镇in省级重点生态功能区.xlsx");
@@ -64,6 +64,7 @@ public class ReadExcel {
                 wb = new XSSFWorkbook(input);
             else
                 wb = new HSSFWorkbook(input);
+
             Sheet sheet = wb.getSheetAt(0);     //获得第一个表单
             Iterator<Row> rows = sheet.rowIterator(); //获得第一个表单的迭代器
             int row_count=0;
