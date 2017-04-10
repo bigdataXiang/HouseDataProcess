@@ -32,8 +32,8 @@ public class ReadExcel {
             readExcel(files.elementAt(i));
         }*/
 
-        String path="D:\\4_能源所\\【0324所有数据汇总】\\总结性成果表\\2015\\程序处理文件夹\\";
-        readExcel(path+"县级市.xlsx");
+        String path="D:\\8_周五报告\\yiqing\\aircraft\\";
+        readExcel(path+"China+Airplane+Routs.xls");
 
         /*readExcel(path+"国家级开发城镇in国家级重点生态功能区.xlsx");
         readExcel(path+"国家级开发城镇in省级重点生态功能区.xlsx");

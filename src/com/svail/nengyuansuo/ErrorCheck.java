@@ -22,6 +22,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 
+import static com.svail.nengyuansuo.CreatExcel.writeExcel;
+
 /**
  * Created by ZhouXiang on 2017/3/27.
  * 1、检查每个省每个县的的主体功能是否唯一
@@ -39,11 +41,13 @@ public class ErrorCheck {
         /*streamlLine("D:\\4_能源所\\【0324所有数据汇总】\\总结性成果表\\2015\\程序处理文件夹\\",
                 "县级数据汇总-完全版.txt");*/
 
-        String path="D:\\4_能源所\\【0324所有数据汇总】\\总结性成果表\\2015\\程序处理文件夹\\2014数据\\";
+        /*String path="D:\\4_能源所\\【0324所有数据汇总】\\总结性成果表\\2015\\程序处理文件夹\\2014数据\\";
         dataAggregation(path+"地级市_json.txt",
                 path+"县级市_json.txt",
                 path+"县级数据汇总-完全版-精简版.txt",
-                path+"全国主体功能数据汇总.txt");
+                path+"山东河南遗漏的数据_json.txt");*/
+
+        toExcel();
 
     }
 
@@ -452,22 +456,48 @@ public class ErrorCheck {
                 String area_xn=o.getString("行政区域面积").replace(" ","");
                 String area_ztgn=obj.getString("行政区土地面积").replace(" ","");
                 if(area_xn.length()!=0&&area_ztgn.length()!=0){
-                    double area_xn_double=Double.parseDouble(area_xn);
-                    double area_ztgn_double=Double.parseDouble(area_ztgn);
-                    obj.put("行政区面积_2014",o.getString("行政区域面积"));
-                    obj.put("人口",o.getString("户籍人口"));
-                    obj.put("地区生产总值",o.getString("地区生产总值"));
-                    obj.put("第一产业",o.getString("第一产业"));
-                    obj.put("第二产业",o.getString("第二产业"));
-                    obj.put("第三产业",o.getString("第三产业"));
-                    obj.put("省份",o.getString("省份"));
+                    //double area_xn_double=Double.parseDouble(area_xn);
+                    //double area_ztgn_double=Double.parseDouble(area_ztgn);
+                    if(quxian.equals("通州区")||quxian.equals("长安区")){
+
+                    }else {
+                        obj.put("行政区面积_2014",o.getString("行政区域面积"));
+                        obj.put("人口",o.getString("户籍人口"));
+                        obj.put("地区生产总值",o.getString("地区生产总值"));
+                        obj.put("第一产业",o.getString("第一产业"));
+                        obj.put("第二产业",o.getString("第二产业"));
+                        obj.put("第三产业",o.getString("第三产业"));
+                        obj.put("省份",o.getString("省份"));
+                    }
+                }else {
+                    System.out.println("其中有面积为0：");
+                    System.out.println(obj);
+                    System.out.println(o);
                 }
-
-
             }else {
-                //System.out.println("找不到对应数据："+obj);
+                System.out.println("找不到对应数据："+obj);
             }
-            //FileTool.Dump(obj.toString(),ztgn.replace(".txt","-数据聚合.txt"),"utf-8");
+            FileTool.Dump(obj.toString(),ztgn.replace(".txt","-数据聚合.txt"),"utf-8");
+        }
+    }
+
+    //5-3 将5-2生成的【全国主体功能数据汇总-数据聚合.txt】文件转成excel
+    public static void toExcel(){
+
+        String path="D:\\4_能源所\\【0324所有数据汇总】\\总结性成果表\\2015\\程序处理文件夹\\2014数据\\";
+
+        String[] names={"省份","所属市","区县名称", "主体功能区属性",
+                "行政区土地面积","行政区面积_2014","人口",
+                "地区生产总值","第一产业","第二产业","第三产业","人均GDP"};
+
+        /*String[] names={"省份","区县名称","行政区域面积",
+                 "户籍人口","地区生产总值",
+                "第一产业","第二产业","第三产业"};*/
+
+        try {
+            writeExcel(path+"山东河南遗漏的数据_json-数据聚合.txt",names);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

@@ -258,8 +258,11 @@ public class CreatExcel {
                 count++;
                 row = sheet.createRow(count);
                 for (int k = 0; k < names.length; k++) {
+                    String value="";
+                    if(obj.containsKey(names[k])){
+                        value=obj.getString(names[k]);
+                    }
 
-                    String value=obj.getString(names[k]);
                     boolean num= Tool.isNumeric(value);
                     if(num){
                         row.createCell(k).setCellValue(getObjValue_dou(obj,names[k]));
