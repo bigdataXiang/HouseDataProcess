@@ -14,9 +14,9 @@ import java.util.Vector;
  */
 public class Interpolation_Precision_Inspection {
     public static void main(String[] args){
-        String path="D:\\小论文\\poi资料\\小区\\小区地理编码原始数据\\最后结果\\校对结果\\插值\\";
+        String path="D:\\1_基于房产调控政策下的房产投资市场格局演变分析——以北京为例\\格网数据\\二手房\\";
         precision_Inspection(path+"interpolation_value_grids.txt",
-                "2015-07",4,
+                "2015-7",4,
                 path+"interpolation_value_grids_中有问题的数据.txt",
                 path+"interpolation_value_grids_中没有问题的数据.txt");
     }

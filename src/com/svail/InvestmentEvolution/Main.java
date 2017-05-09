@@ -5,9 +5,7 @@ import com.svail.util.FileTool;
 
 import java.util.Map;
 
-import static com.svail.InvestmentEvolution.OutlierTest_3.map;
-import static com.svail.InvestmentEvolution.OutlierTest_3.statisticCode;
-import static com.svail.InvestmentEvolution.OutlierTest_3.test;
+import static com.svail.InvestmentEvolution.OutlierTest_3.*;
 
 /**
  * Created by ZhouXiang on 2017/5/8.
@@ -30,7 +28,7 @@ public class Main {
         }*/
 
 
-
+        handlingOverlimit(path+"所有方差超限的格网_原数据.txt");
     }
 
 }

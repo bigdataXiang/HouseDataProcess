@@ -8,6 +8,7 @@ import com.svail.grid50.util.RowColCalculation;
 import com.svail.grid50.util.db;
 import com.svail.util.FileTool;
 import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 import java.util.*;
@@ -37,7 +38,13 @@ public class Poi2Grid_4 {
 
         String path="D:\\1_基于房产调控政策下的房产投资市场格局演变分析——以北京为例\\格网数据\\二手房\\";
 
-        initial(2015,7,path+"GridData_Resold_gd.txt");
+
+        for(int i=4;i<=12;i++){
+            initial(2016,i,path+"GridData_Resold_gd2016.txt");
+        }
+        for(int i=1;i<=5;i++){
+            initial(2017,i,path+"GridData_Resold_gd2017.txt");
+        }
 
         long endTime = System.currentTimeMillis();    //获取结束时间
         System.out.println("程序运行时间：" + ((endTime - startTime)/(double)(1000*60)) + "分钟");    //输出程序运行时间
@@ -54,8 +61,8 @@ public class Poi2Grid_4 {
         condition.put("month",month);
         System.out.println(year+"年"+month+"月:");
 
-        condition.put("export_collName","BasicData_Resold_gd_plus");
-        condition.put("import_collName","GridData_Resold_test");
+        condition.put("export_collName","BasicData_Resold_gd_plus_rmError");
+        condition.put("import_collName","GridData_Resold");
 
         code_houseType_map=new HashMap<>();
         code_direction_map=new HashMap<>();
@@ -115,92 +122,100 @@ public class Poi2Grid_4 {
             while (cursor.hasNext()) {
                 BasicDBObject cs = (BasicDBObject) cursor.next();
                 poi = cs.toString();
-                o = JSONObject.fromObject(poi);
-                obj=new JSONObject();
-                obj.put("price",o.getDouble("price"));
-                obj.put("area",o.getDouble("area"));
-                obj.put("unitprice",o.getDouble("unitprice"));
-                if (o.containsKey("house_type")) {
-                    obj.put("house_type",o.getString("house_type"));
-                }
-                obj.put("code",o.getInt("code"));
 
 
-                code = obj.getInt("code");
-                codesSet.add(code);
+                //System.out.println(o);
+                try{
+                    o = JSONObject.fromObject(poi);
+                    obj=new JSONObject();
+                    obj.put("price",o.getDouble("price"));
+                    obj.put("area",o.getDouble("area"));
+                    obj.put("unitprice",o.getDouble("unitprice"));
+                    if (o.containsKey("house_type")) {
+                        obj.put("house_type",o.getString("house_type"));
+                    }
+                    obj.put("code",o.getInt("code"));
 
-                if (obj.containsKey("house_type")) {
-                    house_type = obj.getString("house_type");
-                    setAttributeMap(code, house_type, code_houseType_map);
 
-                    //以code为key建立一个poi的索引表
-                    //Map<Integer,Map<String,List<JSONObject>>> code_pois
+                    code = obj.getInt("code");
+                    codesSet.add(code);
 
-                    if ((year.endsWith("2017")&&month.equals("10"))) {//
+                    if (obj.containsKey("house_type")) {
+                        house_type = obj.getString("house_type");
+                        setAttributeMap(code, house_type, code_houseType_map);
+
+                        //以code为key建立一个poi的索引表
+                        //Map<Integer,Map<String,List<JSONObject>>> code_pois
+
+                        if ((year.endsWith("2017")&&month.equals("10"))) {//
 
 
-                    } else {
-                        //当月份为12时，这一部分代码暂时不用了，因为12月份的数据太多，导致内存总是溢出要寻求新的办法
-                        if (code_pois.containsKey(code)) {
-                            Map<String, List<JSONObject>> hy_pois = code_pois.get(code);
+                        } else {
+                            //当月份为12时，这一部分代码暂时不用了，因为12月份的数据太多，导致内存总是溢出要寻求新的办法
+                            if (code_pois.containsKey(code)) {
+                                Map<String, List<JSONObject>> hy_pois = code_pois.get(code);
 
-                            if (hy_pois.containsKey(house_type)) {
+                                if (hy_pois.containsKey(house_type)) {
 
-                                List<JSONObject> pois = hy_pois.get(house_type);
-                                pois.add(obj);
-                                hy_pois.put(house_type, pois);
-                                code_pois.put(code, hy_pois);
+                                    List<JSONObject> pois = hy_pois.get(house_type);
+                                    pois.add(obj);
+                                    hy_pois.put(house_type, pois);
+                                    code_pois.put(code, hy_pois);
+
+                                } else {
+
+                                    List<JSONObject> pois = new ArrayList<>();
+                                    pois.add(obj);
+                                    hy_pois.put(house_type, pois);
+                                    code_pois.put(code, hy_pois);
+                                }
 
                             } else {
-
+                                Map<String, List<JSONObject>> hy_pois = new HashMap<>();
                                 List<JSONObject> pois = new ArrayList<>();
                                 pois.add(obj);
                                 hy_pois.put(house_type, pois);
                                 code_pois.put(code, hy_pois);
                             }
-
-                        } else {
-                            Map<String, List<JSONObject>> hy_pois = new HashMap<>();
-                            List<JSONObject> pois = new ArrayList<>();
-                            pois.add(obj);
-                            hy_pois.put(house_type, pois);
-                            code_pois.put(code, hy_pois);
-                        }
-                    }
-
-                    if (obj.containsKey("area")) {
-                        area = obj.getString("area");
-                        boolean num = NumJudge.isNum(area);
-                        if (num) {
-                            setAttributeMap(code, area, code_area_map);
-                        } else {
-                            System.out.println(code + ":" + area);
                         }
 
-                    }
+                        if (obj.containsKey("area")) {
+                            area = obj.getString("area");
+                            boolean num = NumJudge.isNum(area);
+                            if (num) {
+                                setAttributeMap(code, area, code_area_map);
+                            } else {
+                                System.out.println(code + ":" + area);
+                            }
 
-                    if (obj.containsKey("price")) {
-                        price = obj.getString("price");
-                        boolean num = NumJudge.isNum(price);
-                        if (num) {
-                            setAttributeMap(code, price, code_price_map);
-                        } else {
-                            System.out.println(code + ":" + price);
                         }
-                    }
 
-                    if (obj.containsKey("unitprice")) {
-                        unit_price = obj.getString("unitprice");
-                        boolean num = NumJudge.isNum(unit_price);
-                        if (num) {
-                            setAttributeMap(code, unit_price, code_unitprice_map);
-                        } else {
-                            System.out.println(code + ":" + unit_price);
+                        if (obj.containsKey("price")) {
+                            price = obj.getString("price");
+                            boolean num = NumJudge.isNum(price);
+                            if (num) {
+                                setAttributeMap(code, price, code_price_map);
+                            } else {
+                                System.out.println(code + ":" + price);
+                            }
                         }
+
+                        if (obj.containsKey("unitprice")) {
+                            unit_price = obj.getString("unitprice");
+                            boolean num = NumJudge.isNum(unit_price);
+                            if (num) {
+                                setAttributeMap(code, unit_price, code_unitprice_map);
+                            } else {
+                                System.out.println(code + ":" + unit_price);
+                            }
+                        }
+                        ++count;
+                    }else {
+                        System.out.println("没有户型数据");
                     }
-                    ++count;
-                }else {
-                    System.out.println("没有户型数据");
+                }catch (JSONException e){
+                    System.out.println(poi);
+                    e.getStackTrace();
                 }
             }
             System.out.println("共有" + count + "条数据");

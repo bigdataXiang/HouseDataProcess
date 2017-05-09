@@ -55,9 +55,11 @@ public class OutlierTest_3 {
 
 
         //3.查看每个格网的超限数据
-        callErrorData(path+"所有方差超限的格网.txt",path+"所有方差超限的格网_原数据.txt");
+        //callErrorData(path+"所有方差超限的格网.txt",path+"所有方差超限的格网_原数据.txt");
 
 
+        //4.处理超限的格网，将超限了的数据剔除
+        //handlingOverlimit(path+"所有方差超限的格网_原数据.txt");
 
 
     }
@@ -165,7 +167,7 @@ public class OutlierTest_3 {
     //3.查看每个格网的超限数据
     public static void callErrorData(String sourcefile,String storefile){
         Vector<String> pois=FileTool.Load(sourcefile,"utf-8");
-        for(int i=543;i<pois.size();i++){
+        for(int i=3000;i<pois.size();i++){
             String[] poi=pois.elementAt(i).split(";");
             int code=Integer.parseInt(poi[0]);
             System.out.println(i);
@@ -191,4 +193,78 @@ public class OutlierTest_3 {
     }
 
 
+    //4.处理超限的格网，将超限了的数据剔除
+    public static void handlingOverlimit(String sourecefile){
+        Vector<String> pois=FileTool.Load(sourecefile,"utf-8");
+
+        Map<Integer,Map<String,JSONObject>> code_yp=new HashMap<>();
+
+        int code;
+        int year;
+        int month;
+        String date;
+        Map<String,JSONObject> yp;
+        for(int i=0;i<pois.size();i++){
+            String poi=pois.elementAt(i);
+            JSONObject obj=JSONObject.fromObject(poi);
+
+            code=obj.getInt("code");
+            year=obj.getInt("year");
+            month=obj.getInt("month");
+            date=year+"-"+month;
+            JSONArray array=obj.getJSONArray("value");
+            JSONObject o=new JSONObject();
+            for(int j=0;j<array.size();j++){
+                o.put(array.getString(j),"");
+            }
+
+            yp=new HashMap<>();
+            if(code_yp.containsKey(code)){
+                yp=code_yp.get(code);
+            }
+
+            if(yp.containsKey(date)){
+                System.out.println("map中已经有"+date+"的数据了");
+            }else {
+                yp.put(date,o);
+            }
+
+            code_yp.put(code,yp);//这句没写，然后一点用都没
+        }
+
+
+        DBCollection coll_output = db.getDB("InvestmentEvolution").getCollection("BasicData_Resold_gd_plus");
+        DBCollection coll_input = db.getDB("InvestmentEvolution").getCollection("BasicData_Resold_gd_plus_rmError");
+        DBCursor cs=coll_output.find();
+        BasicDBObject doc;
+        String unitprice;
+        JSONObject obj;
+        int count=0;
+        while (cs.hasNext()){
+            doc=(BasicDBObject)cs.next();
+            code=doc.getInt("code");
+            year=doc.getInt("year");
+            month=doc.getInt("month");
+            date=year+"-"+month;
+            unitprice=doc.getString("unitprice");
+
+            if(code_yp.containsKey(code)){
+                yp=code_yp.get(code);
+                if(yp.containsKey(date)){
+                    obj=yp.get(date);
+                    if(obj.containsKey(unitprice)){
+                        coll_input.insert(doc);
+                    }else {
+                        System.out.println("这是超限数据");
+                    }
+                }else {
+                    coll_input.insert(doc);
+                }
+            }else {
+                coll_input.insert(doc);
+            }
+            count++;
+            System.out.println(count);
+        }
+    }
 }
