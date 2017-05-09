@@ -24,12 +24,12 @@ public class CreatExcel {
         String filename="省级重点生态功能区（限制开发区域）"+"_objs_所有结果.txt";
 */
 
-        String path="D:\\4_能源所\\【二氧化碳排放数据】\\";
+        String path="D:\\4_能源所\\0508前要完成的图\\";
         /*String[] names={"所属省","所属市","区县名称", "主体功能区属性","行政区土地面积","户籍人口",
                 "地区生产总值","人均GDP","第一产业","第二产业","第三产业","省"};*/
-        String[] names={"省","排放量（万吨）","lng_gd","lat_gd"};
+        String[] names={"community","lng_gd","lat_gd"};
 
-        writeExcel(path+"各省二氧化碳排放数据汇总_json_高德解析信息.txt",names);
+        writeExcel(path+"重点开发镇_高德解析信息.txt",names);
 
         /*Vector<String> pois=FileTool.Load(path+"filename.txt","utf-8");
         for(int i=0;i<pois.size();i++){

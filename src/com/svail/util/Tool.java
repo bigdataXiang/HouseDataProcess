@@ -445,7 +445,7 @@ public class Tool {
 	 */
 	public static String getStrByKey(String sContent, String sStart, String sEnd, String tag) {
 		String sOut = "";
-		String index="null";
+		String index="";
 		try{
 			int fromIndex = 0;
 			int iBegin = 0;

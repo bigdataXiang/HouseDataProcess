@@ -17,7 +17,7 @@ public class getNamesInFolder {
             getFilePath(path);
         }*/
 
-         String path="D:\\4_能源所\\【数据库数据源】\\中国县域统计年鉴2015（县市卷）\\";
+         String path="D:\\1_基于房产调控政策下的房产投资市场格局演变分析——以北京为例\\租房数据\\fang\\";
          getFileName(path);
          //getFilePath(path);
     }

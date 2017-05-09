@@ -32,11 +32,11 @@ public class CopyCollections {
         }
 
 
-        DB db_export=m_export.getDB("paper");
-        DBCollection coll_export=db_export.getCollection("GridData_Resold_gd");
+        DB db_export=m_export.getDB("InvestmentEvolution");
+        DBCollection coll_export=db_export.getCollection("BasicData_Resold_gd_plus");
 
-        DB db_import=m_import.getDB("paper");
-        DBCollection coll_import=db_import.getCollection("GridData_Resold_gd");
+        DB db_import=m_import.getDB("InvestmentEvolution");
+        DBCollection coll_import=db_import.getCollection("BasicData_Resold_gd_plus");
 
 
         DBCursor cs=coll_export.find();

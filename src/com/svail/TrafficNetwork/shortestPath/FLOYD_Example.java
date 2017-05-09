@@ -5,10 +5,10 @@ package com.svail.TrafficNetwork.shortestPath;
  */
 //以无向图G为入口，得出任意两点之间的路径长度length[i][j]，路径path[i][j][k]，
 //途中无连接得点距离用0表示，点自身也用0表示
-public class FLOYD {
+public class FLOYD_Example {
     int[][] length = null;// 任意两点之间路径长度
     int[][][] path = null;// 任意两点之间的路径
-    public FLOYD(int[][] G) {
+    public FLOYD_Example(int[][] G) {
         int MAX = 100;int row = G.length;// 图G的行数
         int[][] spot = new int[row][row];// 定义任意两点之间经过的点
         int[] onePath = new int[row];// 记录一条路径
@@ -50,7 +50,6 @@ public class FLOYD {
         if (i == j)return;
         if (spot[i][j] == -1)
             onePath[point[0]++] = j;
-// System.out.print(" "+j+" ");
         else {
             outputPath(spot, i, spot[i][j], onePath, point);
             outputPath(spot, spot[i][j], j, onePath, point);
@@ -79,7 +78,7 @@ public class FLOYD {
         for (int i = 0; i < data.length; i++)
             for (int j = i; j < data.length; j++)
                 if (data[i][j] != data[j][i])return;
-        FLOYD test=new FLOYD(data);
+        FLOYD_Example test=new FLOYD_Example(data);
         for (int i = 0; i < data.length; i++)
             for (int j = i; j < data[i].length; j++) {
                 System.out.println();

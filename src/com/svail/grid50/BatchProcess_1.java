@@ -463,7 +463,7 @@ public class BatchProcess_1 {
             if(address.length()==0){
                 address="暂无";
             }
-            sb.append(address+"公交站");
+            sb.append(address);
             address="";
 
             String urlParameters = sb.toString();

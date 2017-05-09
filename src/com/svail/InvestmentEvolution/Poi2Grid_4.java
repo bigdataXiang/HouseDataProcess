@@ -1,9 +1,11 @@
-package com.svail.grid50;
+package com.svail.InvestmentEvolution;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
-import com.svail.grid50.util.*;
+import com.svail.grid50.util.NumJudge;
+import com.svail.grid50.util.RowColCalculation;
+import com.svail.grid50.util.db;
 import com.svail.util.FileTool;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -11,9 +13,12 @@ import net.sf.json.JSONObject;
 import java.util.*;
 
 /**
- * Created by ZhouXiang on 2016/12/14.
+ * Created by ZhouXiang on 2017/5/8.
+ * 将点数据转化成格网数据，在转化的过程中要
+ * 计算同一个格网中数据的方差，判断是否该格网的数据是稳定的
  */
-public class GridData_Resold_6 {
+public class Poi2Grid_4 {
+
     //注意，统计不同月份的数据的时候，全局变量要清空！！！
     public static Map<Integer,Map<String,Integer>> code_houseType_map=new HashMap<>();
     public static Map<Integer,Map<String,Integer>> code_direction_map=new HashMap<>();
@@ -28,62 +33,55 @@ public class GridData_Resold_6 {
 
     public static void main(String[] args){
 
-        String path="D:\\小论文\\poi资料\\小区\\小区地理编码原始数据\\最后结果\\校对结果\\";
+        long startTime = System.currentTimeMillis();    //获取开始时间
 
-        initial("2016","01",path+"GridData_Resold_gd.txt");
-        /*initial("2016","02",path+"GridData_Resold_gd.txt");
-        initial("2016","03",path+"GridData_Resold_gd.txt");
-        initial("2016","04",path+"GridData_Resold_gd.txt");
-        initial("2016","05",path+"GridData_Resold_gd.txt");
-        initial("2016","06",path+"GridData_Resold_gd.txt");
-        initial("2016","07",path+"GridData_Resold_gd.txt");
-        initial("2016","08",path+"GridData_Resold_gd.txt");
-        initial("2016","09",path+"GridData_Resold_gd.txt");
-        initial("2016","10",path+"GridData_Resold_gd.txt");
-        initial("2016","11",path+"GridData_Resold_gd.txt");*/
+        String path="D:\\1_基于房产调控政策下的房产投资市场格局演变分析——以北京为例\\格网数据\\二手房\\";
 
+        initial(2015,7,path+"GridData_Resold_gd.txt");
+
+        long endTime = System.currentTimeMillis();    //获取结束时间
+        System.out.println("程序运行时间：" + ((endTime - startTime)/(double)(1000*60)) + "分钟");    //输出程序运行时间
 
 
     }
-    public static void initial(String year,String month,String file){
+    public static void initial(int year,int month,String file){
 
 
-            JSONObject condition=new JSONObject();
-            condition.put("N",1);
+        JSONObject condition=new JSONObject();
+        condition.put("N",1);
 
-            condition.put("year",year);
-            condition.put("month",month);
-            System.out.println("2015年"+month+"月:");
+        condition.put("year",year);
+        condition.put("month",month);
+        System.out.println(year+"年"+month+"月:");
 
-            condition.put("export_collName","BasicData_Resold_gd");
-            condition.put("import_collName","GridData_Resold_gd");
+        condition.put("export_collName","BasicData_Resold_gd_plus");
+        condition.put("import_collName","GridData_Resold_test");
 
-            code_houseType_map=new HashMap<>();
-            code_direction_map=new HashMap<>();
-            code_floors_map=new HashMap<>();
-            code_area_map=new HashMap<>();
-            code_price_map=new HashMap<>();
-            code_unitprice_map=new HashMap<>();
-            code_flooron_map=new HashMap<>();
-            code_pois=new HashMap<>();
-            codesSet= new TreeSet<>();
-            total=new JSONObject();
+        code_houseType_map=new HashMap<>();
+        code_direction_map=new HashMap<>();
+        code_floors_map=new HashMap<>();
+        code_area_map=new HashMap<>();
+        code_price_map=new HashMap<>();
+        code_unitprice_map=new HashMap<>();
+        code_flooron_map=new HashMap<>();
+        code_pois=new HashMap<>();
+        codesSet= new TreeSet<>();
+        total=new JSONObject();
 
-            callDataFromMongo(condition);
+        callDataFromMongo(condition);
 
-            //statisticCode();
+        //statisticCode();
 
-            ergodicStatistics(condition,file);
+        ergodicStatistics(condition,file);
 
-            System.out.println("ok!");
+        System.out.println("ok!");
     }
-
 
     //1：将每个格网的数据（obj）存储在codelists_map中，其中key是格网code，value是装了所有房源数据的list
     public static void callDataFromMongo(JSONObject condition) {
 
         String collName_export = condition.getString("export_collName");
-        DBCollection coll_export = db.getDB("paper").getCollection(collName_export);
+        DBCollection coll_export = db.getDB("InvestmentEvolution").getCollection(collName_export);
 
 
         BasicDBObject document = new BasicDBObject();
@@ -92,23 +90,22 @@ public class GridData_Resold_6 {
             String key = it.next();
             String value = condition.getString(key);
             if (key.equals("year") || key.equals("month")) {
-                document.put(key, value);
+                document.put(key, Integer.parseInt(value));
             }
         }
         String year=condition.getString("year");
         String month = condition.getString("month");
 
         DBCursor cursor = coll_export.find(document);
+        System.out.println(document);
 
         String poi;
         JSONObject obj;
+        JSONObject o;
         int code;
 
         String house_type;
         String area;
-        String floors;
-        String direction;
-        String flooron;
         String price;
         String unit_price;
 
@@ -118,8 +115,17 @@ public class GridData_Resold_6 {
             while (cursor.hasNext()) {
                 BasicDBObject cs = (BasicDBObject) cursor.next();
                 poi = cs.toString();
-                obj = JSONObject.fromObject(poi);
-                obj.remove("_id");
+                o = JSONObject.fromObject(poi);
+                obj=new JSONObject();
+                obj.put("price",o.getDouble("price"));
+                obj.put("area",o.getDouble("area"));
+                obj.put("unitprice",o.getDouble("unitprice"));
+                if (o.containsKey("house_type")) {
+                    obj.put("house_type",o.getString("house_type"));
+                }
+                obj.put("code",o.getInt("code"));
+
+
                 code = obj.getInt("code");
                 codesSet.add(code);
 
@@ -130,7 +136,7 @@ public class GridData_Resold_6 {
                     //以code为key建立一个poi的索引表
                     //Map<Integer,Map<String,List<JSONObject>>> code_pois
 
-                    if ((year.endsWith("2015")&&month.equals("10")) ||(year.endsWith("2015")&&month.equals("11"))|| (year.endsWith("2015")&&month.equals("12"))) {//
+                    if ((year.endsWith("2017")&&month.equals("10"))) {//
 
 
                     } else {
@@ -162,23 +168,6 @@ public class GridData_Resold_6 {
                         }
                     }
 
-
-
-                    if (obj.containsKey("direction")) {
-                        direction = obj.getString("direction");
-                        setAttributeMap(code, direction, code_direction_map);
-                    }
-
-                    if (obj.containsKey("floors")) {
-                        floors = obj.getString("floors");
-                        setAttributeMap(code, floors, code_floors_map);
-                    }
-
-                    if (obj.containsKey("flooron")) {
-                        flooron = obj.getString("flooron");
-                        setAttributeMap(code, flooron, code_flooron_map);
-                    }
-
                     if (obj.containsKey("area")) {
                         area = obj.getString("area");
                         boolean num = NumJudge.isNum(area);
@@ -200,8 +189,8 @@ public class GridData_Resold_6 {
                         }
                     }
 
-                    if (obj.containsKey("unit_price")) {
-                        unit_price = obj.getString("unit_price");
+                    if (obj.containsKey("unitprice")) {
+                        unit_price = obj.getString("unitprice");
                         boolean num = NumJudge.isNum(unit_price);
                         if (num) {
                             setAttributeMap(code, unit_price, code_unitprice_map);
@@ -210,6 +199,8 @@ public class GridData_Resold_6 {
                         }
                     }
                     ++count;
+                }else {
+                    System.out.println("没有户型数据");
                 }
             }
             System.out.println("共有" + count + "条数据");
@@ -246,7 +237,7 @@ public class GridData_Resold_6 {
 
         String collName_import = condition.getString("import_collName");
         String collName_export=condition.getString("export_collName");
-        DBCollection coll_import = db.getDB("paper").getCollection(collName_import);
+        DBCollection coll_import = db.getDB("InvestmentEvolution").getCollection(collName_import);
         BasicDBObject document;
         int index = 0;
         int documentcount = 0;
@@ -259,27 +250,6 @@ public class GridData_Resold_6 {
                 Map<String, Integer> houseType = code_houseType_map.get(code);
                 String type = getAttributeJson(houseType);
                 document.put("houseType_statistics", type);
-            }
-
-            if (code_direction_map.containsKey(code)) {
-                index++;
-                Map<String, Integer> direction = code_direction_map.get(code);
-                String dir = getAttributeJson(direction);
-                document.put("direction_statistics", dir);
-            }
-
-            if (code_floors_map.containsKey(code)) {
-                index++;
-                Map<String, Integer> floors = code_floors_map.get(code);
-                String floor = getAttributeJson(floors);
-                document.put("floors_statistics", floor);
-            }
-
-            if (code_flooron_map.containsKey(code)) {
-                index++;
-                Map<String, Integer> flooron = code_flooron_map.get(code);
-                String fo = getAttributeJson(flooron);
-                document.put("flooron_statistics", fo);
             }
 
             if (code_area_map.containsKey(code)) {
@@ -319,159 +289,156 @@ public class GridData_Resold_6 {
             int count = 0;
             Map<Integer, Map<String, List<JSONObject>>> codepois = new HashMap<>();
 
-            //十二月份的数据比较多，所以用逐个统计的办法，防止堆溢出
+            if ((year.endsWith("2017")&&month.equals("10"))) {//
 
-            //System.out.println(month);
-            //System.out.println(month.substring(1));
-            //if (month.equals("10") || month.equals("11") || month.equals("12")) {//month.equals("11")||
+                codepois = setCode_pois(year, month, code,collName_export);
+            } else {
+                codepois = code_pois;
+            }
 
-                if ((year.endsWith("2015")&&month.equals("10")) ||(year.endsWith("2015")&&month.equals("11"))|| (year.endsWith("2015")&&month.equals("12"))) {//
+            if (codepois.containsKey(code)) {
 
-                    codepois = setCode_pois(year, month, code,collName_export);
+                Map<String, List<JSONObject>> hy_pois = codepois.get(code);
+                //统计每个户型所占的比率
+                JSONObject hy_ratio = new JSONObject();
+
+                int total_size = 0;
+
+                for (Map.Entry<String, List<JSONObject>> entry : hy_pois.entrySet()) {
+                    List<JSONObject> pois = entry.getValue();
+                    int size = pois.size();
+                    total_size += size;
+                }
+
+
+                for (Map.Entry<String, List<JSONObject>> entry : hy_pois.entrySet()) {
+                    String houseType = entry.getKey();
+                    List<JSONObject> pois = entry.getValue();
+                    int size = pois.size();
+                    double ratio = (double) size / (double) total_size;
+                    hy_ratio.put(houseType, ratio);
+                }
+
+                //先统计每一个户型都有那些价格、面积特征
+                for (Map.Entry<String, List<JSONObject>> entry : hy_pois.entrySet()) {
+                    String houseType = entry.getKey();
+                    List<JSONObject> pois = entry.getValue();
+
+                    for (int m = 0; m < pois.size(); m++) {
+                        JSONObject poi = pois.get(m);
+
+                        String area;
+                        String price;
+                        String unit_price;
+
+                        if (poi.containsKey("area")) {
+                            area = poi.getString("area");
+                            boolean num = NumJudge.isNum(area);
+                            if (num) {
+                                setAttributeMap(houseType, area, hy_area_map);
+                            } else {
+                                System.out.println(code + ":" + area);
+                            }
+
+                        }
+
+                        if (poi.containsKey("price")) {
+                            price = poi.getString("price");
+                            boolean num = NumJudge.isNum(price);
+                            if (num) {
+                                setAttributeMap(houseType, price, hy_price_map);
+                            } else {
+                                System.out.println(code + ":" + price);
+                            }
+                        }
+
+                        if (poi.containsKey("unit_price")) {
+                            unit_price = poi.getString("unit_price");
+                            boolean num = NumJudge.isNum(unit_price);
+                            if (num) {
+                                setAttributeMap(houseType, unit_price, hy_unitprice_map);
+                            } else {
+                                System.out.println(code + ":" + unit_price);
+                            }
+                        }
+                    }
+
+                }
+
+                //对每一个户型的价格、面积特征进行汇总,并且以计算加权值
+                JSONObject hy_obj = new JSONObject();
+                for (Map.Entry<String, List<JSONObject>> entry : hy_pois.entrySet()) {
+                    String houseType = entry.getKey();
+                    JSONObject ht = new JSONObject();
+
+                    if (hy_area_map.containsKey(houseType)) {
+                        Map<String, Integer> area_map = hy_area_map.get(houseType);
+                        getweightAttributeJson(area_map, "area", ht);
+                    }
+
+                    if (hy_price_map.containsKey(houseType)) {
+                        Map<String, Integer> price_map = hy_price_map.get(houseType);
+                        getweightAttributeJson(price_map, "price", ht);
+                    }
+
+                    if (hy_unitprice_map.containsKey(houseType)) {
+                        Map<String, Integer> unitprice_map = hy_unitprice_map.get(houseType);
+                        getweightAttributeJson(unitprice_map, "unitprice", ht);
+                    }
+
+                    double ratio = hy_ratio.getDouble(houseType);
+                    ht.put("ratio", ratio);
+
+                    //System.out.println(ht);
+                    hy_obj.put(houseType, ht);
+                }
+                document.put("type", hy_obj);
+
+            } else {
+                count++;
+            }
+            //System.out.println(document);
+
+
+            if (index != 0) {
+                document.put("code", code);
+                rc = RowColCalculation.Code_RowCol(code, 1);
+                row = rc[0];
+                col = rc[1];
+                document.put("row", row);
+                document.put("col", col);
+                document.put("price_weightPrice", weight_price);
+                document.put("price_weightUnitprice", weight_area * weight_unitprice);
+                document.put("unitprice_weightUnitprice", weight_unitprice);
+                if(weight_unitprice==0){
+                    System.out.println("weight_unitprice为0："+code);
+                }
+
+                Iterator<String> it = condition.keys();
+                while (it.hasNext()) {
+                    String key = it.next();
+                    String value = condition.getString(key);
+                    if (key.equals("year") || key.equals("month")) {
+                        document.put(key, value);
+                    }
+                }
+
+                DBCursor rls = coll_import.find(document);
+
+                if (rls == null || rls.size() == 0) {
+                    documentcount++;
+                    //System.out.println(document);
+                    FileTool.Dump(document.toString(), file, "utf-8");
+                    try {
+                        coll_import.insert(document);
+                    } catch (IllegalArgumentException e) {
+                        //coll_import.insert(document);
+                    }
+
                 } else {
-                    codepois = code_pois;
+                    System.out.println("该数据已经存在!");
                 }
-
-                if (codepois.containsKey(code)) {
-
-                    Map<String, List<JSONObject>> hy_pois = codepois.get(code);
-                    //统计每个户型所占的比率
-                    JSONObject hy_ratio = new JSONObject();
-
-                    int total_size = 0;
-
-                    for (Map.Entry<String, List<JSONObject>> entry : hy_pois.entrySet()) {
-                        List<JSONObject> pois = entry.getValue();
-                        int size = pois.size();
-                        total_size += size;
-                    }
-
-
-                    for (Map.Entry<String, List<JSONObject>> entry : hy_pois.entrySet()) {
-                        String houseType = entry.getKey();
-                        List<JSONObject> pois = entry.getValue();
-                        int size = pois.size();
-                        double ratio = (double) size / (double) total_size;
-                        hy_ratio.put(houseType, ratio);
-                    }
-
-                    //先统计每一个户型都有那些价格、面积特征
-                    for (Map.Entry<String, List<JSONObject>> entry : hy_pois.entrySet()) {
-                        String houseType = entry.getKey();
-                        List<JSONObject> pois = entry.getValue();
-
-                        for (int m = 0; m < pois.size(); m++) {
-                            JSONObject poi = pois.get(m);
-
-                            String area;
-                            String price;
-                            String unit_price;
-
-                            if (poi.containsKey("area")) {
-                                area = poi.getString("area");
-                                boolean num = NumJudge.isNum(area);
-                                if (num) {
-                                    setAttributeMap(houseType, area, hy_area_map);
-                                } else {
-                                    System.out.println(code + ":" + area);
-                                }
-
-                            }
-
-                            if (poi.containsKey("price")) {
-                                price = poi.getString("price");
-                                boolean num = NumJudge.isNum(price);
-                                if (num) {
-                                    setAttributeMap(houseType, price, hy_price_map);
-                                } else {
-                                    System.out.println(code + ":" + price);
-                                }
-                            }
-
-                            if (poi.containsKey("unit_price")) {
-                                unit_price = poi.getString("unit_price");
-                                boolean num = NumJudge.isNum(unit_price);
-                                if (num) {
-                                    setAttributeMap(houseType, unit_price, hy_unitprice_map);
-                                } else {
-                                    System.out.println(code + ":" + unit_price);
-                                }
-                            }
-                        }
-
-                    }
-
-                    //对每一个户型的价格、面积特征进行汇总,并且以计算加权值
-                    JSONObject hy_obj = new JSONObject();
-                    for (Map.Entry<String, List<JSONObject>> entry : hy_pois.entrySet()) {
-                        String houseType = entry.getKey();
-                        JSONObject ht = new JSONObject();
-
-                        if (hy_area_map.containsKey(houseType)) {
-                            Map<String, Integer> area_map = hy_area_map.get(houseType);
-                            getweightAttributeJson(area_map, "area", ht);
-                        }
-
-                        if (hy_price_map.containsKey(houseType)) {
-                            Map<String, Integer> price_map = hy_price_map.get(houseType);
-                            getweightAttributeJson(price_map, "price", ht);
-                        }
-
-                        if (hy_unitprice_map.containsKey(houseType)) {
-                            Map<String, Integer> unitprice_map = hy_unitprice_map.get(houseType);
-                            getweightAttributeJson(unitprice_map, "unitprice", ht);
-                        }
-
-                        double ratio = hy_ratio.getDouble(houseType);
-                        ht.put("ratio", ratio);
-
-                        //System.out.println(ht);
-                        hy_obj.put(houseType, ht);
-                    }
-                    document.put("type", hy_obj);
-
-                } else {
-                    count++;
-                }
-                //System.out.println(document);
-
-
-                if (index != 0) {
-                    document.put("code", code);
-                    rc = RowColCalculation.Code_RowCol(code, 1);
-                    row = rc[0];
-                    col = rc[1];
-                    document.put("row", row);
-                    document.put("col", col);
-                    document.put("price_weightPrice", weight_price);
-                    document.put("price_weightUnitprice", weight_area * weight_unitprice);
-                    document.put("unitprice_weightUnitprice", weight_unitprice);
-
-                    Iterator<String> it = condition.keys();
-                    while (it.hasNext()) {
-                        String key = it.next();
-                        String value = condition.getString(key);
-                        if (key.equals("year") || key.equals("month")) {
-                            document.put(key, value);
-                        }
-                    }
-
-                    DBCursor rls = coll_import.find(document);
-
-                    if (rls == null || rls.size() == 0) {
-                        documentcount++;
-                        //System.out.println(document);
-                        FileTool.Dump(document.toString(), file, "utf-8");
-                        try {
-                            coll_import.insert(document);
-                        } catch (IllegalArgumentException e) {
-                            //coll_import.insert(document);
-                        }
-
-                    } else {
-                        System.out.println("该数据已经存在!");
-                    }
-                }
+            }
             //}
 
         }
@@ -698,4 +665,7 @@ public class GridData_Resold_6 {
 
         return code_pois;
     }
+
+
+
 }
